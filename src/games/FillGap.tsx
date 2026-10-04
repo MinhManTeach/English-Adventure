@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Keyboard } from 'lucide-react';
 import { Question } from '../types';
+import { useQuestionAttempts } from './useQuestionAttempts';
 import { checkAnswer } from '../engine/validator';
 import { FeedbackBanner } from '../components/common/FeedbackBanner';
 import { PronounceButton } from '../components/common/PronounceButton';
@@ -10,7 +11,7 @@ import { soundService } from '../services/sound';
 interface FillGapProps {
   question: Question;
   onNext: () => void;
-  onAnswerSubmit: (isCorrect: boolean) => void;
+  onAnswerSubmit: (isCorrect: boolean, answer?: string) => void;
 }
 
 export const FillGap: React.FC<FillGapProps> = ({
@@ -21,59 +22,25 @@ export const FillGap: React.FC<FillGapProps> = ({
   const [selectedWord, setSelectedWord] = useState('');
   const [typedInput, setTypedInput] = useState('');
   const [inputMode, setInputMode] = useState<'bank' | 'type'>('bank');
-  const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [hasAnswered, setHasAnswered] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const { wrongAttempts, hasAnswered, isCorrect, canTryAgain, submit, retry } = useQuestionAttempts(question, onAnswerSubmit);
 
   useEffect(() => {
     setSelectedWord('');
     setTypedInput('');
-    setWrongAttempts(0);
-    setHasAnswered(false);
-    setIsCorrect(false);
   }, [question.id]);
 
   const handleBankSelect = (word: string) => {
-    if (hasAnswered && (isCorrect || wrongAttempts >= 2)) return;
-    setSelectedWord(word);
-    evaluate(word);
+    if (submit(word)) setSelectedWord(word);
   };
-
   const handleTypeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (hasAnswered && (isCorrect || wrongAttempts >= 2)) return;
-    if (!typedInput.trim()) return;
-    evaluate(typedInput);
+    if (typedInput.trim()) submit(typedInput);
   };
-
-  const evaluate = (answerCandidate: string) => {
-    const correct = checkAnswer(answerCandidate, question.answer);
-
-    if (correct) {
-      setIsCorrect(true);
-      setHasAnswered(true);
-      soundService.playCorrect();
-      onAnswerSubmit(true);
-    } else {
-      const nextWrong = wrongAttempts + 1;
-      setWrongAttempts(nextWrong);
-      setIsCorrect(false);
-      setHasAnswered(true);
-      soundService.playWrong();
-
-      if (nextWrong >= 2) {
-        onAnswerSubmit(false);
-      }
-    }
-  };
-
   const handleTryAgain = () => {
+    if (!retry()) return;
     setSelectedWord('');
     setTypedInput('');
-    setHasAnswered(false);
   };
-
-  const canTryAgain = hasAnswered && !isCorrect && wrongAttempts < 2;
 
   // Build sentence preview
   const displaySentence = question.question.replace(
@@ -170,10 +137,10 @@ export const FillGap: React.FC<FillGapProps> = ({
               <button
                 key={word}
                 type="button"
-                disabled={hasAnswered && (isCorrect || !canTryAgain)}
+                disabled={hasAnswered}
                 onClick={() => handleBankSelect(word)}
                 className={`px-6 py-3 rounded-2xl font-bold text-xl transition-all cursor-pointer ${btnStyle} ${
-                  hasAnswered && (isCorrect || !canTryAgain)
+                  hasAnswered
                     ? 'cursor-default'
                     : 'active:translate-y-0.5'
                 }`}
@@ -191,7 +158,7 @@ export const FillGap: React.FC<FillGapProps> = ({
           <input
             type="text"
             value={typedInput}
-            disabled={hasAnswered && (isCorrect || !canTryAgain)}
+            disabled={hasAnswered}
             onChange={e => setTypedInput(e.target.value)}
             placeholder="Type your answer here..."
             className="flex-1 px-5 py-3 rounded-2xl border-2 border-amber-300 focus:border-amber-500 focus:outline-none text-xl font-bold bg-white shadow-inner"
@@ -201,7 +168,7 @@ export const FillGap: React.FC<FillGapProps> = ({
             type="submit"
             variant="primary"
             size="md"
-            disabled={(hasAnswered && (isCorrect || !canTryAgain)) || !typedInput.trim()}
+            disabled={(hasAnswered) || !typedInput.trim()}
           >
             <Check className="w-5 h-5" />
           </Button>

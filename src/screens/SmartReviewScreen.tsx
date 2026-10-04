@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { RotateCcw, Target, Sparkles, CheckCircle2, ArrowRight, BookOpen } from 'lucide-react';
 import { useGame } from '../context/GameContext';
-import { selectReviewQuestions } from '../engine/review';
+import { selectAdaptiveReviewQuestions, selectReviewGateQuestions } from '../engine/review';
 import { prepareSessionQuestions } from '../engine/sessionQuestions';
-import { getReviewQuestionPool } from '../data/curriculum';
+import { getReviewQuestionPool, getAllQuestions } from '../data/curriculum';
+import { REVIEW_GATE_PASS_PERCENT } from '../engine/worldProgression';
 import { Question } from '../types';
 import { GameSessionDispatcher } from '../games/GameSessionDispatcher';
 import { Button } from '../components/common/Button';
 import { soundService } from '../services/sound';
 
 export const SmartReviewScreen: React.FC = () => {
-  const { state, recordQuestionResult, navigateTo } = useGame();
+  const { state, recordQuestionResult, navigateTo, isReviewGate, completeReviewGate } = useGame();
   const [isPlaying, setIsPlaying] = useState(false);
   const [reviewQuestions, setReviewQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const resolvedIndexRef = useRef<number | null>(null);
+  const completedRef = useRef(false);
+  const correctCountRef = useRef(0);
+  const reviewSessionIdRef = useRef('');
 
   const errorItems = Object.values(state.errorBank);
   const pendingErrors = errorItems.filter(item => !item.mastered);
@@ -27,8 +32,14 @@ export const SmartReviewScreen: React.FC = () => {
 
   const handleStartReview = () => {
     const all = getReviewQuestionPool();
-    const selected = selectReviewQuestions(state.errorBank, all, 8);
+    const selected = isReviewGate
+      ? selectReviewGateQuestions(state.errorBank, getAllQuestions(), state.topicMastery)
+      : selectAdaptiveReviewQuestions(state.errorBank, all, 8, state.topicMastery);
     const prepared = prepareSessionQuestions(selected, true);
+    resolvedIndexRef.current = null;
+    completedRef.current = false;
+    correctCountRef.current = 0;
+    reviewSessionIdRef.current = crypto.randomUUID();
     setReviewQuestions(prepared);
     setCurrentIndex(0);
     setCorrectCount(0);
@@ -38,16 +49,24 @@ export const SmartReviewScreen: React.FC = () => {
 
   const currentQuestion = reviewQuestions[currentIndex];
 
-  const handleAnswerSubmit = (isCorrect: boolean) => {
-    if (!currentQuestion) return;
-    if (isCorrect) setCorrectCount(prev => prev + 1);
-    recordQuestionResult(currentQuestion, isCorrect, false);
+  const handleAnswerSubmit = (isCorrect: boolean, answer?: string) => {
+    if (!currentQuestion || completedRef.current || resolvedIndexRef.current === currentIndex) return;
+    resolvedIndexRef.current = currentIndex;
+    if (isCorrect) {
+      correctCountRef.current += 1;
+      setCorrectCount(correctCountRef.current);
+    }
+    recordQuestionResult(currentQuestion, isCorrect, false, isCorrect ? undefined : answer, 'review');
   };
 
   const handleNext = () => {
+    if (completedRef.current || resolvedIndexRef.current !== currentIndex) return;
+    resolvedIndexRef.current = null;
     if (currentIndex + 1 < reviewQuestions.length) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex(currentIndex + 1);
     } else {
+      completedRef.current = true;
+      if (isReviewGate) completeReviewGate(correctCountRef.current, reviewQuestions.length);
       setIsCompleted(true);
       soundService.playLevelComplete();
     }
@@ -59,10 +78,10 @@ export const SmartReviewScreen: React.FC = () => {
       <div className="flex items-center justify-between pb-2 border-b border-amber-100">
         <div>
           <span className="text-xs font-bold text-amber-700 uppercase tracking-wider block">
-            Adaptive Engine · Ôn Tập Thông Minh
+            Adaptive Review
           </span>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-game">
-            Smart Review
+            {isReviewGate ? 'Review Gate' : 'Smart Review'}
           </h1>
         </div>
 
@@ -87,10 +106,10 @@ export const SmartReviewScreen: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-black font-game">
-                  Targeted Weak Spot Recovery
+                  {isReviewGate ? 'Prepare for Grammar Castle' : 'Targeted Weak Spot Recovery'}
                 </h2>
                 <p className="text-xs text-rose-100">
-                  Practicing questions from your personal Error Bank makes you unstoppable!
+                  {isReviewGate ? '8 questions from Units 1–3. Reach 80% to open the castle.' : 'Practice your weak spots with fresh questions. Recover each mistake with three successful reviews.'}
                 </p>
               </div>
             </div>
@@ -120,7 +139,7 @@ export const SmartReviewScreen: React.FC = () => {
                 onClick={handleStartReview}
                 className="w-full sm:w-auto font-black text-slate-900 bg-white hover:bg-amber-50 shadow-md"
               >
-                <span>START REVIEW SESSION</span>
+                <span>{isReviewGate ? 'START REVIEW GATE' : 'START REVIEW SESSION'}</span>
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
@@ -156,7 +175,7 @@ export const SmartReviewScreen: React.FC = () => {
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-extrabold text-rose-600 uppercase">
-                        Unit {item.unit} · {item.topic}
+                        {item.source === 'boss' || item.questionId.startsWith('BOSS-') ? 'Boss' : `Unit ${item.unit}`} · {item.topic}
                       </span>
                       <span className="font-bold text-slate-400">
                         {item.wrongCount}x missed
@@ -165,6 +184,7 @@ export const SmartReviewScreen: React.FC = () => {
                     <p className="text-sm font-bold text-slate-800 font-game">
                       {item.questionText}
                     </p>
+                    <p className="text-xs text-slate-500">Recovery: {Math.min(item.reviewCorrectStreak ?? 0, 3)} / 3 successful reviews</p>
                   </div>
                 ))}
               </div>
@@ -181,6 +201,7 @@ export const SmartReviewScreen: React.FC = () => {
 
           {currentQuestion && (
             <GameSessionDispatcher
+              key={reviewSessionIdRef.current}
               question={currentQuestion}
               onNext={handleNext}
               onAnswerSubmit={handleAnswerSubmit}
@@ -196,7 +217,7 @@ export const SmartReviewScreen: React.FC = () => {
 
           <div className="space-y-1">
             <h2 className="text-3xl font-black font-game text-slate-900">
-              Review Complete!
+              {isReviewGate ? correctCount / reviewQuestions.length * 100 >= REVIEW_GATE_PASS_PERCENT ? 'PASS · Review Gate' : 'Keep Practicing!' : 'Review Complete!'}
             </h2>
             <p className="text-sm font-semibold text-slate-500">
               You scored {correctCount} / {reviewQuestions.length} in this smart review session!
@@ -204,25 +225,15 @@ export const SmartReviewScreen: React.FC = () => {
           </div>
 
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
-            ✓ Your Error Bank has been updated and weak spots strengthened!
+            {isReviewGate ? correctCount / reviewQuestions.length * 100 >= REVIEW_GATE_PASS_PERCENT ? 'PASS — Grammar Castle is unlocked!' : 'Aim for 80%. Review your mistakes and try again!' : 'Your recovery progress has been saved. Historical mistakes are kept.'}
           </div>
 
           <div className="flex flex-col gap-2 pt-2">
-            <Button
-              variant="amber"
-              size="lg"
-              onClick={() => setIsPlaying(false)}
-              className="w-full font-black"
-            >
-              Back to Review Hub
+            <Button variant="amber" size="lg" className="w-full font-black" onClick={() => isReviewGate && correctCount / reviewQuestions.length * 100 < REVIEW_GATE_PASS_PERCENT ? handleStartReview() : navigateTo('map')}>
+              {isReviewGate && correctCount / reviewQuestions.length * 100 < REVIEW_GATE_PASS_PERCENT ? 'Retry Review Gate' : 'Continue to Adventure Map'}
             </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => navigateTo('map')}
-              className="w-full"
-            >
-              Go to Adventure Map
+            <Button variant="secondary" size="lg" className="w-full" onClick={() => { setIsPlaying(false); setIsCompleted(false); navigateTo('review'); }}>
+              Back to Review Hub
             </Button>
           </div>
         </div>

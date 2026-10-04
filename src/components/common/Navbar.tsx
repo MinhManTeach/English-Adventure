@@ -24,28 +24,28 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-amber-100 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-screen-2xl mx-auto px-3 sm:px-5 min-h-16 flex flex-wrap min-[1440px]:flex-nowrap items-center justify-between gap-x-3 gap-y-2 py-2">
         {/* Zone 1: Brand Wordmark */}
         <button
           type="button"
           onClick={() => navigateTo('home')}
-          className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl p-1"
+          className="flex shrink-0 items-center gap-2 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl p-1"
         >
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
             🌟
           </div>
           <div>
-            <span className="text-lg font-black tracking-tight text-slate-900 font-game block leading-none">
+            <span className="text-base sm:text-lg whitespace-nowrap font-black tracking-tight text-slate-900 font-game block leading-none">
               English Adventure
             </span>
-            <span className="text-[11px] font-semibold text-amber-700 tracking-wide uppercase">
+            <span className="block whitespace-nowrap text-[10px] sm:text-[11px] font-semibold text-amber-700 tracking-wide uppercase">
               Hành Trình Chinh Phục
             </span>
           </div>
         </button>
 
         {/* Zone 2: Clean Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-slate-600">
+        <nav className="hidden min-[1440px]:flex shrink-0 items-center gap-3 xl:gap-4 text-sm font-bold text-slate-600">
           {navLinks.map(link => {
             const isActive = currentScreen === link.screen;
             return (
@@ -67,7 +67,7 @@ export const Navbar: React.FC = () => {
         </nav>
 
         {/* Zone 3: Character HUD & Controls with Tooltips (Requirement 8) */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2 ml-auto">
           {/* Daily Streak */}
           <div className="relative group/tooltip">
             <div
@@ -103,7 +103,7 @@ export const Navbar: React.FC = () => {
               <span className="tabular-nums">{state.coins}</span>
             </div>
             <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              Gold Coins: {state.coins}
+              Coins: {state.coins}
             </span>
           </div>
 
@@ -128,7 +128,7 @@ export const Navbar: React.FC = () => {
               type="button"
               onClick={toggleSound}
               aria-label="Toggle sound"
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="min-w-11 min-h-11 p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               {state.settings.soundEnabled ? (
                 <Volume2 className="w-5 h-5 text-amber-600" />
@@ -147,7 +147,7 @@ export const Navbar: React.FC = () => {
               type="button"
               onClick={() => navigateTo('settings')}
               aria-label="Settings"
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="min-w-11 min-h-11 p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <Settings className="w-5 h-5" />
             </button>
@@ -178,13 +178,13 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* Mobile Sub-Navigation Bar */}
-      <div className="lg:hidden flex items-center justify-around border-t border-amber-50 bg-amber-50/50 px-2 py-1.5 overflow-x-auto text-xs font-bold text-slate-600">
+      <div className="min-[1440px]:hidden flex items-center sm:justify-center gap-1 border-t border-amber-50 bg-amber-50/50 px-2 py-1.5 overflow-x-auto text-xs font-bold text-slate-600">
         {navLinks.map(link => (
           <button
             key={link.screen}
             type="button"
             onClick={() => navigateTo(link.screen)}
-            className={`px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap ${
+            className={`shrink-0 min-h-11 px-2.5 py-2 rounded-lg transition-colors whitespace-nowrap ${
               currentScreen === link.screen ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600'
             }`}
           >

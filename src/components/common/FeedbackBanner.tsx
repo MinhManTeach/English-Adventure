@@ -74,7 +74,7 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
               <h4 className="text-xl font-extrabold font-game">{title}</h4>
               {isCorrect && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-200/80 text-emerald-800">
-                  +10 XP
+                  Correct!
                 </span>
               )}
             </div>

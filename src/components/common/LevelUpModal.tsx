@@ -2,6 +2,8 @@ import React from 'react';
 import confetti from 'canvas-confetti';
 import { Sparkles, Trophy, ArrowRight } from 'lucide-react';
 import { Button } from './Button';
+import { useGame } from '../../context/GameContext';
+import { shouldCelebrateLevel } from '../../engine/levelUp';
 import { soundService } from '../../services/sound';
 
 interface LevelUpModalProps {
@@ -15,7 +17,12 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   levelTitle,
   onContinue,
 }) => {
+  const { state, acknowledgeLevelUp } = useGame();
+  const celebratedRef = React.useRef(false);
+  const shouldCelebrate = shouldCelebrateLevel(state, newLevel);
   React.useEffect(() => {
+    if (!shouldCelebrate || celebratedRef.current) return;
+    celebratedRef.current = true;
     soundService.playVictory();
     try {
       confetti({
@@ -26,7 +33,9 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     } catch {
       // Safe fallback
     }
-  }, []);
+  }, [shouldCelebrate]);
+
+  if (!shouldCelebrate) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-pop">
@@ -60,10 +69,10 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
           <Button
             variant="secondary"
             size="lg"
-            onClick={onContinue}
+            onClick={() => { acknowledgeLevelUp(newLevel); onContinue(); }}
             className="w-full text-slate-900 font-black shadow-lg hover:bg-amber-50 text-xl py-4"
           >
-            <span>Awesome! Tiếp Tục</span>
+            <span>Continue Adventure</span>
             <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
         </div>

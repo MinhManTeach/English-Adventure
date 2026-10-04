@@ -9,7 +9,7 @@ import { ErrorHunter } from './ErrorHunter';
 interface GameSessionDispatcherProps {
   question: Question;
   onNext: () => void;
-  onAnswerSubmit: (isCorrect: boolean) => void;
+  onAnswerSubmit: (isCorrect: boolean, answer?: string) => void;
 }
 
 export const GameSessionDispatcher: React.FC<GameSessionDispatcherProps> = ({
@@ -21,6 +21,7 @@ export const GameSessionDispatcher: React.FC<GameSessionDispatcherProps> = ({
     case 'sentence-builder':
       return (
         <SentenceBuilder
+          key={question.id}
           question={question}
           onNext={onNext}
           onAnswerSubmit={onAnswerSubmit}
@@ -30,6 +31,7 @@ export const GameSessionDispatcher: React.FC<GameSessionDispatcherProps> = ({
     case 'matching':
       return (
         <PictureMatch
+          key={question.id}
           question={question}
           onNext={onNext}
           onAnswerSubmit={onAnswerSubmit}
@@ -39,6 +41,7 @@ export const GameSessionDispatcher: React.FC<GameSessionDispatcherProps> = ({
     case 'fill-gap':
       return (
         <FillGap
+          key={question.id}
           question={question}
           onNext={onNext}
           onAnswerSubmit={onAnswerSubmit}
@@ -48,6 +51,7 @@ export const GameSessionDispatcher: React.FC<GameSessionDispatcherProps> = ({
     case 'error-hunter':
       return (
         <ErrorHunter
+          key={question.id}
           question={question}
           onNext={onNext}
           onAnswerSubmit={onAnswerSubmit}
@@ -59,6 +63,7 @@ export const GameSessionDispatcher: React.FC<GameSessionDispatcherProps> = ({
     default:
       return (
         <ChooseGame
+          key={question.id}
           question={question}
           onNext={onNext}
           onAnswerSubmit={onAnswerSubmit}

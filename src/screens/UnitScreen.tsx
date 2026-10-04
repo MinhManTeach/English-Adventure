@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft, BookOpen, CheckCircle2, Play, Sparkles, Trophy, Lock } from 'lucide-react';
 import { useGame } from '../context/GameContext';
+import { getStageStatus, isStageAvailable } from '../engine/worldProgression';
 import { ALL_UNITS, UNIT_STAGES } from '../data/unitsMeta';
 import { Button } from '../components/common/Button';
 import { WorldBackground } from '../components/common/WorldBackground';
@@ -79,7 +80,7 @@ export const UnitScreen: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-black text-slate-800 font-game">
-            Unit Roadmap · Các Chặng Học
+            Unit Roadmap
           </h2>
           <span className="text-xs font-bold text-slate-500">
             {UNIT_STAGES.filter(s => state.unitStageProgress[`unit${unitId}-${s.id}`]).length} / {UNIT_STAGES.length} Stages Completed
@@ -89,6 +90,8 @@ export const UnitScreen: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {UNIT_STAGES.map((stage, idx) => {
             const stageKey = `unit${unitId}-${stage.id}`;
+            const stageStatus = getStageStatus(state, unitId, stage.id);
+            const canEnter = isStageAvailable(state, unitId, stage.id);
             const isStageDone = !!state.unitStageProgress[stageKey] || isUnitCompleted;
 
             return (
@@ -108,10 +111,10 @@ export const UnitScreen: React.FC = () => {
 
                     {isStageDone ? (
                       <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" /> Done
+                        <CheckCircle2 className="w-4 h-4" /> {stageStatus}
                       </span>
                     ) : (
-                      <span className="text-xs font-bold text-amber-600">Ready</span>
+                      <span className="text-xs font-bold text-amber-600">{stageStatus}</span>
                     )}
                   </div>
 
@@ -126,22 +129,24 @@ export const UnitScreen: React.FC = () => {
                   {stage.id === 'learn' ? (
                     <Button
                       variant={isStageDone ? 'secondary' : 'amber'}
-                      size="sm"
+                      size="md"
+                      disabled={!canEnter}
                       onClick={() => navigateTo('learn', { unitId })}
                       className="w-full gap-2 font-black"
                     >
                       <BookOpen className="w-4 h-4" />
-                      <span>{isStageDone ? 'Review Knowledge' : 'Start Learn'}</span>
+                      <span>{!canEnter ? 'Locked' : isStageDone ? 'Review Knowledge' : 'Start Learn'}</span>
                     </Button>
                   ) : (
                     <Button
                       variant={isStageDone ? 'secondary' : 'primary'}
-                      size="sm"
+                      size="md"
+                      disabled={!canEnter}
                       onClick={() => navigateTo('session', { unitId, stageId: stage.id as 'practice' | 'minigame' | 'challenge' })}
                       className="w-full gap-2 font-black"
                     >
                       <Play className="w-4 h-4" />
-                      <span>{isStageDone ? 'Play Again' : `Start ${stage.title}`}</span>
+                      <span>{!canEnter ? 'Locked' : isStageDone ? 'Play Again' : `Start ${stage.title}`}</span>
                     </Button>
                   )}
                 </div>

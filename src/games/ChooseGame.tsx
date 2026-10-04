@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Question } from '../types';
+import { useQuestionAttempts } from './useQuestionAttempts';
 import { checkAnswer } from '../engine/validator';
 import { FeedbackBanner } from '../components/common/FeedbackBanner';
 import { PronounceButton } from '../components/common/PronounceButton';
@@ -8,7 +9,7 @@ import { soundService } from '../services/sound';
 interface ChooseGameProps {
   question: Question;
   onNext: () => void;
-  onAnswerSubmit: (isCorrect: boolean) => void;
+  onAnswerSubmit: (isCorrect: boolean, answer?: string) => void;
 }
 
 export const ChooseGame: React.FC<ChooseGameProps> = ({
@@ -17,49 +18,19 @@ export const ChooseGame: React.FC<ChooseGameProps> = ({
   onAnswerSubmit,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [hasAnswered, setHasAnswered] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const { wrongAttempts, hasAnswered, isCorrect, canTryAgain, submit, retry } = useQuestionAttempts(question, onAnswerSubmit);
 
   // Reset local state when question changes
   useEffect(() => {
     setSelectedOption(null);
-    setWrongAttempts(0);
-    setHasAnswered(false);
-    setIsCorrect(false);
   }, [question.id]);
 
   const handleSelect = (option: string) => {
-    if (hasAnswered && (isCorrect || wrongAttempts >= 2)) return;
-
-    setSelectedOption(option);
-    const correct = checkAnswer(option, question.answer);
-
-    if (correct) {
-      setIsCorrect(true);
-      setHasAnswered(true);
-      soundService.playCorrect();
-      onAnswerSubmit(true);
-    } else {
-      const nextWrong = wrongAttempts + 1;
-      setWrongAttempts(nextWrong);
-      setIsCorrect(false);
-      setHasAnswered(true);
-      soundService.playWrong();
-
-      if (nextWrong >= 2) {
-        // Record mistake to Error Bank on 2nd incorrect attempt
-        onAnswerSubmit(false);
-      }
-    }
+    if (submit(option)) setSelectedOption(option);
   };
-
   const handleTryAgain = () => {
-    setSelectedOption(null);
-    setHasAnswered(false);
+    if (retry()) setSelectedOption(null);
   };
-
-  const canTryAgain = hasAnswered && !isCorrect && wrongAttempts < 2;
 
   // Build audio sentence if question is a sentence
   const completedSentence = question.question.includes('___') && selectedOption
@@ -124,7 +95,7 @@ export const ChooseGame: React.FC<ChooseGameProps> = ({
             <button
               key={option}
               type="button"
-              disabled={hasAnswered && (isCorrect || !canTryAgain)}
+              disabled={hasAnswered}
               onClick={() => handleSelect(option)}
               className={`p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left font-bold text-lg sm:text-xl transition-all duration-150 cursor-pointer ${cardStyle} ${
                 hasAnswered && (isCorrect || !canTryAgain) ? 'cursor-default' : 'active:scale-[0.98]'

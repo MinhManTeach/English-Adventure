@@ -7,15 +7,31 @@ export function applyQuestionResult(
   prev: UserProgressState, question: Question, isCorrect: boolean,
   isChallengeOrBoss: boolean, timestamp: string, wrongAnswer?: string,
   today = timestamp.slice(0, 10),
+  source: 'practice' | 'review' | 'boss' = question.id.startsWith('BOSS-') ? 'boss' : 'practice',
 ): UserProgressState {
   const next = { ...prev };
+  if (source === 'boss') next.startedStages = [...new Set([...(prev.startedStages ?? []), 'boss'])];
 
   // 1. Error Bank management
   const errorBank = { ...next.errorBank };
-  if (!isCorrect) {
+  if (source === 'review' && question.reviewOf?.length) {
+    for (const id of new Set(question.reviewOf)) {
+      const existing = errorBank[id];
+      if (!existing) continue;
+      const reviewCorrectStreak = isCorrect ? (existing.reviewCorrectStreak ?? 0) + 1 : 0;
+      errorBank[id] = {
+        ...existing, reviewCorrectStreak, mastered: isCorrect && (existing.mastered || reviewCorrectStreak >= 3),
+        wrongCount: existing.wrongCount + (isCorrect ? 0 : 1),
+        lastWrongAt: isCorrect ? existing.lastWrongAt : timestamp,
+        lastReviewedAt: timestamp, lastReviewQuestionId: question.id, lastAttemptSource: 'review',
+        lastReviewWrongAnswer: isCorrect ? existing.lastReviewWrongAnswer : wrongAnswer,
+      };
+    }
+  } else if (!isCorrect) {
     const existing = errorBank[question.id];
     const wrongCount = (existing ? existing.wrongCount : 0) + 1;
     const errorItem: ErrorBankItem = {
+      ...existing,
       questionId: question.id,
       unit: question.unit,
       topic: question.topic,
@@ -23,7 +39,10 @@ export function applyQuestionResult(
       questionText: question.question,
       wrongCount,
       lastWrongAt: timestamp,
-      source: question.id.startsWith('BOSS-') ? 'boss' : 'curriculum',
+      source,
+      questionType: question.type,
+      reviewCorrectStreak: 0,
+      lastAttemptSource: source,
       options: question.options ? [...question.options] : undefined,
       correctAnswer: Array.isArray(question.answer) ? [...question.answer] : question.answer,
       wrongAnswer,
@@ -41,7 +60,9 @@ export function applyQuestionResult(
     if (errorBank[question.id]) {
       errorBank[question.id] = {
         ...errorBank[question.id],
-        mastered: true,
+        mastered: source === 'review' ? errorBank[question.id].mastered || (errorBank[question.id].reviewCorrectStreak ?? 0) + 1 >= 3 : true,
+        reviewCorrectStreak: source === 'review' ? (errorBank[question.id].reviewCorrectStreak ?? 0) + 1 : errorBank[question.id].reviewCorrectStreak,
+        lastAttemptSource: source,
       };
     }
   }

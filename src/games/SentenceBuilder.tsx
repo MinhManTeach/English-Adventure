@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { RotateCcw, Check, Sparkles } from 'lucide-react';
 import { Question } from '../types';
+import { useQuestionAttempts } from './useQuestionAttempts';
 import { checkAnswer } from '../engine/validator';
 import { FeedbackBanner } from '../components/common/FeedbackBanner';
 import { Button } from '../components/common/Button';
+import { fisherYatesShuffle } from '../engine/sessionQuestions';
 import { soundService } from '../services/sound';
 
 interface SentenceBuilderProps {
   question: Question;
   onNext: () => void;
-  onAnswerSubmit: (isCorrect: boolean) => void;
+  onAnswerSubmit: (isCorrect: boolean, answer?: string) => void;
 }
 
 export const SentenceBuilder: React.FC<SentenceBuilderProps> = ({
@@ -23,9 +25,8 @@ export const SentenceBuilder: React.FC<SentenceBuilderProps> = ({
   const [placedWords, setPlacedWords] = useState<{ id: string; text: string }[]>([]);
 
   // Wrong attempts tracking for 2-attempt flow
-  const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [hasChecked, setHasChecked] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const { wrongAttempts, hasAnswered, isCorrect, canTryAgain, submit, retry } = useQuestionAttempts(question, onAnswerSubmit);
+  const hasChecked = hasAnswered;
 
   // Initialize and shuffle words
   useEffect(() => {
@@ -37,76 +38,38 @@ export const SentenceBuilder: React.FC<SentenceBuilderProps> = ({
       text: word,
     }));
     // Fisher-Yates shuffle
-    const shuffled = [...items].sort(() => 0.5 - Math.random());
+    const shuffled = fisherYatesShuffle(items);
     setBankWords(shuffled);
     setPlacedWords([]);
-    setWrongAttempts(0);
-    setHasChecked(false);
-    setIsCorrect(false);
   }, [question.id]);
 
   const handlePickWord = (wordItem: { id: string; text: string }) => {
-    if (hasChecked && (isCorrect || wrongAttempts >= 2)) return;
+    if (hasChecked) return;
     soundService.playCoin();
     setBankWords(prev => prev.filter(w => w.id !== wordItem.id));
     setPlacedWords(prev => [...prev, wordItem]);
-    // Clear first attempt feedback once user starts modifying
-    if (hasChecked && !isCorrect && wrongAttempts === 1) {
-      setHasChecked(false);
-    }
   };
 
   const handleReturnWord = (wordItem: { id: string; text: string }) => {
-    if (hasChecked && (isCorrect || wrongAttempts >= 2)) return;
+    if (hasChecked) return;
     soundService.playCoin();
     setPlacedWords(prev => prev.filter(w => w.id !== wordItem.id));
     setBankWords(prev => [...prev, wordItem]);
-    if (hasChecked && !isCorrect && wrongAttempts === 1) {
-      setHasChecked(false);
-    }
   };
 
   const handleReset = () => {
-    if (hasChecked && (isCorrect || wrongAttempts >= 2)) return;
-    const all = [...placedWords, ...bankWords].sort(() => 0.5 - Math.random());
+    if (hasChecked) return;
+    const all = fisherYatesShuffle([...placedWords, ...bankWords]);
     setBankWords(all);
     setPlacedWords([]);
-    if (hasChecked && !isCorrect && wrongAttempts === 1) {
-      setHasChecked(false);
-    }
   };
 
   const handleCheck = () => {
-    if (placedWords.length === 0) return;
-
-    const userSentence = placedWords.map(w => w.text).join(' ');
-    const correct = checkAnswer(userSentence, question.answer);
-
-    if (correct) {
-      setIsCorrect(true);
-      setHasChecked(true);
-      soundService.playCorrect();
-      onAnswerSubmit(true);
-    } else {
-      const nextWrong = wrongAttempts + 1;
-      setWrongAttempts(nextWrong);
-      setHasChecked(true);
-      setIsCorrect(false);
-      soundService.playWrong();
-
-      if (nextWrong >= 2) {
-        // Final wrong attempt: record failure to Error Bank
-        onAnswerSubmit(false);
-      }
-    }
+    if (placedWords.length > 0) submit(placedWords.map(w => w.text).join(' '));
   };
-
-  const handleTryAgain = () => {
-    setHasChecked(false);
-  };
+  const handleTryAgain = () => { retry(); };
 
   const currentSentence = placedWords.map(w => w.text).join(' ');
-  const canTryAgain = hasChecked && !isCorrect && wrongAttempts < 2;
   const targetAnswerText =
     typeof question.answer === 'string'
       ? question.answer
@@ -127,7 +90,7 @@ export const SentenceBuilder: React.FC<SentenceBuilderProps> = ({
           </h3>
         </div>
 
-        {placedWords.length > 0 && (!hasChecked || canTryAgain) && (
+        {placedWords.length > 0 && !hasChecked && (
           <button
             type="button"
             onClick={handleReset}
@@ -168,7 +131,7 @@ export const SentenceBuilder: React.FC<SentenceBuilderProps> = ({
               <button
                 key={item.id}
                 type="button"
-                disabled={hasChecked && (isCorrect || !canTryAgain)}
+                disabled={hasChecked}
                 onClick={() => handleReturnWord(item)}
                 title="Tap to return word to bank"
                 className="px-4 py-2 rounded-2xl bg-amber-500 text-white font-black text-base sm:text-lg shadow-[0_3px_0_0_#d97706] hover:bg-amber-400 active:translate-y-0.5 cursor-pointer animate-pop transition-transform"
@@ -199,7 +162,7 @@ export const SentenceBuilder: React.FC<SentenceBuilderProps> = ({
               <button
                 key={item.id}
                 type="button"
-                disabled={hasChecked && (isCorrect || !canTryAgain)}
+                disabled={hasChecked}
                 onClick={() => handlePickWord(item)}
                 className="px-4 py-2.5 rounded-2xl bg-white border-2 border-slate-200 text-slate-800 font-extrabold text-base sm:text-lg shadow-[0_3px_0_0_#cbd5e1] hover:border-amber-400 hover:bg-amber-50 active:translate-y-0.5 cursor-pointer transition-all animate-pop"
               >
@@ -211,7 +174,7 @@ export const SentenceBuilder: React.FC<SentenceBuilderProps> = ({
       </div>
 
       {/* Action / Check Button */}
-      {(!hasChecked || canTryAgain) && (
+      {!hasChecked && (
         <div className="flex justify-end pt-1">
           <Button
             type="button"

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BookOpen, Sparkles, ArrowRight, Lightbulb, CheckCircle2 } from 'lucide-react';
 import { useGame } from '../context/GameContext';
+import { isUnitAvailable } from '../engine/worldProgression';
 import { ALL_UNITS } from '../data/unitsMeta';
 import { LEARN_CARDS_DATA, LearnCard } from '../data/learnContent';
 import { PronounceButton } from '../components/common/PronounceButton';
@@ -8,23 +9,30 @@ import { Button } from '../components/common/Button';
 import { WorldBackground } from '../components/common/WorldBackground';
 
 export const LearnScreen: React.FC = () => {
-  const { activeUnitId, navigateTo, state } = useGame();
+  const { activeUnitId, navigateTo, state, completeLearn, startStage } = useGame();
   const [selectedUnitId, setSelectedUnitId] = useState<number>(activeUnitId || 1);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const cardIndexRef = useRef(0);
 
   const currentUnit = ALL_UNITS.find(u => u.id === selectedUnitId) || ALL_UNITS[0];
   const unitCards: LearnCard[] = LEARN_CARDS_DATA[selectedUnitId] || LEARN_CARDS_DATA[1];
   const currentCard = unitCards[activeCardIndex] || unitCards[0];
 
   const handleUnitChange = (unitId: number) => {
+    if (!isUnitAvailable(state, unitId)) return;
+    cardIndexRef.current = 0;
     setSelectedUnitId(unitId);
     setActiveCardIndex(0);
   };
 
   const handleNextCard = () => {
+    if (cardIndexRef.current !== activeCardIndex) return;
+    startStage(selectedUnitId, 'learn');
     if (activeCardIndex + 1 < unitCards.length) {
-      setActiveCardIndex(prev => prev + 1);
+      cardIndexRef.current = activeCardIndex + 1;
+      setActiveCardIndex(activeCardIndex + 1);
     } else {
+      completeLearn(selectedUnitId);
       // Completed all cards in this unit's learn stage
       navigateTo('session', { unitId: selectedUnitId, stageId: 'practice' });
     }
@@ -38,7 +46,7 @@ export const LearnScreen: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-amber-100">
         <div>
           <span className="text-xs font-bold text-amber-700 uppercase tracking-wider block">
-            Step 1: Learning Academy · Góc Kiến Thức
+            Step 1: Learn
           </span>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-game">
             Learn A1 English Concepts
@@ -53,8 +61,9 @@ export const LearnScreen: React.FC = () => {
               <button
                 key={u.id}
                 type="button"
+                disabled={!isUnitAvailable(state, u.id)}
                 onClick={() => handleUnitChange(u.id)}
-                className={`px-3 py-1.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap ${
                   isSelected
                     ? 'bg-white text-slate-900 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -129,7 +138,11 @@ export const LearnScreen: React.FC = () => {
               >
                 <div className="space-y-0.5">
                   <p className="text-lg font-bold text-slate-800 font-game">
-                    {eg.en}
+                    {(() => {
+                      const index = eg.highlight ? eg.en.toLowerCase().indexOf(eg.highlight.toLowerCase()) : -1;
+                      if (index < 0) return eg.en;
+                      return <>{eg.en.slice(0, index)}<mark className="rounded bg-amber-200 px-1 text-slate-900">{eg.en.slice(index, index + eg.highlight!.length)}</mark>{eg.en.slice(index + eg.highlight!.length)}</>;
+                    })()}
                   </p>
                   {state.settings.showVietnameseHints && (
                     <p className="text-xs text-slate-500 font-medium">{eg.vi}</p>
@@ -161,7 +174,7 @@ export const LearnScreen: React.FC = () => {
           <button
             type="button"
             disabled={activeCardIndex === 0}
-            onClick={() => setActiveCardIndex(prev => Math.max(0, prev - 1))}
+            onClick={() => { cardIndexRef.current = Math.max(0, activeCardIndex - 1); setActiveCardIndex(cardIndexRef.current); }}
             className="text-xs font-bold text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
           >
             ← Previous Concept

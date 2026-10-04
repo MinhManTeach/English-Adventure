@@ -3,11 +3,13 @@ import {
   UserProgressState,
   Question,
   UserSettings,
-  LessonAttemptLog,
 } from '../types';
 import { storageService, getTodayDateString } from '../services/storage';
-import { calculateLevel, calculateXP, calculateCoins, LevelInfo } from '../engine/scoring';
+import { calculateLevel, LevelInfo } from '../engine/scoring';
+import { acknowledgeLevel } from '../engine/levelUp';
 import { soundService } from '../services/sound';
+import { applySessionCompletion, LearningSessionSummary, LearningSessionResult } from '../engine/sessionCompletion';
+import { isUnitAvailable, isStageAvailable, canEnterBoss, isReviewGateAvailable, completeLearnStage, startLearningStage, finishReviewGate, LearningStage } from '../engine/worldProgression';
 import { applyQuestionResult, applyBossVictory, BossVictoryResult } from '../engine/progression';
 
 export type AppScreen =
@@ -28,6 +30,7 @@ export type AppScreen =
 interface NavigationParams {
   unitId?: number;
   stageId?: 'learn' | 'practice' | 'minigame' | 'challenge';
+  reviewGate?: boolean;
 }
 
 interface GameContextType {
@@ -36,6 +39,11 @@ interface GameContextType {
   currentScreen: AppScreen;
   activeUnitId: number | null;
   activeStageId: 'learn' | 'practice' | 'minigame' | 'challenge' | null;
+  isReviewGate: boolean;
+  acknowledgeLevelUp: (level: number) => void;
+  completeLearn: (unitId: number) => void;
+  startStage: (unitId: number, stage: LearningStage) => void;
+  completeReviewGate: (correct: number, total: number) => void;
   navigateTo: (screen: AppScreen, params?: NavigationParams) => void;
   createProfile: (name: string, avatarId: string) => void;
   updateAvatar: (avatarId: string, title?: string) => void;
@@ -43,22 +51,10 @@ interface GameContextType {
     question: Question,
     isCorrect: boolean,
     isChallengeOrBoss?: boolean,
-    wrongAnswer?: string
+    wrongAnswer?: string,
+    source?: 'practice' | 'review' | 'boss'
   ) => void;
-  finishSession: (summary: {
-    unitId: number;
-    stageId: string;
-    totalQuestions: number;
-    correctCount: number;
-    durationSeconds: number;
-  }) => {
-    xpEarned: number;
-    coinsEarned: number;
-    isPerfect: boolean;
-    leveledUp: boolean;
-    newLevel: number;
-    levelTitle: string;
-  };
+  finishSession: (summary: LearningSessionSummary) => LearningSessionResult;
   recordBossVictory: (battleId: string) => BossVictoryResult;
   loseHeart: () => void;
   restoreHearts: () => void;
@@ -88,6 +84,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loaded = storageService.loadState();
     return loaded.profile.name ? 'home' : 'welcome';
   });
+  const [isReviewGate, setIsReviewGate] = useState(false);
   const [activeUnitId, setActiveUnitId] = useState<number | null>(1);
   const [activeStageId, setActiveStageId] = useState<
     'learn' | 'practice' | 'minigame' | 'challenge' | null
@@ -112,6 +109,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const levelInfo = useMemo(() => calculateLevel(state.xp), [state.xp]);
 
   const navigateTo = useCallback((screen: AppScreen, params?: NavigationParams) => {
+    const snapshot = stateRef.current;
+    const unitId = params?.unitId ?? activeUnitId ?? 1;
+    if ((screen === 'unit' || screen === 'learn') && !isUnitAvailable(snapshot, unitId)) return;
+    if (screen === 'session' && !isStageAvailable(snapshot, unitId, params?.stageId ?? 'practice')) return;
+    if (screen === 'boss' && !canEnterBoss(snapshot)) return;
+    if (screen === 'review' && params?.reviewGate && !isReviewGateAvailable(snapshot)) return;
+    setIsReviewGate(screen === 'review' && !!params?.reviewGate);
     if (params?.unitId !== undefined) {
       setActiveUnitId(params.unitId);
     }
@@ -120,7 +124,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setCurrentScreen(screen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [activeUnitId]);
 
   const createProfile = useCallback((name: string, avatarId: string) => {
     setState(prev => {
@@ -166,158 +170,27 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const recordQuestionResult = useCallback(
-    (question: Question, isCorrect: boolean, isChallengeOrBoss = false, wrongAnswer?: string) => {
+    (question: Question, isCorrect: boolean, isChallengeOrBoss = false, wrongAnswer?: string, source?: 'practice' | 'review' | 'boss') => {
       const timestamp = new Date().toISOString();
-      setState(prev => applyQuestionResult(prev, question, isCorrect, isChallengeOrBoss, timestamp, wrongAnswer, getTodayDateString()));
+      setState(prev => applyQuestionResult(prev, question, isCorrect, isChallengeOrBoss, timestamp, wrongAnswer, getTodayDateString(), source));
     }, [setState]
   );
 
-  const finishSession = useCallback(
-    (summary: {
-      unitId: number;
-      stageId: string;
-      totalQuestions: number;
-      correctCount: number;
-      durationSeconds: number;
-    }) => {
-      const isPerfect = summary.correctCount === summary.totalQuestions && summary.totalQuestions > 0;
-      const today = getTodayDateString();
-
-      const baseXp = summary.correctCount * 10;
-      const xpEarned = calculateXP({
-        baseXP: baseXp,
-        isPerfect,
-        streakDays: state.streak,
-      });
-
-      const coinsEarned = calculateCoins({
-        correctCount: summary.correctCount,
-        isPerfect,
-      });
-
-      const oldLevelInfo = calculateLevel(state.xp);
-      let newLevel = oldLevelInfo.level;
-      let levelTitle = oldLevelInfo.title;
-      let leveledUp = false;
-
-      setState(prev => {
-        const next = { ...prev };
-        next.xp += xpEarned;
-        next.coins += coinsEarned;
-
-        // Mark stage completed
-        const stageKey = `unit${summary.unitId}-${summary.stageId}`;
-        next.unitStageProgress = {
-          ...next.unitStageProgress,
-          [stageKey]: true,
-        };
-
-        // If this was challenge or all 4 stages are completed, complete unit
-        const stages = ['learn', 'practice', 'minigame', 'challenge'];
-        const allCompleted = stages.every(s => next.unitStageProgress[`unit${summary.unitId}-${s}`]);
-
-        if (allCompleted || summary.stageId === 'challenge') {
-          // Strictly prevent duplicate unit completion rewards
-          if (!next.completedUnits.includes(summary.unitId)) {
-            next.completedUnits = [...next.completedUnits, summary.unitId];
-            next.xp += 50; // One-time Unit completion reward
-            next.coins += 25;
-
-            // Unlock next unit
-            const nextUnitNum = summary.unitId + 1;
-            if (nextUnitNum <= 3 && !next.unlockedUnits.includes(nextUnitNum)) {
-              next.unlockedUnits = [...next.unlockedUnits, nextUnitNum];
-            }
-          }
-        }
-
-        // Check if Units 1, 2, and 3 are all completed -> Unlock Boss Battle!
-        if (
-          next.completedUnits.includes(1) &&
-          next.completedUnits.includes(2) &&
-          next.completedUnits.includes(3)
-        ) {
-          next.bossUnlocked = true;
-        }
-
-        // Achievements verification (one-time grants only)
-        const ach = Object.fromEntries(Object.entries(next.achievements).map(([id, item]) => [id, { ...item }]));
-        next.achievements = ach;
-        if (ach.first_step && !ach.first_step.unlockedAt) {
-          ach.first_step.unlockedAt = today;
-          ach.first_step.currentProgress = 1;
-          next.xp += ach.first_step.xpReward;
-          next.coins += ach.first_step.coinReward;
-        }
-
-        if (isPerfect && ach.perfect_round && !ach.perfect_round.unlockedAt) {
-          ach.perfect_round.unlockedAt = today;
-          ach.perfect_round.currentProgress = 1;
-          next.xp += ach.perfect_round.xpReward;
-          next.coins += ach.perfect_round.coinReward;
-        }
-
-        if (next.completedUnits.includes(1) && ach.grammar_rookie && !ach.grammar_rookie.unlockedAt) {
-          ach.grammar_rookie.unlockedAt = today;
-          ach.grammar_rookie.currentProgress = 1;
-          next.xp += ach.grammar_rookie.xpReward;
-          next.coins += ach.grammar_rookie.coinReward;
-        }
-
-        if (next.completedUnits.includes(2) && ach.daily_hero && !ach.daily_hero.unlockedAt) {
-          ach.daily_hero.unlockedAt = today;
-          ach.daily_hero.currentProgress = 1;
-          next.xp += ach.daily_hero.xpReward;
-          next.coins += ach.daily_hero.coinReward;
-        }
-
-        if (next.completedUnits.includes(3) && ach.home_explorer && !ach.home_explorer.unlockedAt) {
-          ach.home_explorer.unlockedAt = today;
-          ach.home_explorer.currentProgress = 1;
-          next.xp += ach.home_explorer.xpReward;
-          next.coins += ach.home_explorer.coinReward;
-        }
-
-        // Check Level-up against new total XP
-        const nextLevelInfo = calculateLevel(next.xp);
-        if (nextLevelInfo.level > oldLevelInfo.level) {
-          leveledUp = true;
-          newLevel = nextLevelInfo.level;
-          levelTitle = nextLevelInfo.title;
-        }
-
-        // Attempt log
-        const logItem: LessonAttemptLog = {
-          id: `log-${Date.now()}`,
-          unitId: summary.unitId,
-          stageId: summary.stageId,
-          completedAt: new Date().toISOString(),
-          score: summary.correctCount,
-          total: summary.totalQuestions,
-          xpEarned,
-          coinsEarned,
-          accuracy: summary.totalQuestions > 0 ? Math.round((summary.correctCount / summary.totalQuestions) * 100) : 100,
-          durationSeconds: summary.durationSeconds,
-        };
-        next.attemptLogs = [logItem, ...next.attemptLogs.slice(0, 49)];
-
-        // Auto refill hearts on normal stage finish
-        next.hearts = next.maxHearts;
-
-        return next;
-      });
-
-      return {
-        xpEarned,
-        coinsEarned,
-        isPerfect,
-        leveledUp,
-        newLevel,
-        levelTitle,
-      };
-    },
-    [state.streak, state.xp]
-  );
+  const acknowledgeLevelUp = useCallback((level: number) => { setState(prev => acknowledgeLevel(prev, level)); }, [setState]);
+  const completeLearn = useCallback((unitId: number) => {
+    setState(prev => completeLearnStage(prev, unitId));
+  }, [setState]);
+  const startStage = useCallback((unitId: number, stage: LearningStage) => {
+    setState(prev => startLearningStage(prev, unitId, stage));
+  }, [setState]);
+  const completeReviewGate = useCallback((correct: number, total: number) => {
+    setState(prev => finishReviewGate(prev, correct, total));
+  }, [setState]);
+  const finishSession = useCallback((summary: LearningSessionSummary) => {
+    const transaction = applySessionCompletion(stateRef.current, summary, new Date().toISOString(), getTodayDateString());
+    setState(transaction.state);
+    return transaction.result;
+  }, [setState]);
 
   const recordBossVictory = useCallback((battleId: string) => {
     const transaction = applyBossVictory(stateRef.current, battleId, getTodayDateString());
@@ -350,6 +223,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unlockedUnits: [1, 2, 3],
       completedUnits: [1, 2, 3],
       bossUnlocked: true,
+      reviewGateCompleted: true,
       xp: Math.max(prev.xp, 750),
       coins: Math.max(prev.coins, 120),
     }));
@@ -376,6 +250,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       currentScreen,
       activeUnitId,
       activeStageId,
+      isReviewGate,
+      acknowledgeLevelUp,
+      completeLearn,
+      startStage,
+      completeReviewGate,
       navigateTo,
       createProfile,
       updateAvatar,
@@ -396,6 +275,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       currentScreen,
       activeUnitId,
       activeStageId,
+      isReviewGate,
+      acknowledgeLevelUp,
+      completeLearn,
+      startStage,
+      completeReviewGate,
       navigateTo,
       createProfile,
       updateAvatar,

@@ -33,6 +33,7 @@ export interface Question {
   xp: number;
   imageIcon?: string; // Icon or emoji or identifier for picture match
   audioText?: string; // Text to speak when listening
+  reviewOf?: string[]; // Runtime links to historical mistakes being reviewed.
 }
 
 export interface UnitStage {
@@ -79,11 +80,17 @@ export interface ErrorBankItem {
   wrongCount: number;
   lastWrongAt: string;
   mastered: boolean;
-  source?: 'boss' | 'curriculum';
+  source?: 'boss' | 'curriculum' | 'practice' | 'review';
   options?: string[];
   correctAnswer?: string | string[];
   wrongAnswer?: string;
   explanation?: QuestionExplanation;
+  questionType?: GameQuestionType;
+  reviewCorrectStreak?: number;
+  lastReviewedAt?: string;
+  lastReviewQuestionId?: string;
+  lastAttemptSource?: 'practice' | 'review' | 'boss';
+  lastReviewWrongAnswer?: string;
 }
 
 export interface TopicMastery {
@@ -155,4 +162,11 @@ export interface UserProgressState {
   attemptLogs: LessonAttemptLog[];
   settings: UserSettings;
   totalStudySeconds: number;
+  startedStages?: string[];
+  stagePerformance?: Record<string, { attempts: number; bestAccuracy: number }>;
+  completedSessionIds?: string[];
+  acknowledgedLevel?: number;
+  reviewGateCompleted?: boolean;
+  reviewGateAttempts?: number;
+  reviewGateBestAccuracy?: number;
 }

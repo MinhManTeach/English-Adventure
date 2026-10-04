@@ -14,9 +14,9 @@ export const ALL_UNITS: UnitInfo[] = [
     color: '#3B82F6',
     bgGradient: 'from-blue-500 to-indigo-600',
     description: 'Master the fundamental building blocks of English! Unlock the magic gate by practicing am, is, are, and identifying objects around you.',
-    grammarPoints: ['Verb "to be" (am / is / are)', 'Negative & Question forms', 'There is / There are', 'This / That / These / Those'],
+    grammarPoints: ['Verb "to be" (am / is / are)', 'Negative & Question forms', "It's / It is", 'There is / There are', 'This / That / These / Those'],
     vocabularyCount: 15,
-    questionsCount: 22,
+    questionsCount: 30,
   },
   {
     id: 2,
@@ -33,7 +33,7 @@ export const ALL_UNITS: UnitInfo[] = [
     description: 'Explore the bustling village! Talk about what you do every day, your school routines, your family, and your favorite hobbies.',
     grammarPoints: ['Present Simple affirmative', 'Third-person singular (-s / -es / -ies)', "Negative (don't / doesn't)", 'Questions (Do / Does)'],
     vocabularyCount: 18,
-    questionsCount: 22,
+    questionsCount: 30,
   },
   {
     id: 3,
@@ -49,8 +49,8 @@ export const ALL_UNITS: UnitInfo[] = [
     bgGradient: 'from-amber-500 to-orange-600',
     description: 'Discover every cozy corner of the home! Learn rooms, furniture, everyday household chores, and collocations like "make your bed".',
     grammarPoints: ['Rooms & Home structures', 'Furniture & objects', 'Household verbs & chores', 'Collocations (do the cooking, make bed)'],
-    vocabularyCount: 25,
-    questionsCount: 25,
+    vocabularyCount: 28,
+    questionsCount: 53,
   },
 ];
 
@@ -77,6 +77,7 @@ export const UNIT_STAGES: UnitStage[] = [
   {
     id: 'challenge',
     title: 'Challenge',
+    requiredScore: 80,
     titleVi: 'Thử Thách',
     description: 'Put your skills to the test with hearts on the line to complete the unit!',
   },

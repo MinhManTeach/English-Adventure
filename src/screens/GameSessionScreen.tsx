@@ -10,6 +10,8 @@ import { Button } from '../components/common/Button';
 import { AnimatedCounter } from '../components/common/AnimatedCounter';
 import { LevelUpModal } from '../components/common/LevelUpModal';
 import { WorldBackground } from '../components/common/WorldBackground';
+import { LearningSessionResult } from '../engine/sessionCompletion';
+import { CHALLENGE_PASS_PERCENT } from '../engine/worldProgression';
 import { soundService } from '../services/sound';
 
 export const GameSessionScreen: React.FC = () => {
@@ -20,32 +22,40 @@ export const GameSessionScreen: React.FC = () => {
     recordQuestionResult,
     finishSession,
     state,
+    startStage,
   } = useGame();
 
   const unitId = activeUnitId || 1;
-  const stageId = activeStageId || 'practice';
+  const stageId = (activeStageId === 'learn' ? 'practice' : activeStageId) || 'practice';
   const unit = ALL_UNITS.find(u => u.id === unitId) || ALL_UNITS[0];
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
-  const [sessionStartTime] = useState<number>(Date.now());
+  const sessionStartTime = useRef(Date.now());
+  const sessionIdRef = useRef(crypto.randomUUID());
+  const resolvedIndexRef = useRef<number | null>(null);
+  const correctCountRef = useRef(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [sessionSummary, setSessionSummary] = useState<{
-    xpEarned: number;
-    coinsEarned: number;
-    isPerfect: boolean;
-    leveledUp: boolean;
-    newLevel: number;
-    levelTitle: string;
-  } | null>(null);
+  const [sessionSummary, setSessionSummary] = useState<LearningSessionResult | null>(null);
 
   // Anti-duplication lock
   const hasFinishedRef = useRef(false);
+  const levelUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelLevelUpTimer = () => {
+    if (levelUpTimerRef.current !== null) clearTimeout(levelUpTimerRef.current);
+    levelUpTimerRef.current = null;
+  };
+  useEffect(() => () => cancelLevelUpTimer(), []);
 
   useEffect(() => {
+    cancelLevelUpTimer();
     hasFinishedRef.current = false;
+    resolvedIndexRef.current = null;
+    correctCountRef.current = 0;
+    sessionIdRef.current = crypto.randomUUID();
+    sessionStartTime.current = Date.now();
     const loaded = getQuestionsForStage(unitId, stageId as 'practice' | 'minigame' | 'challenge', 6);
     setQuestions(loaded);
     setCurrentIndex(0);
@@ -58,19 +68,24 @@ export const GameSessionScreen: React.FC = () => {
   const currentQuestion = questions[currentIndex];
   const isChallenge = stageId === 'challenge';
 
-  const handleAnswerSubmit = (isCorrect: boolean) => {
-    if (!currentQuestion) return;
+  const handleAnswerSubmit = (isCorrect: boolean, answer?: string) => {
+    if (!currentQuestion || hasFinishedRef.current || resolvedIndexRef.current === currentIndex) return;
+    resolvedIndexRef.current = currentIndex;
+    startStage(unitId, stageId);
+    if (isCorrect) correctCountRef.current += 1;
 
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
     }
 
-    recordQuestionResult(currentQuestion, isCorrect, isChallenge);
+    recordQuestionResult(currentQuestion, isCorrect, isChallenge, isCorrect ? undefined : answer, 'practice');
   };
 
   const handleNextQuestion = () => {
+    if (hasFinishedRef.current || resolvedIndexRef.current !== currentIndex) return;
+    resolvedIndexRef.current = null;
     if (currentIndex + 1 < questions.length) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex(currentIndex + 1);
     } else {
       // Completed the session!
       handleSessionComplete();
@@ -82,12 +97,13 @@ export const GameSessionScreen: React.FC = () => {
     if (hasFinishedRef.current) return;
     hasFinishedRef.current = true;
 
-    const durationSeconds = Math.round((Date.now() - sessionStartTime) / 1000);
+    const durationSeconds = Math.round((Date.now() - sessionStartTime.current) / 1000);
     const result = finishSession({
+      sessionId: sessionIdRef.current,
       unitId,
       stageId,
       totalQuestions: questions.length,
-      correctCount,
+      correctCount: correctCountRef.current,
       durationSeconds,
     });
 
@@ -96,7 +112,7 @@ export const GameSessionScreen: React.FC = () => {
     soundService.playLevelComplete();
 
     if (result.leveledUp) {
-      setTimeout(() => setShowLevelUp(true), 400);
+      levelUpTimerRef.current = setTimeout(() => setShowLevelUp(true), 400);
     }
 
     if (result.isPerfect) {
@@ -113,6 +129,7 @@ export const GameSessionScreen: React.FC = () => {
   };
 
   const handleNextStage = () => {
+    if (!sessionSummary?.passed) { handleRestart(); return; }
     if (stageId === 'practice') {
       navigateTo('session', { unitId, stageId: 'minigame' });
     } else if (stageId === 'minigame') {
@@ -124,7 +141,12 @@ export const GameSessionScreen: React.FC = () => {
   };
 
   const handleRestart = () => {
+    cancelLevelUpTimer();
     hasFinishedRef.current = false;
+    resolvedIndexRef.current = null;
+    correctCountRef.current = 0;
+    sessionIdRef.current = crypto.randomUUID();
+    sessionStartTime.current = Date.now();
     const loaded = getQuestionsForStage(unitId, stageId as 'practice' | 'minigame' | 'challenge', 6);
     setQuestions(loaded);
     setCurrentIndex(0);
@@ -225,8 +247,9 @@ export const GameSessionScreen: React.FC = () => {
 
         {/* Main Play Area */}
         {!isCompleted && currentQuestion && (
-          <div className="flex-1 flex flex-col justify-center">
+          <div className="flex flex-col justify-start">
             <GameSessionDispatcher
+              key={sessionIdRef.current}
               question={currentQuestion}
               onNext={handleNextQuestion}
               onAnswerSubmit={handleAnswerSubmit}
@@ -243,13 +266,16 @@ export const GameSessionScreen: React.FC = () => {
 
             <div className="space-y-1">
               <h2 className="text-3xl font-black font-game text-slate-900">
-                {sessionSummary.isPerfect ? 'Perfect Round!' : 'Round Completed!'}
+                {!sessionSummary.passed ? 'Keep Practicing!' : sessionSummary.isPerfect ? 'Perfect Round!' : 'Round Completed!'}
               </h2>
               <p className="text-sm font-semibold text-slate-500">
                 You scored {correctCount} out of {questions.length} questions correctly.
               </p>
             </div>
 
+            {!sessionSummary.passed && (
+              <p className="text-sm font-bold text-amber-800">Aim for {CHALLENGE_PASS_PERCENT}% to complete the Challenge. You can do it!</p>
+            )}
             {/* Animated Reward Counters */}
             <div className="grid grid-cols-2 gap-3 py-2">
               <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 shadow-xs">
@@ -274,7 +300,7 @@ export const GameSessionScreen: React.FC = () => {
                 onClick={handleNextStage}
                 className="w-full font-black text-slate-900 shadow-amber-600 gap-2"
               >
-                <span>{stageId === 'challenge' ? 'Finish Unit!' : 'Continue Next Stage'}</span>
+                <span>{!sessionSummary.passed ? 'Try Challenge Again' : stageId === 'challenge' ? 'Finish Unit!' : 'Continue Next Stage'}</span>
                 <ArrowRight className="w-5 h-5" />
               </Button>
 

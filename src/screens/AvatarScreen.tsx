@@ -64,7 +64,7 @@ export const AvatarScreen: React.FC = () => {
           <div className="p-3 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center gap-2">
             <Coins className="w-5 h-5 text-amber-500" />
             <span className="text-sm font-black text-amber-900">
-              {state.coins} Gold Coins
+              {state.coins} Coins
             </span>
           </div>
 

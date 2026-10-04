@@ -450,7 +450,7 @@ export const BossBattleScreen: React.FC = () => {
                 </span>
               </div>
               <div className="bg-amber-950/80 p-3 rounded-2xl border border-amber-700">
-                <span className="text-[10px] font-bold text-amber-300 block">Gold Reward</span>
+                <span className="text-[10px] font-bold text-amber-300 block">Coins Reward</span>
                 <span className="text-xl font-black text-yellow-300">
                   <AnimatedCounter from={0} to={victoryRewards?.coins ?? 0} prefix="+" suffix=" 🪙" />
                 </span>

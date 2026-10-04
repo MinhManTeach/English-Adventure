@@ -2,6 +2,7 @@ import { Question } from '../types';
 import { UNIT_01_QUESTIONS } from './A1/unit01';
 import { UNIT_02_QUESTIONS } from './A1/unit02';
 import { UNIT_03_QUESTIONS } from './A1/unit03';
+import { UNIT_01_EXPANSION, UNIT_02_EXPANSION, UNIT_03_EXPANSION } from './A1/world1Expansion';
 import { BOSS_BATTLE_QUESTIONS } from './bossQuestions';
 import { prepareSessionQuestions, fisherYatesShuffle } from '../engine/sessionQuestions';
 
@@ -9,6 +10,9 @@ export const ALL_CURRICULUM_QUESTIONS: Question[] = [
   ...UNIT_01_QUESTIONS,
   ...UNIT_02_QUESTIONS,
   ...UNIT_03_QUESTIONS,
+  ...UNIT_01_EXPANSION,
+  ...UNIT_02_EXPANSION,
+  ...UNIT_03_EXPANSION,
 ];
 
 export function getAllQuestions(): Question[] {
