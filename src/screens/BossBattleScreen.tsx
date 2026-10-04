@@ -154,6 +154,10 @@ export const BossBattleScreen: React.FC = () => {
     if (hasClaimedVictoryRef.current || !canClaimBossVictory(battleRef.current)) return;
     hasClaimedVictoryRef.current = true;
     const result = recordBossVictory(battleIdRef.current, activeChapterId);
+    if (result.persistenceStatus !== 'success') {
+      hasClaimedVictoryRef.current = false;
+      return;
+    }
     setVictoryRewards(result);
     soundService.playVictory();
     if (result.leveledUp) schedule(() => setShowLevelUp(true), 500);

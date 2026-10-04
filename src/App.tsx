@@ -16,7 +16,7 @@ import { ParentDashboardScreen } from './screens/ParentDashboardScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 
 const MainAppContent: React.FC = () => {
-  const { currentScreen } = useGame();
+  const { currentScreen, writerStatus, storageStatus, saveStatus } = useGame();
 
   // Screen Router
   const renderScreen = () => {
@@ -57,6 +57,15 @@ const MainAppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-amber-50/40 text-slate-800 flex flex-col font-sans selection:bg-amber-200">
       {showNavbar && <Navbar />}
+      {(writerStatus !== 'writable' || storageStatus !== 'ready' || saveStatus === 'storage-failed') && (
+        <div role="status" className="bg-amber-100 px-4 py-3 text-sm text-amber-950">
+          {storageStatus === 'invalid-save' ? 'Your saved data could not be read. The original save is preserved; changes are disabled.'
+            : storageStatus !== 'ready' || saveStatus === 'storage-failed' ? 'Progress could not be saved. Changes are not applied; check browser storage and retry.'
+            : writerStatus === 'starting' ? 'Preparing safe saving…'
+            : writerStatus === 'unsupported' || writerStatus === 'unavailable' ? 'Safe saving is unavailable in this browser. This tab is read-only.'
+            : 'This tab is read-only while another tab is active. Close the active tab to continue here.'}
+        </div>
+      )}
 
       <main className="flex-1 w-full">{renderScreen()}</main>
 

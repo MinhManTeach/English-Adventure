@@ -111,6 +111,11 @@ export const GameSessionScreen: React.FC = () => {
       durationSeconds,
     });
 
+    if (result.persistenceStatus !== 'success') {
+      hasFinishedRef.current = false;
+      return;
+    }
+
     setSessionSummary(result);
     setIsCompleted(true);
     soundService.playLevelComplete();

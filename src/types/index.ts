@@ -1,3 +1,5 @@
+import type { CosmeticState } from './cosmetics';
+export * from './cosmetics';
 export type CEFRLevel = 'A1' | 'A2';
 
 export type SkillCategory = 'grammar' | 'vocabulary' | 'listening' | 'speaking';
@@ -177,6 +179,7 @@ export interface RecentQuestionHistory {
   visibleTaskKeys?: string[];
 }
 export interface UserProgressState {
+  cosmetics?: CosmeticState;
   recentQuestionHistory?: Record<string, RecentQuestionHistory>;
   conceptMastery?: Record<string, TopicMastery>;
   chapter2?: ChapterProgress;

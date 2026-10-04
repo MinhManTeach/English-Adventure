@@ -5,7 +5,7 @@ import {
   UserSettings,
   ChapterId,
 } from '../types';
-import { storageService, getTodayDateString } from '../services/storage';
+import { createDefaultState, StorageStatus, storageService, getTodayDateString } from '../services/storage';
 import { calculateLevel, LevelInfo } from '../engine/scoring';
 import { acknowledgeLevel } from '../engine/levelUp';
 import { soundService } from '../services/sound';
@@ -15,6 +15,11 @@ import { applyQuestionResult, applyBossVictory, BossVictoryResult } from '../eng
 
 import { buildDynamicSession, buildDynamicReview, buildDynamicBoss, GeneratedSession } from '../engine/dynamicQuestions';
 import { StudyStage } from '../data/templates/questionTemplates';
+import { SaveWriter, WriterStatus } from '../services/saveWriter';
+import { persistBeforePublish, runCosmeticAction, PublicationStatus } from '../services/durableState';
+import { purchaseItem as purchase, equipItem as equip, unequipItem as unequip, changeAvatarGender as switchGender, CosmeticTransaction } from '../engine/avatarCosmetics';
+import { applyDevShortcut } from '../engine/devShortcuts';
+import type { AvatarGender, AvatarSlot, CosmeticResult } from '../types';
 
 export type AppScreen =
   | 'welcome'
@@ -39,6 +44,13 @@ interface NavigationParams {
 }
 
 interface GameContextType {
+  writerStatus: WriterStatus;
+  storageStatus: StorageStatus;
+  saveStatus: PublicationStatus;
+  purchaseItem: (id: string) => CosmeticResult;
+  equipItem: (id: string) => CosmeticResult;
+  unequipItem: (slot: AvatarSlot) => CosmeticResult;
+  changeAvatarGender: (gender: AvatarGender) => CosmeticResult;
   createLearningSession: (unit: number, stage: StudyStage, count?: number) => Question[];
   createReviewSession: (chapter?: ChapterId) => Question[];
   createBossSession: (chapter: ChapterId) => Question[];
@@ -55,7 +67,7 @@ interface GameContextType {
   completeReviewGate: (correct: number, total: number, chapter?: ChapterId) => void;
   navigateTo: (screen: AppScreen, params?: NavigationParams) => void;
   createProfile: (name: string, avatarId: string) => void;
-  updateAvatar: (avatarId: string, title?: string) => void;
+  updateAvatar: (avatarId: string, title?: string) => boolean;
   recordQuestionResult: (
     question: Question,
     isCorrect: boolean,
@@ -63,8 +75,8 @@ interface GameContextType {
     wrongAnswer?: string,
     source?: 'practice' | 'review' | 'boss'
   ) => void;
-  finishSession: (summary: LearningSessionSummary) => LearningSessionResult;
-  recordBossVictory: (battleId: string, chapter?: ChapterId) => BossVictoryResult;
+  finishSession: (summary: LearningSessionSummary) => LearningSessionResult & { persistenceStatus: PublicationStatus };
+  recordBossVictory: (battleId: string, chapter?: ChapterId) => BossVictoryResult & { persistenceStatus: PublicationStatus };
   loseHeart: () => void;
   restoreHearts: () => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
@@ -78,21 +90,60 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setReactState] = useState<UserProgressState>(() => storageService.loadState());
-  // Resolve updates synchronously outside React updater callbacks. Event handlers
-  // always see the latest snapshot, even when React batches multiple events.
+  const [state, setReactState] = useState<UserProgressState>(() => storageService.loadStateResult().state);
   const stateRef = useRef(state);
-  const setState = useCallback((update: React.SetStateAction<UserProgressState>) => {
+  const [writer] = useState(() => new SaveWriter(typeof navigator !== 'undefined' ? navigator.locks : undefined));
+  const [writerStatus, setWriterStatus] = useState<WriterStatus>(writer.status);
+  const [storageStatus, setStorageStatus] = useState<StorageStatus>(storageService.status);
+  const [saveStatus, setSaveStatus] = useState<PublicationStatus>('success');
+  const setState = useCallback((update: React.SetStateAction<UserProgressState>): PublicationStatus => {
+    if (writer.status !== 'writable') { setSaveStatus('read-only'); return 'read-only'; }
     const next = typeof update === 'function' ? update(stateRef.current) : update;
-    if (next === stateRef.current) return;
-    stateRef.current = next;
-    storageService.saveState(next);
-    setReactState(next);
-  }, []);
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>(() => {
-    const loaded = storageService.loadState();
-    return loaded.profile.name ? 'home' : 'welcome';
-  });
+    if (next === stateRef.current) return 'success';
+    const status = persistBeforePublish(next, writer.status, value => storageService.saveState(value), value => {
+      stateRef.current = value;
+      setReactState(value);
+    });
+    setSaveStatus(status);
+    return status;
+  }, [writer]);
+  useEffect(() => {
+    const unsubscribe = writer.subscribe(setWriterStatus);
+    storageService.setWritePermission(() => writer.status === 'writable');
+    const refresh = () => {
+      // A queued tab must reload the last writer's save before its first mutation.
+      const loaded = storageService.loadStateResult();
+      setStorageStatus(loaded.status);
+      setSaveStatus(loaded.status === 'ready' ? 'success' : 'storage-failed');
+      if (loaded.state.profile.name !== stateRef.current.profile.name) {
+        setCurrentScreen(loaded.state.profile.name ? 'home' : 'welcome');
+      }
+      stateRef.current = loaded.state;
+      setReactState(loaded.state);
+      if (loaded.status === 'ready') setState(storageService.checkAndUpdateStreak(loaded.state));
+    };
+    let stop = writer.start(refresh);
+    const onPageHide = () => stop();
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) stop = writer.start(refresh);
+    };
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      stop(); unsubscribe();
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, [writer, setState]);
+  const [currentScreen, setCurrentScreen] = useState<AppScreen>(() => state.profile.name ? 'home' : 'welcome');
+  const runCosmetic = useCallback((reduce: (state: UserProgressState) => CosmeticTransaction): CosmeticResult => {
+    return runCosmeticAction(reduce, () => stateRef.current, writer.status,
+      storageService.status === 'ready', setState);
+  }, [writer, setState]);
+  const purchaseItem = useCallback((id: string) => runCosmetic(state => purchase(state, id)), [runCosmetic]);
+  const equipItem = useCallback((id: string) => runCosmetic(state => equip(state, id)), [runCosmetic]);
+  const unequipItem = useCallback((slot: AvatarSlot) => runCosmetic(state => unequip(state, slot)), [runCosmetic]);
+  const changeAvatarGender = useCallback((gender: AvatarGender) => runCosmetic(state => switchGender(state, gender)), [runCosmetic]);
   const [activeChapterId, setActiveChapterId] = useState<ChapterId>(1);
   const [isReviewGate, setIsReviewGate] = useState(false);
   const [activeUnitId, setActiveUnitId] = useState<number | null>(1);
@@ -114,7 +165,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }));
     }, 10000);
     return () => clearInterval(timer);
-  }, []);
+  }, [setState]);
 
   const reserveSession = useCallback((session: GeneratedSession) => {
     setState(prev => ({ ...prev, recentQuestionHistory: session.history }));
@@ -148,7 +199,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [activeUnitId]);
 
   const createProfile = useCallback((name: string, avatarId: string) => {
-    setState(prev => {
+    const status = setState(prev => {
       const today = getTodayDateString();
       const next: UserProgressState = {
         ...prev,
@@ -161,19 +212,19 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       return next;
     });
-    setCurrentScreen('home');
-  }, []);
+    if (status === 'success') setCurrentScreen('home');
+  }, [setState]);
 
   const updateAvatar = useCallback((avatarId: string, title?: string) => {
-    setState(prev => ({
+    return setState(prev => ({
       ...prev,
       profile: {
         ...prev.profile,
         avatarId,
         title: title || prev.profile.title,
       },
-    }));
-  }, []);
+    })) === 'success';
+  }, [setState]);
 
   const loseHeart = useCallback(() => {
     setState(prev => ({
@@ -181,14 +232,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       hearts: Math.max(0, prev.hearts - 1),
     }));
     soundService.playWrong();
-  }, []);
+  }, [setState]);
 
   const restoreHearts = useCallback(() => {
     setState(prev => ({
       ...prev,
       hearts: prev.maxHearts,
     }));
-  }, []);
+  }, [setState]);
 
   const recordQuestionResult = useCallback(
     (question: Question, isCorrect: boolean, isChallengeOrBoss = false, wrongAnswer?: string, source?: 'practice' | 'review' | 'boss') => {
@@ -209,14 +260,21 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [setState]);
   const finishSession = useCallback((summary: LearningSessionSummary) => {
     const transaction = applySessionCompletion(stateRef.current, summary, new Date().toISOString(), getTodayDateString());
-    setState(transaction.state);
-    return transaction.result;
+    const persistenceStatus = setState(transaction.state);
+    if (persistenceStatus !== 'success') {
+      const level = calculateLevel(stateRef.current.xp);
+      return { ...transaction.result, xpEarned: 0, coinsEarned: 0, passed: false, leveledUp: false,
+        newLevel: level.level, levelTitle: level.title, persistenceStatus };
+    }
+    return { ...transaction.result, persistenceStatus };
   }, [setState]);
 
   const recordBossVictory = useCallback((battleId: string, chapter: ChapterId = 1) => {
     const transaction = applyBossVictory(stateRef.current, battleId, getTodayDateString(), chapter);
-    setState(transaction.state);
-    return transaction.result;
+    const persistenceStatus = setState(transaction.state);
+    return persistenceStatus === 'success' ? { ...transaction.result, persistenceStatus }
+      : { isFirstVictory: false, leveledUp: false, newLevel: calculateLevel(stateRef.current.xp).level,
+          xp: 0, coins: 0, persistenceStatus };
   }, [setState]);
 
   const updateSettings = useCallback((newSettings: Partial<UserSettings>) => {
@@ -227,45 +285,24 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...newSettings,
       },
     }));
-  }, []);
+  }, [setState]);
 
   const resetAllProgress = useCallback(() => {
-    const fresh = storageService.resetState();
-    setState(fresh);
+    const fresh = createDefaultState();
+    if (setState(fresh) !== 'success') return;
     setCurrentScreen('welcome');
     setActiveUnitId(1);
     setActiveStageId(null);
-  }, []);
+  }, [setState]);
 
-  // Developer testing helpers
-  const devUnlockAll = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      unlockedUnits: [1, 2, 3],
-      completedUnits: [1, 2, 3],
-      bossUnlocked: true,
-      reviewGateCompleted: true,
-      xp: Math.max(prev.xp, 750),
-      coins: Math.max(prev.coins, 120),
-    }));
-  }, []);
-
-  const devAddXP = useCallback((amount: number) => {
-    setState(prev => ({
-      ...prev,
-      xp: prev.xp + amount,
-    }));
-  }, []);
-
-  const devAddCoins = useCallback((amount: number) => {
-    setState(prev => ({
-      ...prev,
-      coins: prev.coins + amount,
-    }));
-  }, []);
+  // Defense in depth: production callers cannot bypass the hidden Settings section.
+  const devUnlockAll = useCallback(() => { setState(prev => applyDevShortcut(prev, import.meta.env.DEV, 'unlock')); }, [setState]);
+  const devAddXP = useCallback((amount: number) => { setState(prev => applyDevShortcut(prev, import.meta.env.DEV, 'xp', amount)); }, [setState]);
+  const devAddCoins = useCallback((amount: number) => { setState(prev => applyDevShortcut(prev, import.meta.env.DEV, 'coins', amount)); }, [setState]);
 
   const value = useMemo(
     () => ({
+      writerStatus, storageStatus, saveStatus, purchaseItem, equipItem, unequipItem, changeAvatarGender,
       createLearningSession, createReviewSession, createBossSession,
       state,
       levelInfo,
@@ -293,6 +330,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       devAddCoins,
     }),
     [
+      writerStatus, storageStatus, saveStatus, purchaseItem, equipItem, unequipItem, changeAvatarGender,
       createLearningSession, createReviewSession, createBossSession,
       state,
       levelInfo,

@@ -1,4 +1,5 @@
 import { UserProgressState } from '../types';
+import { createDefaultCosmetics, normalizeCosmetics } from '../engine/avatarCosmetics';
 import { calculateLevel } from '../engine/scoring';
 import { INITIAL_ACHIEVEMENTS } from '../data/achievementsData';
 
@@ -16,6 +17,7 @@ export function getTodayDateString(): string {
 export function createDefaultState(): UserProgressState {
   const today = getTodayDateString();
   return {
+    cosmetics: createDefaultCosmetics(),
     version: CURRENT_VERSION,
     profile: {
       name: '',
@@ -160,6 +162,7 @@ export function migrateState(value: unknown): UserProgressState {
   }]));
   const state: UserProgressState = {
     ...defaults, ...old, version: CURRENT_VERSION, completedUnits, unitStageProgress, achievements, topicMastery,
+    cosmetics: normalizeCosmetics(old.cosmetics),
     recentQuestionHistory,
     conceptMastery: object(old.conceptMastery, {}),
     chapter2: object(old.chapter2, defaults.chapter2!),
@@ -186,39 +189,41 @@ export function migrateState(value: unknown): UserProgressState {
   return state;
 }
 
-class StorageService {
-  public loadState(): UserProgressState {
-    if (typeof window === 'undefined') {
-      return createDefaultState();
-    }
-
+export type StorageStatus = 'ready' | 'invalid-save' | 'storage-unavailable';
+export interface StorageLoadResult { state: UserProgressState; status: StorageStatus; raw?: string }
+export class StorageService {
+  public status: StorageStatus = 'ready';
+  private writeAllowed: () => boolean = () => true;
+  // GameProvider installs its lifetime-lock guard before any application writer.
+  // Separate StorageService instances can also be used as test storage adapters.
+  public setWritePermission(check: () => boolean): void { this.writeAllowed = check; }
+  public loadStateResult(): StorageLoadResult {
+    if (typeof window === 'undefined') return { state: createDefaultState(), status: this.status = 'ready' };
+    let raw: string | null;
+    try { raw = localStorage.getItem(STORAGE_KEY); }
+    catch { return { state: createDefaultState(), status: this.status = 'storage-unavailable' }; }
+    if (raw === null) return { state: createDefaultState(), status: this.status = 'ready' };
     try {
-      const serialized = localStorage.getItem(STORAGE_KEY);
-      if (!serialized) {
-        return createDefaultState();
-      }
-
-      const migrated = migrateState(JSON.parse(serialized));
-      return this.checkAndUpdateStreak(migrated);
+      const value = JSON.parse(raw);
+      if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid save record');
+      return { state: migrateState(value), status: this.status = 'ready' };
     } catch {
-      return createDefaultState();
+      return { state: createDefaultState(), status: this.status = 'invalid-save', raw };
     }
+  }
+  public loadState(): UserProgressState {
+    const loaded = this.loadStateResult();
+    return loaded.status === 'ready' ? this.checkAndUpdateStreak(loaded.state) : loaded.state;
   }
 
   public saveState(state: UserProgressState): boolean {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined' || this.status !== 'ready' || !this.writeAllowed()) return false;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       return true;
     } catch {
       return false;
     }
-  }
-
-  public resetState(): UserProgressState {
-    const fresh = createDefaultState();
-    this.saveState(fresh);
-    return fresh;
   }
 
   public checkAndUpdateStreak(state: UserProgressState): UserProgressState {
@@ -261,7 +266,6 @@ class StorageService {
       }
     }
 
-    this.saveState(updated);
     return updated;
   }
 }

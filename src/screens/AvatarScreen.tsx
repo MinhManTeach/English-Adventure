@@ -24,7 +24,7 @@ export const AvatarScreen: React.FC = () => {
     AVATAR_PRESETS.find(a => a.id === selectedAvatarId) || AVATAR_PRESETS[0];
 
   const handleSave = () => {
-    updateAvatar(selectedAvatarId, selectedTitle);
+    if (!updateAvatar(selectedAvatarId, selectedTitle)) return;
     soundService.playCorrect();
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);

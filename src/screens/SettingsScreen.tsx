@@ -156,7 +156,7 @@ export const SettingsScreen: React.FC = () => {
       </div>
 
       {/* Developer & Review Testing Shortcuts */}
-      <div className="bg-amber-50/70 rounded-3xl p-6 border border-amber-200 space-y-4">
+      {import.meta.env.DEV && <div className="bg-amber-50/70 rounded-3xl p-6 border border-amber-200 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Wrench className="w-4 h-4 text-amber-600" />
@@ -255,7 +255,7 @@ export const SettingsScreen: React.FC = () => {
             </p>
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Reset Progress Section */}
       <div className="bg-white rounded-3xl p-6 border border-rose-200 shadow-xs space-y-3">
