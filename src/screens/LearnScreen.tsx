@@ -54,7 +54,7 @@ export const LearnScreen: React.FC = () => {
         </div>
 
         {/* Unit tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-amber-100/60 rounded-2xl">
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-amber-100/60 rounded-2xl">
           {ALL_UNITS.map(u => {
             const isSelected = selectedUnitId === u.id;
             return (

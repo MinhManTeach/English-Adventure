@@ -73,7 +73,7 @@ export const PictureMatch: React.FC<PictureMatchProps> = ({
           <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">
             Picture Match · Ghép Từ Với Hình Ảnh
           </span>
-          <PronounceButton text={question.audioText || question.question} label="Listen" />
+          <PronounceButton disabled={question.disablePreAnswerAudio} text={question.audioText || question.question} label="Listen" />
         </div>
 
         {/* Big Thematic Visual Illustration Icon */}

@@ -1,3 +1,4 @@
+import { CHAPTER2_QUESTIONS } from './A1/chapter2';
 import { Question } from '../types';
 import { UNIT_01_QUESTIONS } from './A1/unit01';
 import { UNIT_02_QUESTIONS } from './A1/unit02';
@@ -13,14 +14,17 @@ export const ALL_CURRICULUM_QUESTIONS: Question[] = [
   ...UNIT_01_EXPANSION,
   ...UNIT_02_EXPANSION,
   ...UNIT_03_EXPANSION,
+  ...CHAPTER2_QUESTIONS,
 ];
+
+export const CHRONOS_QUESTIONS: Question[] = CHAPTER2_QUESTIONS.filter(q => q.type !== 'sentence-builder').map(q => ({ ...q, id: `BOSS-C2-${q.id}`, type: 'multiple-choice' }));
 
 export function getAllQuestions(): Question[] {
   return ALL_CURRICULUM_QUESTIONS;
 }
 
 export function getReviewQuestionPool(): Question[] {
-  return [...ALL_CURRICULUM_QUESTIONS, ...BOSS_BATTLE_QUESTIONS];
+  return [...ALL_CURRICULUM_QUESTIONS, ...BOSS_BATTLE_QUESTIONS, ...CHRONOS_QUESTIONS];
 }
 
 export function getQuestionsByUnit(unitId: number): Question[] {
@@ -34,6 +38,11 @@ export function getQuestionsForStage(
 ): Question[] {
   const unitQuestions = getQuestionsByUnit(unitId);
 
+  if (unitId >= 4 && stageId === 'minigame') {
+    const choices = fisherYatesShuffle(unitQuestions.filter(q => q.options && q.type !== 'error-hunter')).slice(0, Math.max(0, count - 2));
+    const builders = fisherYatesShuffle(unitQuestions.filter(q => q.type === 'sentence-builder')).slice(0, 2);
+    return prepareSessionQuestions([...choices.map(q => ({ ...q, type: 'time-attack' as const })), ...builders], true);
+  }
   let filtered: Question[] = [];
 
   if (stageId === 'practice') {
@@ -50,19 +59,35 @@ export function getQuestionsForStage(
     filtered = unitQuestions;
   }
 
+  if (unitId >= 4 && stageId === 'challenge') {
+    const preferred = fisherYatesShuffle(filtered.filter(q => q.difficulty >= 2));
+    const builder = preferred.find(q => q.type === 'sentence-builder');
+    const gap = preferred.find(q => q.type === 'fill-gap');
+    const choice = preferred.find(q => q.type === 'multiple-choice') ?? fisherYatesShuffle(filtered.filter(q => q.type === 'multiple-choice'))[0];
+    const anchors = [builder, gap, choice].filter((q): q is Question => !!q);
+    const ids = new Set(anchors.map(q => q.id));
+    return prepareSessionQuestions([...anchors, ...preferred.filter(q => !ids.has(q.id))].slice(0, count), true);
+  }
   // Shuffle subset for variety and apply runtime balanced option placement
   const shuffledSubset = fisherYatesShuffle(filtered).slice(0, Math.min(count, filtered.length));
   return prepareSessionQuestions(shuffledSubset, false);
 }
 
-export function getBossQuestions(count = 10): Question[] {
-  const subset = fisherYatesShuffle(BOSS_BATTLE_QUESTIONS).slice(0, Math.min(count, BOSS_BATTLE_QUESTIONS.length));
+export function getBossQuestions(count = 10, chapter: 1 | 2 = 1): Question[] {
+  if (chapter === 2 && count === 10) {
+    const unit4 = fisherYatesShuffle(CHRONOS_QUESTIONS.filter(q => q.unit === 4)).slice(0, 3);
+    const contrast = fisherYatesShuffle(CHRONOS_QUESTIONS.filter(q => q.topic === 'present-simple-vs-continuous')).slice(0, 2);
+    const unit5 = fisherYatesShuffle(CHRONOS_QUESTIONS.filter(q => q.unit === 5 && q.topic !== 'present-simple-vs-continuous')).slice(0, 2);
+    const unit6 = fisherYatesShuffle(CHRONOS_QUESTIONS.filter(q => q.unit === 6)).slice(0, 3);
+    return prepareSessionQuestions([...unit4, ...contrast, ...unit5, ...unit6], true);
+  }
+  const subset = fisherYatesShuffle(chapter === 2 ? CHRONOS_QUESTIONS : BOSS_BATTLE_QUESTIONS).slice(0, Math.min(count, BOSS_BATTLE_QUESTIONS.length));
   return prepareSessionQuestions(subset, false);
 }
 
 export function getQuestionById(id: string): Question | undefined {
   if (id.startsWith('BOSS-')) {
-    return BOSS_BATTLE_QUESTIONS.find(q => q.id === id);
+    return [...BOSS_BATTLE_QUESTIONS, ...CHRONOS_QUESTIONS].find(q => q.id === id);
   }
   return ALL_CURRICULUM_QUESTIONS.find(q => q.id === id);
 }

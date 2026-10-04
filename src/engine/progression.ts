@@ -1,4 +1,4 @@
-import { Question, UserProgressState, ErrorBankItem, TopicMastery } from '../types';
+import { Question, UserProgressState, ErrorBankItem, TopicMastery, ChapterId } from '../types';
 import { calculateMasteryStatus } from './mastery';
 import { calculateLevel } from './scoring';
 
@@ -10,7 +10,7 @@ export function applyQuestionResult(
   source: 'practice' | 'review' | 'boss' = question.id.startsWith('BOSS-') ? 'boss' : 'practice',
 ): UserProgressState {
   const next = { ...prev };
-  if (source === 'boss') next.startedStages = [...new Set([...(prev.startedStages ?? []), 'boss'])];
+  if (source === 'boss') next.startedStages = [...new Set([...(prev.startedStages ?? []), question.unit >= 4 ? 'boss2' : 'boss'])];
 
   // 1. Error Bank management
   const errorBank = { ...next.errorBank };
@@ -18,17 +18,22 @@ export function applyQuestionResult(
     for (const id of new Set(question.reviewOf)) {
       const existing = errorBank[id];
       if (!existing) continue;
-      const reviewCorrectStreak = isCorrect ? (existing.reviewCorrectStreak ?? 0) + 1 : 0;
+      if (question.conceptId && existing.conceptId && question.conceptId !== existing.conceptId) continue;
+      const fresh = !question.variantId || (question.variantId !== existing.originalVariantId && !existing.recoveryVariantIds?.includes(question.variantId) && !existing.recoveryInstanceIds?.includes(question.questionInstanceId ?? ''));
+      const reviewCorrectStreak = isCorrect ? (existing.reviewCorrectStreak ?? 0) + (fresh ? 1 : 0) : 0;
       errorBank[id] = {
-        ...existing, reviewCorrectStreak, mastered: isCorrect && (existing.mastered || reviewCorrectStreak >= 3),
+        ...existing, reviewCorrectStreak,
+        ...(question.variantId && isCorrect && fresh ? { recoveryVariantIds: [...(existing.recoveryVariantIds ?? []), question.variantId], recoveryInstanceIds: [...(existing.recoveryInstanceIds ?? []), question.questionInstanceId ?? question.id] } : {}), mastered: isCorrect && (existing.mastered || reviewCorrectStreak >= 3),
         wrongCount: existing.wrongCount + (isCorrect ? 0 : 1),
         lastWrongAt: isCorrect ? existing.lastWrongAt : timestamp,
+        lastReviewContextKey: question.contextKey ?? existing.lastReviewContextKey,
         lastReviewedAt: timestamp, lastReviewQuestionId: question.id, lastAttemptSource: 'review',
         lastReviewWrongAnswer: isCorrect ? existing.lastReviewWrongAnswer : wrongAnswer,
       };
     }
   } else if (!isCorrect) {
-    const existing = errorBank[question.id];
+    const errorKey = question.conceptId ? `concept:${question.conceptId}` : question.id;
+    const existing = errorBank[errorKey];
     const wrongCount = (existing ? existing.wrongCount : 0) + 1;
     const errorItem: ErrorBankItem = {
       ...existing,
@@ -49,7 +54,14 @@ export function applyQuestionResult(
       explanation: { ...question.explanation },
       mastered: false,
     };
-    errorBank[question.id] = errorItem;
+    if (question.conceptId) Object.assign(errorItem, { conceptId: question.conceptId,
+      questionId: existing?.questionId ?? question.id, questionText: existing?.questionText ?? question.question,
+      correctAnswer: existing?.correctAnswer ?? question.answer, wrongAnswer: existing?.wrongAnswer ?? wrongAnswer,
+      options: existing?.options ?? question.options, explanation: existing?.explanation ?? question.explanation,
+      source: existing?.source ?? source, questionType: existing?.questionType ?? question.type, originalVariantId: existing?.originalVariantId ?? question.variantId,
+      originalContextKey: existing ? existing.originalContextKey : question.contextKey, lastContextKey: question.contextKey,
+      lastVariantId: question.variantId, lastQuestionText: question.question });
+    errorBank[errorKey] = errorItem;
 
     // Deduct heart only in Challenge or Boss
     if (isChallengeOrBoss) {
@@ -57,7 +69,7 @@ export function applyQuestionResult(
     }
   } else {
     // If correct, check if was in error bank and mark progress towards recovery
-    if (errorBank[question.id]) {
+    if (!question.conceptId && errorBank[question.id]) {
       errorBank[question.id] = {
         ...errorBank[question.id],
         mastered: source === 'review' ? errorBank[question.id].mastered || (errorBank[question.id].reviewCorrectStreak ?? 0) + 1 >= 3 : true,
@@ -95,6 +107,11 @@ export function applyQuestionResult(
     lastPracticed: today,
   };
   next.topicMastery = masteryMap;
+  if (question.conceptId) {
+    const old = prev.conceptMastery?.[question.conceptId];
+    const total = (old?.totalAttempts ?? 0) + 1, correct = (old?.correctAttempts ?? 0) + Number(isCorrect);
+    next.conceptMastery = { ...prev.conceptMastery, [question.conceptId]: { ...masteryMap[topicKey], topicKey: question.conceptId, totalAttempts: total, correctAttempts: correct, ...calculateMasteryStatus(correct, total) } };
+  }
 
   // 3. Vocab Master achievement check
   if (isCorrect && question.skill === 'vocabulary') {
@@ -123,10 +140,25 @@ export interface BossVictoryResult {
 }
 
 /** One transaction per battle; first-clear and achievement bonuses persist across replays. */
-export function applyBossVictory(prev: UserProgressState, battleId: string, today: string): {
+export function applyBossVictory(prev: UserProgressState, battleId: string, today: string, chapter: ChapterId = 1): {
   state: UserProgressState; result: BossVictoryResult;
 } {
   const oldLevel = calculateLevel(prev.xp).level;
+  if (chapter === 2) {
+    const progress = prev.chapter2 ?? { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false };
+    const duplicate = progress.lastBossRewardBattleId === battleId || progress.rewardedBattleIds?.includes(battleId);
+    if (duplicate) return { state: prev, result: { isFirstVictory: false, leveledUp: false, newLevel: oldLevel, xp: 0, coins: 0 } };
+    const first = !progress.bossDefeated;
+    const xp = first ? 250 : 20, coins = first ? 125 : 10;
+    const achievement = prev.achievements.time_master;
+    const achievements = first && achievement && !achievement.unlockedAt ? { ...prev.achievements,
+      time_master: { ...achievement, unlockedAt: today, currentProgress: 1 } } : prev.achievements;
+    const next = { ...prev, xp: prev.xp + xp, coins: prev.coins + coins, hearts: prev.maxHearts, achievements,
+      chapter2: { ...progress, bossDefeated: true, lastBossRewardBattleId: battleId,
+        rewardedBattleIds: [...(progress.rewardedBattleIds ?? []), battleId] } };
+    const newLevel = calculateLevel(next.xp).level;
+    return { state: next, result: { isFirstVictory: first, leveledUp: newLevel > oldLevel, newLevel, xp, coins } };
+  }
   if (prev.lastBossRewardBattleId === battleId) {
     return { state: prev, result: {
       isFirstVictory: false, leveledUp: false, newLevel: oldLevel, xp: 0, coins: 0,
@@ -143,7 +175,7 @@ export function applyBossVictory(prev: UserProgressState, battleId: string, toda
     coins += slayer.coinReward;
   }
   const next = {
-    ...prev, achievements, bossDefeated: true, lastBossRewardBattleId: battleId,
+    ...prev, achievements, bossDefeated: true, unlockedUnits: [...new Set([...prev.unlockedUnits, 4])], lastBossRewardBattleId: battleId,
     xp: prev.xp + xp, coins: prev.coins + coins, hearts: prev.maxHearts,
   };
   const newLevel = calculateLevel(next.xp).level;

@@ -5,6 +5,7 @@ import { useGame } from '../../context/GameContext';
 
 interface PronounceButtonProps {
   text: string;
+  disabled?: boolean;
   label?: string;
   variant?: 'compact' | 'full';
   className?: string;
@@ -12,6 +13,7 @@ interface PronounceButtonProps {
 
 export const PronounceButton: React.FC<PronounceButtonProps> = ({
   text,
+  disabled = false,
   label = 'Listen',
   variant = 'compact',
   className = '',
@@ -21,7 +23,7 @@ export const PronounceButton: React.FC<PronounceButtonProps> = ({
 
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!state.settings.speechEnabled) return;
+    if (disabled || !state.settings.speechEnabled) return;
 
     setIsPlaying(true);
     audioService.speak(text, {
@@ -31,7 +33,7 @@ export const PronounceButton: React.FC<PronounceButtonProps> = ({
     });
   };
 
-  if (!state.settings.speechEnabled) {
+  if (disabled || !state.settings.speechEnabled) {
     return null;
   }
 

@@ -66,7 +66,7 @@ export const FillGap: React.FC<FillGapProps> = ({
             Fill the Gap · Điền từ vào chỗ trống
           </span>
           <div className="flex items-center gap-2">
-            <PronounceButton text={question.audioText || question.question} label="Listen" />
+            <PronounceButton disabled={question.disablePreAnswerAudio} text={question.audioText || question.question} label="Listen" />
             <button
               type="button"
               onClick={() => setInputMode(prev => (prev === 'bank' ? 'type' : 'bank'))}

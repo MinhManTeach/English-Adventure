@@ -52,6 +52,74 @@ export const ALL_UNITS: UnitInfo[] = [
     vocabularyCount: 28,
     questionsCount: 53,
   },
+{
+  "id": 4,
+  "slug": "unit-4",
+  "level": "A1",
+  "number": 4,
+  "title": "Daily Routine Trail",
+  "titleVi": "Đường mòn thói quen",
+  "subtitle": "Present Simple · Daily Routines · Frequency",
+  "theme": "village",
+  "icon": "🚲",
+  "color": "#14B8A6",
+  "bgGradient": "from-teal-500 to-sky-600",
+  "description": "Follow a school-to-home trail and talk about everyday habits.",
+  "grammarPoints": [
+    "Present Simple",
+    "Do / Does questions",
+    "Negative forms",
+    "Frequency expressions"
+  ],
+  "vocabularyCount": 12,
+  "questionsCount": 34
+},
+
+{
+  "id": 5,
+  "slug": "unit-5",
+  "level": "A1",
+  "number": 5,
+  "title": "Action Park",
+  "titleVi": "Công viên hành động",
+  "subtitle": "Present Continuous · Actions Now",
+  "theme": "park",
+  "icon": "🌳",
+  "color": "#0EA5E9",
+  "bgGradient": "from-sky-500 to-indigo-600",
+  "description": "Explore the park and describe what everyone is doing now.",
+  "grammarPoints": [
+    "am / is / are + ing",
+    "Negative forms",
+    "Questions and short answers",
+    "Habits vs now"
+  ],
+  "vocabularyCount": 12,
+  "questionsCount": 34
+},
+
+{
+  "id": 6,
+  "slug": "unit-6",
+  "level": "A1",
+  "number": 6,
+  "title": "Hobby Harbor",
+  "titleVi": "Bến cảng sở thích",
+  "subtitle": "Hobbies · Leisure Activities",
+  "theme": "harbor",
+  "icon": "⛵",
+  "color": "#8B5CF6",
+  "bgGradient": "from-violet-500 to-fuchsia-600",
+  "description": "Share your favourite hobbies and enjoy your free time.",
+  "grammarPoints": [
+    "Hobbies",
+    "Like + ing",
+    "My hobby is",
+    "After-school activities"
+  ],
+  "vocabularyCount": 16,
+  "questionsCount": 36
+},
 ];
 
 export const UNIT_STAGES: UnitStage[] = [

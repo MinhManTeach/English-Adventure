@@ -1,9 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { RotateCcw, Target, Sparkles, CheckCircle2, ArrowRight, BookOpen } from 'lucide-react';
 import { useGame } from '../context/GameContext';
-import { selectAdaptiveReviewQuestions, selectReviewGateQuestions } from '../engine/review';
-import { prepareSessionQuestions } from '../engine/sessionQuestions';
-import { getReviewQuestionPool, getAllQuestions } from '../data/curriculum';
 import { REVIEW_GATE_PASS_PERCENT } from '../engine/worldProgression';
 import { Question } from '../types';
 import { GameSessionDispatcher } from '../games/GameSessionDispatcher';
@@ -11,7 +8,7 @@ import { Button } from '../components/common/Button';
 import { soundService } from '../services/sound';
 
 export const SmartReviewScreen: React.FC = () => {
-  const { state, recordQuestionResult, navigateTo, isReviewGate, completeReviewGate } = useGame();
+  const { state, recordQuestionResult, navigateTo, isReviewGate, completeReviewGate, activeChapterId, createReviewSession } = useGame();
   const [isPlaying, setIsPlaying] = useState(false);
   const [reviewQuestions, setReviewQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -31,11 +28,7 @@ export const SmartReviewScreen: React.FC = () => {
   const vocabErrors = pendingErrors.filter(e => e.skill === 'vocabulary').length;
 
   const handleStartReview = () => {
-    const all = getReviewQuestionPool();
-    const selected = isReviewGate
-      ? selectReviewGateQuestions(state.errorBank, getAllQuestions(), state.topicMastery)
-      : selectAdaptiveReviewQuestions(state.errorBank, all, 8, state.topicMastery);
-    const prepared = prepareSessionQuestions(selected, true);
+    const prepared = createReviewSession(isReviewGate ? activeChapterId : undefined);
     resolvedIndexRef.current = null;
     completedRef.current = false;
     correctCountRef.current = 0;
@@ -66,7 +59,7 @@ export const SmartReviewScreen: React.FC = () => {
       setCurrentIndex(currentIndex + 1);
     } else {
       completedRef.current = true;
-      if (isReviewGate) completeReviewGate(correctCountRef.current, reviewQuestions.length);
+      if (isReviewGate) completeReviewGate(correctCountRef.current, reviewQuestions.length, activeChapterId);
       setIsCompleted(true);
       soundService.playLevelComplete();
     }
@@ -81,7 +74,7 @@ export const SmartReviewScreen: React.FC = () => {
             Adaptive Review
           </span>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-game">
-            {isReviewGate ? 'Review Gate' : 'Smart Review'}
+            {isReviewGate ? activeChapterId === 2 ? 'Review Gate 2 · Everyday Adventure Review' : 'Review Gate' : 'Smart Review'}
           </h1>
         </div>
 
@@ -106,10 +99,10 @@ export const SmartReviewScreen: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-black font-game">
-                  {isReviewGate ? 'Prepare for Grammar Castle' : 'Targeted Weak Spot Recovery'}
+                  {isReviewGate ? activeChapterId === 2 ? 'Prepare for the Time Keeper' : 'Prepare for Grammar Castle' : 'Targeted Weak Spot Recovery'}
                 </h2>
                 <p className="text-xs text-rose-100">
-                  {isReviewGate ? '8 questions from Units 1–3. Reach 80% to open the castle.' : 'Practice your weak spots with fresh questions. Recover each mistake with three successful reviews.'}
+                  {isReviewGate ? `8 questions from Units ${activeChapterId === 2 ? '4–6' : '1–3'}. Reach 80% to open the ${activeChapterId === 2 ? 'Time Portal' : 'castle'}.` : 'Practice your weak spots with fresh questions. Recover each mistake with three successful reviews.'}
                 </p>
               </div>
             </div>
@@ -175,7 +168,7 @@ export const SmartReviewScreen: React.FC = () => {
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-extrabold text-rose-600 uppercase">
-                        {item.source === 'boss' || item.questionId.startsWith('BOSS-') ? 'Boss' : `Unit ${item.unit}`} · {item.topic}
+                        {item.source === 'boss' || item.questionId.startsWith('BOSS-') ? item.unit >= 4 ? 'Boss 2' : 'Boss' : `Unit ${item.unit}`} · {item.topic}
                       </span>
                       <span className="font-bold text-slate-400">
                         {item.wrongCount}x missed
@@ -225,7 +218,7 @@ export const SmartReviewScreen: React.FC = () => {
           </div>
 
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
-            {isReviewGate ? correctCount / reviewQuestions.length * 100 >= REVIEW_GATE_PASS_PERCENT ? 'PASS — Grammar Castle is unlocked!' : 'Aim for 80%. Review your mistakes and try again!' : 'Your recovery progress has been saved. Historical mistakes are kept.'}
+            {isReviewGate ? correctCount / reviewQuestions.length * 100 >= REVIEW_GATE_PASS_PERCENT ? activeChapterId === 2 ? 'PASS — Chronos is unlocked!' : 'PASS — Grammar Castle is unlocked!' : 'Aim for 80%. Review your mistakes and try again!' : 'Your recovery progress has been saved. Historical mistakes are kept.'}
           </div>
 
           <div className="flex flex-col gap-2 pt-2">

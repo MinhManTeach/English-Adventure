@@ -35,6 +35,14 @@ export const WorldBackground: React.FC<WorldBackgroundProps> = ({ unitId, isBoss
     );
   }
 
+  if (effectiveUnit >= 4) {
+    return <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-b from-sky-50 via-teal-50/70 to-amber-50">
+      <div className="absolute top-24 left-6 h-40 w-40 rounded-full bg-amber-200/30 blur-2xl" />
+      <svg viewBox="0 0 1200 180" preserveAspectRatio="none" className="absolute bottom-0 h-32 w-full text-teal-200/50"><path fill="currentColor" d="M0 90 Q200 0 400 90 T800 90 T1200 90 V180 H0 Z" /></svg>
+      <span className="absolute bottom-4 left-6 text-5xl opacity-15">{effectiveUnit === 4 ? '🚲' : effectiveUnit === 5 ? '🌳' : '⛵'}</span>
+    </div>;
+  }
+
   if (effectiveUnit === 1) {
     // Unit 1: Magic Grammar Gate - Star runes, glowing arch, floating crystals
     return (

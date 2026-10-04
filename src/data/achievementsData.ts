@@ -1,6 +1,9 @@
 import { Achievement } from '../types';
 
 export const INITIAL_ACHIEVEMENTS: Record<string, Achievement> = {
+  time_master: { id: 'time_master', title: 'TIME MASTER', titleVi: 'Bậc thầy thời gian',
+    description: 'Defeat Chronos in Everyday Adventure.', icon: '⏱️', category: 'special', unlockedAt: null,
+    xpReward: 0, coinReward: 0, maxProgress: 1, currentProgress: 0 },
   first_step: {
     id: 'first_step',
     title: 'First Step',

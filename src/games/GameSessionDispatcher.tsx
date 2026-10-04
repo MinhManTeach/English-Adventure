@@ -1,3 +1,4 @@
+import { TimeAttack } from './TimeAttack';
 import React from 'react';
 import { Question } from '../types';
 import { ChooseGame } from './ChooseGame';
@@ -18,6 +19,8 @@ export const GameSessionDispatcher: React.FC<GameSessionDispatcherProps> = ({
   onAnswerSubmit,
 }) => {
   switch (question.type) {
+    case 'time-attack':
+      return <TimeAttack key={question.id} question={question} onNext={onNext} onAnswerSubmit={onAnswerSubmit} />;
     case 'sentence-builder':
       return (
         <SentenceBuilder

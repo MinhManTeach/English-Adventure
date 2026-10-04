@@ -67,7 +67,7 @@ export function applySessionCompletion(prev: UserProgressState, summary: Learnin
 
       // Unlock next unit
       const nextUnitNum = summary.unitId + 1;
-      if (nextUnitNum <= 3 && !next.unlockedUnits.includes(nextUnitNum)) {
+      if (nextUnitNum <= 6 && nextUnitNum !== 4 && !next.unlockedUnits.includes(nextUnitNum)) {
         next.unlockedUnits = [...next.unlockedUnits, nextUnitNum];
       }
     }

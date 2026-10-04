@@ -103,6 +103,9 @@ export function createDefaultState(): UserProgressState {
     startedStages: [],
     stagePerformance: {},
     completedSessionIds: [],
+    recentQuestionHistory: {},
+    conceptMastery: {},
+    chapter2: { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false },
     acknowledgedLevel: 1,
     reviewGateCompleted: false,
     reviewGateAttempts: 0,
@@ -118,14 +121,14 @@ export function migrateState(value: unknown): UserProgressState {
   const object = <T extends object>(candidate: T | undefined, fallback: T): T =>
     candidate && typeof candidate === 'object' && !Array.isArray(candidate) ? { ...fallback, ...candidate } : fallback;
   const unitList = (candidate: number[] | undefined, fallback: number[]) =>
-    Array.isArray(candidate) ? [...new Set(candidate.filter(id => [1, 2, 3].includes(id)))] : fallback;
+    Array.isArray(candidate) ? [...new Set(candidate.filter(id => [1, 2, 3, 4, 5, 6].includes(id)))] : fallback;
   const completedUnits = unitList(old.completedUnits, []);
   const unitStageProgress = object(old.unitStageProgress, {});
   // Legacy completion did not always record Learn/Practice/Mini Game. Grandfather it.
   for (const unit of completedUnits) {
     for (const stage of ['learn', 'practice', 'minigame', 'challenge']) unitStageProgress[`unit${unit}-${stage}`] = true;
   }
-  for (const unit of [1, 2, 3]) {
+  for (const unit of [1, 2, 3, 4, 5, 6]) {
     const stages = ['learn', 'practice', 'minigame', 'challenge'];
     for (let index = 1; index < stages.length; index++) {
       if (unitStageProgress[`unit${unit}-${stages[index]}`]) {
@@ -148,12 +151,22 @@ export function migrateState(value: unknown): UserProgressState {
       }, defaults.topicMastery[topic], mastery);
     }
   }
+  const boundedStrings = (value: unknown, max: number): string[] => Array.isArray(value) ? value.filter((x): x is string => typeof x === 'string').slice(-max) : [];
+  const recentQuestionHistory = Object.fromEntries(Object.entries(object(old.recentQuestionHistory, {})).filter(([unit]) => /^[1-6]$/.test(unit)).map(([unit, history]) => [unit, {
+    variantIds: boundedStrings(history?.variantIds, 50), templateIds: boundedStrings(history?.templateIds, 20), cycleVariantIds: boundedStrings(history?.cycleVariantIds, 2000),
+    lastSessionContextFamilyKeys: boundedStrings(history?.lastSessionContextFamilyKeys, 24),
+    conceptIds: boundedStrings(history?.conceptIds, 50), visibleTaskKeys: boundedStrings(history?.visibleTaskKeys, 50),
+    contextKeys: boundedStrings(history?.contextKeys, 24), lastSessionContextKeys: boundedStrings(history?.lastSessionContextKeys, 24),
+  }]));
   const state: UserProgressState = {
     ...defaults, ...old, version: CURRENT_VERSION, completedUnits, unitStageProgress, achievements, topicMastery,
+    recentQuestionHistory,
+    conceptMastery: object(old.conceptMastery, {}),
+    chapter2: object(old.chapter2, defaults.chapter2!),
     profile: object(old.profile, defaults.profile), settings: object(old.settings, defaults.settings),
     errorBank: object(old.errorBank, {}), stagePerformance: object(old.stagePerformance, {}),
-    unlockedUnits: [...new Set([1, ...unitList(old.unlockedUnits, [1]), ...completedUnits,
-      ...completedUnits.filter(id => id < 3).map(id => id + 1)])],
+    unlockedUnits: [...new Set([1, ...(old.bossDefeated ? [4] : []), ...unitList(old.unlockedUnits, [1]), ...completedUnits,
+      ...completedUnits.filter(id => id < 6 && id !== 3).map(id => id + 1)])],
     activeDays: Array.isArray(old.activeDays) ? [...old.activeDays] : defaults.activeDays,
     attemptLogs: Array.isArray(old.attemptLogs) ? [...old.attemptLogs] : [],
     startedStages: Array.isArray(old.startedStages) ? [...old.startedStages] : [],

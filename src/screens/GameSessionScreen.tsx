@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { ArrowLeft, Heart, Sparkles, Trophy, CheckCircle, RotateCcw, ArrowRight } from 'lucide-react';
 import { useGame } from '../context/GameContext';
-import { getQuestionsForStage } from '../data/curriculum';
 import { ALL_UNITS } from '../data/unitsMeta';
 import { Question } from '../types';
 import { GameSessionDispatcher } from '../games/GameSessionDispatcher';
@@ -15,6 +14,7 @@ import { CHALLENGE_PASS_PERCENT } from '../engine/worldProgression';
 import { soundService } from '../services/sound';
 
 export const GameSessionScreen: React.FC = () => {
+  const { createLearningSession } = useGame();
   const {
     activeUnitId,
     activeStageId,
@@ -49,14 +49,18 @@ export const GameSessionScreen: React.FC = () => {
   };
   useEffect(() => () => cancelLevelUpTimer(), []);
 
+  const initializedSessionRef = useRef<string | null>(null);
   useEffect(() => {
+    const key = `${unitId}:${stageId}`;
+    if (initializedSessionRef.current === key) return;
+    initializedSessionRef.current = key;
     cancelLevelUpTimer();
     hasFinishedRef.current = false;
     resolvedIndexRef.current = null;
     correctCountRef.current = 0;
     sessionIdRef.current = crypto.randomUUID();
     sessionStartTime.current = Date.now();
-    const loaded = getQuestionsForStage(unitId, stageId as 'practice' | 'minigame' | 'challenge', 6);
+    const loaded = createLearningSession(unitId, stageId as 'practice' | 'minigame' | 'challenge', 6);
     setQuestions(loaded);
     setCurrentIndex(0);
     setCorrectCount(0);
@@ -147,7 +151,7 @@ export const GameSessionScreen: React.FC = () => {
     correctCountRef.current = 0;
     sessionIdRef.current = crypto.randomUUID();
     sessionStartTime.current = Date.now();
-    const loaded = getQuestionsForStage(unitId, stageId as 'practice' | 'minigame' | 'challenge', 6);
+    const loaded = createLearningSession(unitId, stageId as 'practice' | 'minigame' | 'challenge', 6);
     setQuestions(loaded);
     setCurrentIndex(0);
     setCorrectCount(0);

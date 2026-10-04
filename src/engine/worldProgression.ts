@@ -1,5 +1,6 @@
-import { UserProgressState } from '../types';
+import { UserProgressState, ChapterId } from '../types';
 
+export const WORLD2_UNITS = [4, 5, 6] as const;
 export const WORLD1_UNITS = [1, 2, 3] as const;
 export const LEARNING_STAGES = ['learn', 'practice', 'minigame', 'challenge'] as const;
 export type LearningStage = typeof LEARNING_STAGES[number];
@@ -9,6 +10,9 @@ export const REVIEW_GATE_PASS_PERCENT = 80;
 export const stageKey = (unitId: number, stage: LearningStage) => `unit${unitId}-${stage}`;
 
 export function isUnitAvailable(state: UserProgressState, unitId: number): boolean {
+  if (unitId >= 4) return WORLD2_UNITS.some(id => id === unitId) && state.bossDefeated && (
+    unitId === 4 || state.completedUnits.includes(unitId) || state.completedUnits.includes(unitId - 1)
+  );
   return WORLD1_UNITS.some(id => id === unitId) && (
     unitId === 1 || state.completedUnits.includes(unitId) ||
     state.unlockedUnits.includes(unitId) || state.completedUnits.includes(unitId - 1)
@@ -43,11 +47,17 @@ export function getUnitStatus(state: UserProgressState, unitId: number, topics: 
     state.startedStages?.includes(stageKey(unitId, stage))) ? 'IN PROGRESS' : 'AVAILABLE';
 }
 
-export function isReviewGateAvailable(state: UserProgressState): boolean {
+export function isReviewGateAvailable(state: UserProgressState, chapter: ChapterId = 1): boolean {
+  if (chapter === 2) return state.bossDefeated && WORLD2_UNITS.every(id => state.completedUnits.includes(id));
   return WORLD1_UNITS.every(id => state.completedUnits.includes(id));
 }
 
-export function getReviewGateStatus(state: UserProgressState): NodeStatus {
+export function getReviewGateStatus(state: UserProgressState, chapter: ChapterId = 1): NodeStatus {
+  if (chapter === 2) {
+    if (!isReviewGateAvailable(state, 2)) return 'LOCKED';
+    const progress = state.chapter2;
+    return progress?.reviewGateCompleted ? progress.reviewGateAttempts >= 2 && progress.reviewGateBestAccuracy >= 80 ? 'MASTERED' : 'COMPLETED' : progress?.reviewGateAttempts ? 'IN PROGRESS' : 'AVAILABLE';
+  }
   if (!isReviewGateAvailable(state)) return 'LOCKED';
   if (state.reviewGateCompleted) {
     return (state.reviewGateAttempts ?? 0) >= 2 && (state.reviewGateBestAccuracy ?? 0) >= 80 ? 'MASTERED' : 'COMPLETED';
@@ -55,7 +65,8 @@ export function getReviewGateStatus(state: UserProgressState): NodeStatus {
   return (state.reviewGateAttempts ?? 0) > 0 ? 'IN PROGRESS' : 'AVAILABLE';
 }
 
-export function canEnterBoss(state: UserProgressState): boolean {
+export function canEnterBoss(state: UserProgressState, chapter: ChapterId = 1): boolean {
+  if (chapter === 2) return state.bossDefeated && (!!state.chapter2?.bossDefeated || isReviewGateAvailable(state, 2) && !!state.chapter2?.reviewGateCompleted);
   return state.bossDefeated || (isReviewGateAvailable(state) && !!state.reviewGateCompleted);
 }
 
@@ -71,7 +82,14 @@ export function startLearningStage(state: UserProgressState, unitId: number, sta
   return { ...state, startedStages: [...(state.startedStages ?? []), key] };
 }
 
-export function finishReviewGate(state: UserProgressState, correct: number, total: number): UserProgressState {
+export function finishReviewGate(state: UserProgressState, correct: number, total: number, chapter: ChapterId = 1): UserProgressState {
+  if (chapter === 2) {
+    if (!isReviewGateAvailable(state, 2) || total !== 8 || !Number.isInteger(correct) || correct < 0 || correct > total) return state;
+    const old = state.chapter2 ?? { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false };
+    const accuracy = Math.round(correct / total * 100);
+    return { ...state, chapter2: { ...old, reviewGateCompleted: old.reviewGateCompleted || accuracy >= REVIEW_GATE_PASS_PERCENT,
+      reviewGateAttempts: old.reviewGateAttempts + 1, reviewGateBestAccuracy: Math.max(old.reviewGateBestAccuracy, accuracy) } };
+  }
   if (!isReviewGateAvailable(state) || total < 8 || correct < 0 || correct > total) return state;
   const accuracy = Math.round(correct / total * 100);
   const reviewGateCompleted = !!state.reviewGateCompleted || accuracy >= REVIEW_GATE_PASS_PERCENT;

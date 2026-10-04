@@ -2,7 +2,7 @@
  * Pure functions for Smart Review logic.
  * Prioritizes frequently missed questions, recent mistakes, and weak topics.
  */
-import { ErrorBankItem, Question, TopicMastery } from '../types';
+import { ErrorBankItem, Question, TopicMastery, ChapterId } from '../types';
 
 export function calculateReviewPriority(item: ErrorBankItem, now = Date.now()): number {
   const lastWrongTime = new Date(item.lastWrongAt).getTime();
@@ -68,13 +68,19 @@ export function selectAdaptiveReviewQuestions(
 
 /** Review Gate always tests all three units, regardless of Error Bank contents. */
 export function selectReviewGateQuestions(
-  errorBank: Record<string, ErrorBankItem>, questions: Question[], mastery: Record<string, TopicMastery>,
+  errorBank: Record<string, ErrorBankItem>, questions: Question[], mastery: Record<string, TopicMastery>, chapter: ChapterId = 1,
 ): Question[] {
-  return [1, 2, 3].flatMap(unit => {
+  const selected = (chapter === 2 ? [4, 5, 6] : [1, 2, 3]).flatMap((unit, index) => {
     const unitQuestions = questions.filter(q => q.unit === unit);
     const unitErrors = Object.fromEntries(Object.entries(errorBank).filter(([, item]) => item.unit === unit));
-    return selectAdaptiveReviewQuestions(unitErrors, unitQuestions, unit === 3 ? 2 : 3, mastery);
+    return selectAdaptiveReviewQuestions(unitErrors, unitQuestions, index === 2 ? 2 : 3, mastery);
   });
+  if (chapter === 2 && !selected.some(q => q.topic === 'present-simple-vs-continuous')) {
+    const contrast = questions.find(q => q.unit === 5 && q.topic === 'present-simple-vs-continuous');
+    let slot = -1; selected.forEach((q, index) => { if (q.unit === 5) slot = index; });
+    if (contrast && slot >= 0) selected[slot] = { ...contrast };
+  }
+  return selected;
 }
 
 /**

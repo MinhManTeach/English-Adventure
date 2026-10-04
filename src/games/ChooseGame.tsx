@@ -52,7 +52,7 @@ export const ChooseGame: React.FC<ChooseGameProps> = ({
           <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
             {question.subPrompt || 'Choose the correct answer'}
           </span>
-          <PronounceButton text={question.audioText || question.question} label="Listen Question" />
+          <PronounceButton disabled={question.disablePreAnswerAudio} text={question.audioText || question.question} label="Listen Question" />
         </div>
 
         <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-800 leading-snug font-game">

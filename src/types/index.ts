@@ -8,7 +8,8 @@ export type GameQuestionType =
   | 'matching'
   | 'sentence-builder'
   | 'listen-choice'
-  | 'error-hunter';
+  | 'error-hunter'
+  | 'time-attack';
 
 export interface QuestionExplanation {
   en: string;
@@ -32,7 +33,15 @@ export interface Question {
   difficulty: 1 | 2 | 3;
   xp: number;
   imageIcon?: string; // Icon or emoji or identifier for picture match
+  disablePreAnswerAudio?: boolean; // Independent assessment: feedback audio remains available.
   audioText?: string; // Text to speak when listening
+  conceptId?: string;
+  templateId?: string;
+  contextKey?: string; // Semantic cluster, independent of subject, form and task mode.
+  contextFamilyKey?: string; // Coarse taught word/activity shared by authored situations.
+  subjectKey?: string;
+  variantId?: string;
+  questionInstanceId?: string;
   reviewOf?: string[]; // Runtime links to historical mistakes being reviewed.
 }
 
@@ -90,6 +99,15 @@ export interface ErrorBankItem {
   lastReviewedAt?: string;
   lastReviewQuestionId?: string;
   lastAttemptSource?: 'practice' | 'review' | 'boss';
+  conceptId?: string;
+  originalContextKey?: string;
+  lastContextKey?: string;
+  lastReviewContextKey?: string;
+  originalVariantId?: string;
+  recoveryVariantIds?: string[];
+  recoveryInstanceIds?: string[];
+  lastVariantId?: string;
+  lastQuestionText?: string;
   lastReviewWrongAnswer?: string;
 }
 
@@ -139,7 +157,29 @@ export interface UserSettings {
   voiceGender?: 'female' | 'male';
 }
 
+export type ChapterId = 1 | 2;
+export interface ChapterProgress {
+  reviewGateCompleted: boolean;
+  reviewGateAttempts: number;
+  reviewGateBestAccuracy: number;
+  bossDefeated: boolean;
+  lastBossRewardBattleId?: string;
+  rewardedBattleIds?: string[];
+}
+export interface RecentQuestionHistory {
+  variantIds: string[];
+  templateIds: string[];
+  cycleVariantIds: string[];
+  contextKeys?: string[];
+  lastSessionContextKeys?: string[];
+  lastSessionContextFamilyKeys?: string[];
+  conceptIds?: string[];
+  visibleTaskKeys?: string[];
+}
 export interface UserProgressState {
+  recentQuestionHistory?: Record<string, RecentQuestionHistory>;
+  conceptMastery?: Record<string, TopicMastery>;
+  chapter2?: ChapterProgress;
   version: number;
   profile: UserProfile;
   xp: number;

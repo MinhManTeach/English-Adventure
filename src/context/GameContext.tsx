@@ -3,6 +3,7 @@ import {
   UserProgressState,
   Question,
   UserSettings,
+  ChapterId,
 } from '../types';
 import { storageService, getTodayDateString } from '../services/storage';
 import { calculateLevel, LevelInfo } from '../engine/scoring';
@@ -11,6 +12,9 @@ import { soundService } from '../services/sound';
 import { applySessionCompletion, LearningSessionSummary, LearningSessionResult } from '../engine/sessionCompletion';
 import { isUnitAvailable, isStageAvailable, canEnterBoss, isReviewGateAvailable, completeLearnStage, startLearningStage, finishReviewGate, LearningStage } from '../engine/worldProgression';
 import { applyQuestionResult, applyBossVictory, BossVictoryResult } from '../engine/progression';
+
+import { buildDynamicSession, buildDynamicReview, buildDynamicBoss, GeneratedSession } from '../engine/dynamicQuestions';
+import { StudyStage } from '../data/templates/questionTemplates';
 
 export type AppScreen =
   | 'welcome'
@@ -31,19 +35,24 @@ interface NavigationParams {
   unitId?: number;
   stageId?: 'learn' | 'practice' | 'minigame' | 'challenge';
   reviewGate?: boolean;
+  chapterId?: ChapterId;
 }
 
 interface GameContextType {
+  createLearningSession: (unit: number, stage: StudyStage, count?: number) => Question[];
+  createReviewSession: (chapter?: ChapterId) => Question[];
+  createBossSession: (chapter: ChapterId) => Question[];
   state: UserProgressState;
   levelInfo: LevelInfo;
   currentScreen: AppScreen;
   activeUnitId: number | null;
   activeStageId: 'learn' | 'practice' | 'minigame' | 'challenge' | null;
   isReviewGate: boolean;
+  activeChapterId: ChapterId;
   acknowledgeLevelUp: (level: number) => void;
   completeLearn: (unitId: number) => void;
   startStage: (unitId: number, stage: LearningStage) => void;
-  completeReviewGate: (correct: number, total: number) => void;
+  completeReviewGate: (correct: number, total: number, chapter?: ChapterId) => void;
   navigateTo: (screen: AppScreen, params?: NavigationParams) => void;
   createProfile: (name: string, avatarId: string) => void;
   updateAvatar: (avatarId: string, title?: string) => void;
@@ -55,7 +64,7 @@ interface GameContextType {
     source?: 'practice' | 'review' | 'boss'
   ) => void;
   finishSession: (summary: LearningSessionSummary) => LearningSessionResult;
-  recordBossVictory: (battleId: string) => BossVictoryResult;
+  recordBossVictory: (battleId: string, chapter?: ChapterId) => BossVictoryResult;
   loseHeart: () => void;
   restoreHearts: () => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
@@ -84,6 +93,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loaded = storageService.loadState();
     return loaded.profile.name ? 'home' : 'welcome';
   });
+  const [activeChapterId, setActiveChapterId] = useState<ChapterId>(1);
   const [isReviewGate, setIsReviewGate] = useState(false);
   const [activeUnitId, setActiveUnitId] = useState<number | null>(1);
   const [activeStageId, setActiveStageId] = useState<
@@ -106,15 +116,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearInterval(timer);
   }, []);
 
+  const reserveSession = useCallback((session: GeneratedSession) => {
+    setState(prev => ({ ...prev, recentQuestionHistory: session.history }));
+    if (import.meta.env.DEV) console.debug('[Dynamic questions]', session.questions.map(({ conceptId, templateId, variantId, contextKey, subjectKey, questionInstanceId }) => ({ conceptId, templateId, variantId, contextKey, subjectKey, questionInstanceId })));
+    return session.questions;
+  }, [setState]);
+  const createLearningSession = useCallback((unit: number, stage: StudyStage, count = 6) => reserveSession(buildDynamicSession(stateRef.current, unit, stage, count)), [reserveSession]);
+  const createReviewSession = useCallback((chapter?: ChapterId) => reserveSession(buildDynamicReview(stateRef.current, chapter)), [reserveSession]);
+  const createBossSession = useCallback((chapter: ChapterId) => reserveSession(buildDynamicBoss(stateRef.current, chapter)), [reserveSession]);
+
   const levelInfo = useMemo(() => calculateLevel(state.xp), [state.xp]);
 
   const navigateTo = useCallback((screen: AppScreen, params?: NavigationParams) => {
     const snapshot = stateRef.current;
+    const chapter = params?.chapterId ?? 1;
     const unitId = params?.unitId ?? activeUnitId ?? 1;
     if ((screen === 'unit' || screen === 'learn') && !isUnitAvailable(snapshot, unitId)) return;
     if (screen === 'session' && !isStageAvailable(snapshot, unitId, params?.stageId ?? 'practice')) return;
-    if (screen === 'boss' && !canEnterBoss(snapshot)) return;
-    if (screen === 'review' && params?.reviewGate && !isReviewGateAvailable(snapshot)) return;
+    if (screen === 'boss' && !canEnterBoss(snapshot, chapter)) return;
+    if (screen === 'review' && params?.reviewGate && !isReviewGateAvailable(snapshot, chapter)) return;
+    if (screen === 'boss' || screen === 'review') setActiveChapterId(chapter);
     setIsReviewGate(screen === 'review' && !!params?.reviewGate);
     if (params?.unitId !== undefined) {
       setActiveUnitId(params.unitId);
@@ -183,8 +204,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const startStage = useCallback((unitId: number, stage: LearningStage) => {
     setState(prev => startLearningStage(prev, unitId, stage));
   }, [setState]);
-  const completeReviewGate = useCallback((correct: number, total: number) => {
-    setState(prev => finishReviewGate(prev, correct, total));
+  const completeReviewGate = useCallback((correct: number, total: number, chapter: ChapterId = 1) => {
+    setState(prev => finishReviewGate(prev, correct, total, chapter));
   }, [setState]);
   const finishSession = useCallback((summary: LearningSessionSummary) => {
     const transaction = applySessionCompletion(stateRef.current, summary, new Date().toISOString(), getTodayDateString());
@@ -192,8 +213,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return transaction.result;
   }, [setState]);
 
-  const recordBossVictory = useCallback((battleId: string) => {
-    const transaction = applyBossVictory(stateRef.current, battleId, getTodayDateString());
+  const recordBossVictory = useCallback((battleId: string, chapter: ChapterId = 1) => {
+    const transaction = applyBossVictory(stateRef.current, battleId, getTodayDateString(), chapter);
     setState(transaction.state);
     return transaction.result;
   }, [setState]);
@@ -245,11 +266,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value = useMemo(
     () => ({
+      createLearningSession, createReviewSession, createBossSession,
       state,
       levelInfo,
       currentScreen,
       activeUnitId,
       activeStageId,
+      activeChapterId,
       isReviewGate,
       acknowledgeLevelUp,
       completeLearn,
@@ -270,11 +293,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       devAddCoins,
     }),
     [
+      createLearningSession, createReviewSession, createBossSession,
       state,
       levelInfo,
       currentScreen,
       activeUnitId,
       activeStageId,
+      activeChapterId,
       isReviewGate,
       acknowledgeLevelUp,
       completeLearn,

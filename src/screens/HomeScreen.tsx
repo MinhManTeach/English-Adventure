@@ -112,7 +112,7 @@ export const HomeScreen: React.FC = () => {
           </div>
           <h3 className="text-base font-black text-slate-800 font-game">Adventure Map</h3>
           <p className="text-xs text-slate-500 font-medium">
-            Explore 3 A1 lands & Castle Boss.
+            Explore 6 A1 lands and two chapter bosses.
           </p>
         </button>
 

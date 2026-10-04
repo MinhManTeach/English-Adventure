@@ -1,3 +1,4 @@
+import { Chapter2Map } from '../components/common/Chapter2Map';
 import React from 'react';
 import { Star, CheckCircle2, Lock, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useGame } from '../context/GameContext';
@@ -48,7 +49,7 @@ export const AdventureMapScreen: React.FC = () => {
           </div>
 
           {/* Unit 1: Magic Grammar Gate */}
-          {ALL_UNITS.map((unit, index) => {
+          {ALL_UNITS.filter(unit => unit.id <= 3).map((unit, index) => {
             const topics = [...new Set(getQuestionsByUnit(unit.id).map(q => q.topic))];
             const nodeStatus = getUnitStatus(state, unit.id, topics);
             const isCompleted = nodeStatus === 'COMPLETED' || nodeStatus === 'MASTERED';
@@ -253,18 +254,7 @@ export const AdventureMapScreen: React.FC = () => {
               <p className="mt-2 text-sm font-bold text-emerald-800">Grammar Castle is ready whenever you want to Fight Again.</p>
             </section>
           )}
-          {/* NEXT ADVENTURE */}
-          <div className="flex flex-col items-center justify-center pt-4">
-            <div className="p-6 rounded-3xl bg-amber-50/60 border border-dashed border-amber-300 text-center max-w-sm">
-              <span className="text-2xl mb-1 block">🚀</span>
-              <h4 className="text-base font-black text-slate-800 font-game">
-                NEXT ADVENTURE · Coming Soon
-              </h4>
-              <p className="text-xs text-slate-500 mt-1">
-                More adventures are on the way. Keep practicing your favorite skills!
-              </p>
-            </div>
-          </div>
+          <Chapter2Map />
         </div>
       </div>
     </div>

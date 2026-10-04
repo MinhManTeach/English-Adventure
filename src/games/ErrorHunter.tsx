@@ -49,7 +49,7 @@ export const ErrorHunter: React.FC<ErrorHunterProps> = ({
             <Search className="w-4 h-4 text-amber-600" />
             <span>Error Hunter · Thợ Săn Lỗi Sai</span>
           </div>
-          <PronounceButton text={question.question} label="Listen" />
+          <PronounceButton disabled={question.disablePreAnswerAudio} text={question.question} label="Listen" />
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-amber-200 flex items-center gap-3">

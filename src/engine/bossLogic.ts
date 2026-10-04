@@ -90,3 +90,8 @@ export function transitionBossBattle(state: BossBattleState, action: BossAction)
   if (state.currentIndex === BOSS_QUESTION_COUNT - 1) return { ...state, status: 'survived' };
   return { ...state, currentIndex: state.currentIndex + 1, wrongAttempts: 0, resolution: 'ready' };
 }
+
+/** Only the terminal victory transition can claim the shared reward transaction. */
+export function canClaimBossVictory(state: BossBattleState): boolean {
+  return state.status === 'victory' && state.bossHp === 0;
+}

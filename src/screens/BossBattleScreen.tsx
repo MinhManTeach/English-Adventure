@@ -1,3 +1,4 @@
+import { Chronos } from '../components/boss/Chronos';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import {
@@ -13,7 +14,6 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { useGame } from '../context/GameContext';
-import { getBossQuestions } from '../data/curriculum';
 import { Question } from '../types';
 import { Button } from '../components/common/Button';
 import { AnimatedCounter } from '../components/common/AnimatedCounter';
@@ -22,17 +22,21 @@ import { GrammarDragon } from '../components/boss/GrammarDragon';
 import { BattleHero } from '../components/boss/BattleHero';
 import { BossQuestionPanel } from '../components/boss/BossQuestionPanel';
 import { soundService } from '../services/sound';
-import { getBossPhase, createBossBattle, transitionBossBattle } from '../engine/bossLogic';
+import { getBossPhase, createBossBattle, transitionBossBattle, canClaimBossVictory } from '../engine/bossLogic';
 
 export const BossBattleScreen: React.FC = () => {
   const {
     state,
+    activeChapterId,
     navigateTo,
     recordBossVictory,
     recordQuestionResult,
     restoreHearts,
+    createBossSession,
   } = useGame();
 
+  const isChronos = activeChapterId === 2;
+  const BossVisual = isChronos ? Chronos : GrammarDragon;
   const [questions, setQuestions] = useState<Question[]>([]);
   const [battle, setBattle] = useState(() => createBossBattle());
   const battleRef = useRef(battle);
@@ -66,7 +70,7 @@ export const BossBattleScreen: React.FC = () => {
     setBattle(fresh);
     battleIdRef.current = crypto.randomUUID();
     restoreHearts();
-    setQuestions(getBossQuestions(10));
+    setQuestions(createBossSession(activeChapterId));
     actionLockedRef.current = false;
     setIsActionLocked(false);
     setHeroCasting(false);
@@ -78,9 +82,12 @@ export const BossBattleScreen: React.FC = () => {
     setShowLevelUp(false);
     setVictoryRewards(null);
     hasClaimedVictoryRef.current = false;
-  }, [clearTimers, restoreHearts]);
+  }, [clearTimers, restoreHearts, activeChapterId, createBossSession]);
 
+  const initializedChapterRef = useRef<number | null>(null);
   useEffect(() => {
+    if (initializedChapterRef.current === activeChapterId) return clearTimers;
+    initializedChapterRef.current = activeChapterId;
     initializeFreshBattle();
     return clearTimers;
   }, [initializeFreshBattle, clearTimers]);
@@ -144,9 +151,9 @@ export const BossBattleScreen: React.FC = () => {
   };
 
   const triggerBossVictory = () => {
-    if (hasClaimedVictoryRef.current || battleRef.current.bossHp !== 0) return;
+    if (hasClaimedVictoryRef.current || !canClaimBossVictory(battleRef.current)) return;
     hasClaimedVictoryRef.current = true;
-    const result = recordBossVictory(battleIdRef.current);
+    const result = recordBossVictory(battleIdRef.current, activeChapterId);
     setVictoryRewards(result);
     soundService.playVictory();
     if (result.leveledUp) schedule(() => setShowLevelUp(true), 500);
@@ -168,11 +175,12 @@ export const BossBattleScreen: React.FC = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 text-white flex flex-col justify-between overflow-x-hidden selection:bg-amber-400 selection:text-slate-900">
+      {isChronos && <div aria-hidden="true" className="absolute top-20 left-1/2 -translate-x-1/2 h-96 w-[min(90vw,600px)] rounded-full border-8 border-sky-400/20 shadow-[0_0_90px_#38bdf844] pointer-events-none" />}
       {/* Level Up Celebration Modal */}
       {showLevelUp && victoryRewards && (
         <LevelUpModal
           newLevel={victoryRewards.newLevel}
-          levelTitle="Castle Champion"
+          levelTitle={isChronos ? 'Time Master' : 'Castle Champion'}
           onContinue={() => setShowLevelUp(false)}
         />
       )}
@@ -216,7 +224,7 @@ export const BossBattleScreen: React.FC = () => {
           className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1 font-bold text-xs cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Leave Castle</span>
+          <span className="hidden sm:inline">{isChronos ? 'Leave Time Portal' : 'Leave Castle'}</span>
         </button>
 
         {/* Center: Stage Step & Combo */}
@@ -267,7 +275,7 @@ export const BossBattleScreen: React.FC = () => {
         {battleState === 'intro' && (
           <div className="max-w-md mx-auto my-auto bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 border-2 border-amber-400/80 text-center space-y-4 shadow-2xl animate-pop">
             <div className="w-24 h-24 mx-auto flex items-center justify-center">
-              <GrammarDragon hp={100} phase={1} />
+              <BossVisual hp={100} phase={1} />
             </div>
 
             <div className="space-y-1">
@@ -275,10 +283,10 @@ export const BossBattleScreen: React.FC = () => {
                 Final Chapter Confrontation
               </span>
               <h2 className="text-2xl sm:text-3xl font-black font-game text-amber-300">
-                Lord Verbose Awaits!
+                {isChronos ? 'Chronos Awaits!' : 'Lord Verbose Awaits!'}
               </h2>
               <p className="text-slate-300 text-xs leading-relaxed max-w-sm mx-auto">
-                Lord Verbose guards Grammar Castle! Cast 10 accurate spells to claim the champion&apos;s trophy!
+                {isChronos ? 'Chronos guards the Time Portal! Cast 10 accurate spells about routines, actions and hobbies.' : <>Lord Verbose guards Grammar Castle! Cast 10 accurate spells to claim the champion&apos;s trophy!</>}
               </p>
             </div>
 
@@ -356,7 +364,7 @@ export const BossBattleScreen: React.FC = () => {
                   )}
                   {dragonAttacking && (
                     <span className="text-orange-400 font-black text-xs uppercase tracking-wider drop-shadow-md animate-pulse">
-                      🔥 Dragon Strikes!
+                      {isChronos ? '⏱️ Time Strike!' : '🔥 Dragon Strikes!'}
                     </span>
                   )}
                 </div>
@@ -365,7 +373,7 @@ export const BossBattleScreen: React.FC = () => {
                 <div className="relative z-10 flex flex-col items-center text-right">
                   <div className="space-y-0.5 text-center sm:text-right w-full mb-1">
                     <span className="text-[10px] font-black text-violet-300 uppercase tracking-wider block">
-                      Lord Verbose
+                      {isChronos ? 'Chronos · Time Keeper' : 'Lord Verbose'}
                     </span>
                     {/* Dragon HP Bar */}
                     <div className="w-28 sm:w-36 bg-slate-950 rounded-full h-3 p-0.5 border border-slate-700 shadow-inner">
@@ -383,7 +391,7 @@ export const BossBattleScreen: React.FC = () => {
                     </span>
                   </div>
 
-                  <GrammarDragon
+                  <BossVisual
                     hp={bossHp}
                     phase={phase}
                     isHit={dragonHit}
@@ -423,7 +431,7 @@ export const BossBattleScreen: React.FC = () => {
         {battleState === 'victory' && (
           <div className="max-w-md mx-auto my-auto bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 border-4 border-amber-400 text-center space-y-4 shadow-2xl animate-pop">
             <div className="w-20 h-20 mx-auto flex items-center justify-center">
-              <GrammarDragon hp={0} phase="defeated" isDefeated={true} />
+              <BossVisual hp={0} phase="defeated" isDefeated={true} />
             </div>
 
             <div className="space-y-1">
@@ -431,13 +439,13 @@ export const BossBattleScreen: React.FC = () => {
                 🏆 VICTORY ACHIEVED!
               </span>
               <h2 className="text-2xl sm:text-3xl font-black font-game text-amber-300">
-                BOSS DEFEATED!
+                {isChronos ? 'CHRONOS DEFEATED!' : 'BOSS DEFEATED!'}
               </h2>
               <p className="text-xs font-bold text-slate-200">
-                LORD VERBOSE HAS BEEN DEFEATED!
+                {isChronos ? 'THE TIME KEEPER HAS BEEN DEFEATED!' : 'LORD VERBOSE HAS BEEN DEFEATED!'}
               </p>
               <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
-                With your English grammar mastery, Grammar Castle is now unlocked!
+                {isChronos ? 'You mastered everyday routines, actions and hobbies. Chapter 2 is complete!' : 'With your English grammar mastery, Grammar Castle is now unlocked!'}
               </p>
             </div>
 
@@ -460,7 +468,7 @@ export const BossBattleScreen: React.FC = () => {
             {/* Achievement Badge */}
             <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-400/40 text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5">
               <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>{victoryRewards?.isFirstVictory ? 'Achievement Unlocked: Grammar Castle Champion!' : 'Grammar Castle Champion!'}</span>
+              <span>{isChronos ? victoryRewards?.isFirstVictory ? 'Achievement Unlocked: TIME MASTER!' : 'TIME MASTER!' : victoryRewards?.isFirstVictory ? 'Achievement Unlocked: Grammar Castle Champion!' : 'Grammar Castle Champion!'}</span>
             </div>
 
             <div className="flex flex-col gap-2 pt-1">
@@ -493,7 +501,7 @@ export const BossBattleScreen: React.FC = () => {
         {battleState === 'survived' && (
           <div className="max-w-md mx-auto my-auto bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 border-2 border-indigo-400/80 text-center space-y-4 shadow-2xl animate-pop">
             <div className="w-20 h-20 mx-auto flex items-center justify-center">
-              <GrammarDragon hp={bossHp} phase={phase} />
+              <BossVisual hp={bossHp} phase={phase} />
             </div>
 
             <div className="space-y-1">
@@ -501,10 +509,10 @@ export const BossBattleScreen: React.FC = () => {
                 10 Spells Completed
               </span>
               <h2 className="text-2xl sm:text-3xl font-black font-game text-indigo-300">
-                THE DRAGON SURVIVED!
+                {isChronos ? 'THE TIME KEEPER SURVIVED!' : 'THE DRAGON SURVIVED!'}
               </h2>
               <p className="text-xs text-slate-300 font-semibold max-w-xs mx-auto">
-                Lord Verbose still has <span className="text-violet-300 font-black">{bossHp} HP</span> left. Review your mistakes to defeat him next time!
+                {isChronos ? 'Chronos' : 'Lord Verbose'} still has <span className="text-violet-300 font-black">{bossHp} HP</span> left. Review your mistakes to defeat him next time!
               </p>
             </div>
 
@@ -561,7 +569,7 @@ export const BossBattleScreen: React.FC = () => {
                 SO CLOSE!
               </h2>
               <p className="text-xs font-semibold text-slate-300 max-w-xs mx-auto leading-relaxed">
-                The Grammar Dragon is still guarding the castle. Review your weak questions and try again!
+                {isChronos ? 'Chronos still guards the portal. Review your mistakes and try again!' : 'The Grammar Dragon is still guarding the castle. Review your weak questions and try again!'}
               </p>
             </div>
 
