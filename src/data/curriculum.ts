@@ -15,6 +15,10 @@ export function getAllQuestions(): Question[] {
   return ALL_CURRICULUM_QUESTIONS;
 }
 
+export function getReviewQuestionPool(): Question[] {
+  return [...ALL_CURRICULUM_QUESTIONS, ...BOSS_BATTLE_QUESTIONS];
+}
+
 export function getQuestionsByUnit(unitId: number): Question[] {
   return ALL_CURRICULUM_QUESTIONS.filter(q => q.unit === unitId);
 }

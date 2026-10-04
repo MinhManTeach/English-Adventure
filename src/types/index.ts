@@ -79,6 +79,11 @@ export interface ErrorBankItem {
   wrongCount: number;
   lastWrongAt: string;
   mastered: boolean;
+  source?: 'boss' | 'curriculum';
+  options?: string[];
+  correctAnswer?: string | string[];
+  wrongAnswer?: string;
+  explanation?: QuestionExplanation;
 }
 
 export interface TopicMastery {
@@ -143,6 +148,7 @@ export interface UserProgressState {
   unlockedUnits: number[]; // e.g. [1, 2, 3]
   bossUnlocked: boolean;
   bossDefeated: boolean;
+  lastBossRewardBattleId?: string;
   errorBank: Record<string, ErrorBankItem>; // questionId -> ErrorBankItem
   topicMastery: Record<string, TopicMastery>;
   achievements: Record<string, Achievement>;

@@ -6,7 +6,7 @@ interface GrammarDragonProps {
   isHit?: boolean;
   isAttacking?: boolean;
   isDefeated?: boolean;
-  phase: 1 | 2 | 3;
+  phase: 1 | 2 | 3 | 'defeated';
 }
 
 export const GrammarDragon: React.FC<GrammarDragonProps> = ({

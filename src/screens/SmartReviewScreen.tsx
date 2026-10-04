@@ -3,7 +3,7 @@ import { RotateCcw, Target, Sparkles, CheckCircle2, ArrowRight, BookOpen } from 
 import { useGame } from '../context/GameContext';
 import { selectReviewQuestions } from '../engine/review';
 import { prepareSessionQuestions } from '../engine/sessionQuestions';
-import { getAllQuestions } from '../data/curriculum';
+import { getReviewQuestionPool } from '../data/curriculum';
 import { Question } from '../types';
 import { GameSessionDispatcher } from '../games/GameSessionDispatcher';
 import { Button } from '../components/common/Button';
@@ -26,7 +26,7 @@ export const SmartReviewScreen: React.FC = () => {
   const vocabErrors = pendingErrors.filter(e => e.skill === 'vocabulary').length;
 
   const handleStartReview = () => {
-    const all = getAllQuestions();
+    const all = getReviewQuestionPool();
     const selected = selectReviewQuestions(state.errorBank, all, 8);
     const prepared = prepareSessionQuestions(selected, true);
     setReviewQuestions(prepared);

@@ -1,16 +1,14 @@
-import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {
   UserProgressState,
   Question,
   UserSettings,
-  ErrorBankItem,
-  TopicMastery,
   LessonAttemptLog,
 } from '../types';
 import { storageService, getTodayDateString } from '../services/storage';
 import { calculateLevel, calculateXP, calculateCoins, LevelInfo } from '../engine/scoring';
-import { calculateMasteryStatus } from '../engine/mastery';
 import { soundService } from '../services/sound';
+import { applyQuestionResult, applyBossVictory, BossVictoryResult } from '../engine/progression';
 
 export type AppScreen =
   | 'welcome'
@@ -44,7 +42,8 @@ interface GameContextType {
   recordQuestionResult: (
     question: Question,
     isCorrect: boolean,
-    isChallengeOrBoss?: boolean
+    isChallengeOrBoss?: boolean,
+    wrongAnswer?: string
   ) => void;
   finishSession: (summary: {
     unitId: number;
@@ -60,11 +59,7 @@ interface GameContextType {
     newLevel: number;
     levelTitle: string;
   };
-  recordBossVictory: () => {
-    isFirstVictory: boolean;
-    leveledUp: boolean;
-    newLevel: number;
-  };
+  recordBossVictory: (battleId: string) => BossVictoryResult;
   loseHeart: () => void;
   restoreHearts: () => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
@@ -78,7 +73,17 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<UserProgressState>(() => storageService.loadState());
+  const [state, setReactState] = useState<UserProgressState>(() => storageService.loadState());
+  // Resolve updates synchronously outside React updater callbacks. Event handlers
+  // always see the latest snapshot, even when React batches multiple events.
+  const stateRef = useRef(state);
+  const setState = useCallback((update: React.SetStateAction<UserProgressState>) => {
+    const next = typeof update === 'function' ? update(stateRef.current) : update;
+    if (next === stateRef.current) return;
+    stateRef.current = next;
+    storageService.saveState(next);
+    setReactState(next);
+  }, []);
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(() => {
     const loaded = storageService.loadState();
     return loaded.profile.name ? 'home' : 'welcome';
@@ -92,11 +97,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     soundService.setMuted(!state.settings.soundEnabled);
   }, [state.settings.soundEnabled]);
-
-  // Persist state updates
-  useEffect(() => {
-    storageService.saveState(state);
-  }, [state]);
 
   // Track study time (increments every minute if active)
   useEffect(() => {
@@ -134,7 +134,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           joinedAt: today,
         },
       };
-      storageService.saveState(next);
       return next;
     });
     setCurrentScreen('home');
@@ -167,89 +166,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const recordQuestionResult = useCallback(
-    (question: Question, isCorrect: boolean, isChallengeOrBoss = false) => {
-      const today = getTodayDateString();
-
-      setState(prev => {
-        const next = { ...prev };
-
-        // 1. Error Bank management
-        const errorBank = { ...next.errorBank };
-        if (!isCorrect) {
-          const existing = errorBank[question.id];
-          const wrongCount = (existing ? existing.wrongCount : 0) + 1;
-          const errorItem: ErrorBankItem = {
-            questionId: question.id,
-            unit: question.unit,
-            topic: question.topic,
-            skill: question.skill,
-            questionText: question.question,
-            wrongCount,
-            lastWrongAt: today,
-            mastered: false,
-          };
-          errorBank[question.id] = errorItem;
-
-          // Deduct heart only in Challenge or Boss
-          if (isChallengeOrBoss) {
-            next.hearts = Math.max(0, next.hearts - 1);
-          }
-        } else {
-          // If correct, check if was in error bank and mark progress towards recovery
-          if (errorBank[question.id]) {
-            errorBank[question.id] = {
-              ...errorBank[question.id],
-              mastered: true,
-            };
-          }
-        }
-        next.errorBank = errorBank;
-
-        // 2. Topic Mastery updates
-        const topicKey = question.topic || 'general';
-        const masteryMap = { ...next.topicMastery };
-        const existingMastery: TopicMastery = masteryMap[topicKey] || {
-          topicKey,
-          title: question.topic.replace(/-/g, ' ').toUpperCase(),
-          skill: question.skill,
-          totalAttempts: 0,
-          correctAttempts: 0,
-          accuracy: 0,
-          status: 'NEW',
-          lastPracticed: today,
-        };
-
-        const totalAttempts = existingMastery.totalAttempts + 1;
-        const correctAttempts = existingMastery.correctAttempts + (isCorrect ? 1 : 0);
-        const { accuracy, status } = calculateMasteryStatus(correctAttempts, totalAttempts);
-
-        masteryMap[topicKey] = {
-          ...existingMastery,
-          totalAttempts,
-          correctAttempts,
-          accuracy,
-          status,
-          lastPracticed: today,
-        };
-        next.topicMastery = masteryMap;
-
-        // 3. Vocab Master achievement check
-        if (isCorrect && question.skill === 'vocabulary') {
-          const vocabAch = next.achievements.vocab_master;
-          if (vocabAch && !vocabAch.unlockedAt) {
-            vocabAch.currentProgress += 1;
-            if (vocabAch.currentProgress >= vocabAch.maxProgress) {
-              vocabAch.unlockedAt = today;
-              next.xp += vocabAch.xpReward;
-              next.coins += vocabAch.coinReward;
-            }
-          }
-        }
-
-        return next;
-      });
-    },
-    []
+    (question: Question, isCorrect: boolean, isChallengeOrBoss = false, wrongAnswer?: string) => {
+      const timestamp = new Date().toISOString();
+      setState(prev => applyQuestionResult(prev, question, isCorrect, isChallengeOrBoss, timestamp, wrongAnswer, getTodayDateString()));
+    }, [setState]
   );
 
   const finishSession = useCallback(
@@ -321,7 +241,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Achievements verification (one-time grants only)
-        const ach = next.achievements;
+        const ach = Object.fromEntries(Object.entries(next.achievements).map(([id, item]) => [id, { ...item }]));
+        next.achievements = ach;
         if (ach.first_step && !ach.first_step.unlockedAt) {
           ach.first_step.unlockedAt = today;
           ach.first_step.currentProgress = 1;
@@ -398,47 +319,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [state.streak, state.xp]
   );
 
-  const recordBossVictory = useCallback(() => {
-    const today = getTodayDateString();
-    let isFirstVictory = false;
-    let leveledUp = false;
-    let newLevel = 1;
-
-    setState(prev => {
-      const next = { ...prev };
-      const oldLevelInfo = calculateLevel(prev.xp);
-
-      isFirstVictory = !prev.bossDefeated;
-      next.bossDefeated = true;
-
-      if (isFirstVictory) {
-        next.xp += 100;
-        next.coins += 50;
-      } else {
-        // Repeat victory gives gentle normal reward
-        next.xp += 20;
-        next.coins += 10;
-      }
-
-      if (next.achievements.boss_slayer && !next.achievements.boss_slayer.unlockedAt) {
-        next.achievements.boss_slayer.unlockedAt = today;
-        next.achievements.boss_slayer.currentProgress = 1;
-        next.xp += next.achievements.boss_slayer.xpReward;
-        next.coins += next.achievements.boss_slayer.coinReward;
-      }
-
-      const nextLevelInfo = calculateLevel(next.xp);
-      if (nextLevelInfo.level > oldLevelInfo.level) {
-        leveledUp = true;
-        newLevel = nextLevelInfo.level;
-      }
-
-      next.hearts = next.maxHearts;
-      return next;
-    });
-
-    return { isFirstVictory, leveledUp, newLevel };
-  }, []);
+  const recordBossVictory = useCallback((battleId: string) => {
+    const transaction = applyBossVictory(stateRef.current, battleId, getTodayDateString());
+    setState(transaction.state);
+    return transaction.result;
+  }, [setState]);
 
   const updateSettings = useCallback((newSettings: Partial<UserSettings>) => {
     setState(prev => ({

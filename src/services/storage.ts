@@ -89,7 +89,7 @@ export function createDefaultState(): UserProgressState {
         lastPracticed: today,
       },
     },
-    achievements: { ...INITIAL_ACHIEVEMENTS },
+    achievements: Object.fromEntries(Object.entries(INITIAL_ACHIEVEMENTS).map(([id, item]) => [id, { ...item }])),
     attemptLogs: [],
     settings: {
       soundEnabled: true,
@@ -176,7 +176,8 @@ class StorageService {
 
     // Check streak hero achievement
     if (updated.achievements.streak_hero) {
-      const hero = updated.achievements.streak_hero;
+      const hero = { ...updated.achievements.streak_hero };
+      updated.achievements = { ...updated.achievements, streak_hero: hero };
       hero.currentProgress = Math.min(hero.maxProgress, newStreak);
       if (newStreak >= hero.maxProgress && !hero.unlockedAt) {
         hero.unlockedAt = today;

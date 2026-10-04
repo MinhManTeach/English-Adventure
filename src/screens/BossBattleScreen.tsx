@@ -22,7 +22,7 @@ import { GrammarDragon } from '../components/boss/GrammarDragon';
 import { BattleHero } from '../components/boss/BattleHero';
 import { BossQuestionPanel } from '../components/boss/BossQuestionPanel';
 import { soundService } from '../services/sound';
-import { getBossPhase, clampBossHp } from '../engine/bossLogic';
+import { getBossPhase, createBossBattle, transitionBossBattle } from '../engine/bossLogic';
 
 export const BossBattleScreen: React.FC = () => {
   const {
@@ -33,52 +33,41 @@ export const BossBattleScreen: React.FC = () => {
     restoreHearts,
   } = useGame();
 
-  // Fresh 10 Boss Questions
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [battle, setBattle] = useState(() => createBossBattle());
+  const battleRef = useRef(battle);
+  const battleIdRef = useRef('');
+  const { currentIndex, bossHp, comboCount, successfulHits, status: battleState } = battle;
 
-  // Authoritative Battle Invariants
-  const [bossHp, setBossHp] = useState<number>(100);
-  const [comboCount, setComboCount] = useState<number>(0);
-
-  // Visual Animation States
   const [heroCasting, setHeroCasting] = useState(false);
   const [heroHurt, setHeroHurt] = useState(false);
   const [dragonHit, setDragonHit] = useState(false);
   const [dragonAttacking, setDragonAttacking] = useState(false);
   const [projectile, setProjectile] = useState<'hero' | 'dragon' | null>(null);
-  const [floatingDamage, setFloatingDamage] = useState<{
-    text: string;
-    type: 'hero' | 'dragon';
-  } | null>(null);
-
+  const [floatingDamage, setFloatingDamage] = useState<{ text: string; type: 'hero' | 'dragon' } | null>(null);
   const [isActionLocked, setIsActionLocked] = useState(false);
-
-  // Battle State: 'intro' | 'fighting' | 'victory' | 'defeat' | 'survived'
-  const [battleState, setBattleState] = useState<
-    'intro' | 'fighting' | 'victory' | 'defeat' | 'survived'
-  >('intro');
-
+  const actionLockedRef = useRef(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [victoryRewards, setVictoryRewards] = useState<{
-    xp: number;
-    coins: number;
-    isFirstVictory: boolean;
-    newLevel: number;
+    xp: number; coins: number; isFirstVictory: boolean; newLevel: number;
   } | null>(null);
-
-  // Authoritative Ref Guards to prevent double-execution
   const hasClaimedVictoryRef = useRef(false);
-  const hasResolvedQuestionRef = useRef(false);
 
-  // Fresh battle initialization
-  const initializeFreshBattle = useCallback(() => {
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }, []);
+
+  const initializeFreshBattle = useCallback((status: 'intro' | 'fighting' = 'intro') => {
+    clearTimers();
+    const fresh = createBossBattle(status);
+    battleRef.current = fresh;
+    setBattle(fresh);
+    battleIdRef.current = crypto.randomUUID();
     restoreHearts();
-    const freshQuestions = getBossQuestions(10);
-    setQuestions(freshQuestions);
-    setCurrentIndex(0);
-    setBossHp(100);
-    setComboCount(0);
+    setQuestions(getBossQuestions(10));
+    actionLockedRef.current = false;
     setIsActionLocked(false);
     setHeroCasting(false);
     setHeroHurt(false);
@@ -86,178 +75,96 @@ export const BossBattleScreen: React.FC = () => {
     setDragonAttacking(false);
     setProjectile(null);
     setFloatingDamage(null);
+    setShowLevelUp(false);
+    setVictoryRewards(null);
     hasClaimedVictoryRef.current = false;
-    hasResolvedQuestionRef.current = false;
-  }, [restoreHearts]);
+  }, [clearTimers, restoreHearts]);
 
   useEffect(() => {
     initializeFreshBattle();
-    setBattleState('intro');
-  }, [initializeFreshBattle]);
+    return clearTimers;
+  }, [initializeFreshBattle, clearTimers]);
 
   const currentQuestion = questions[currentIndex];
-
-  // Strictly derived phase from CURRENT boss HP
   const phase = getBossPhase(bossHp);
+  const updateBattle = (next: typeof battle) => {
+    battleRef.current = next;
+    setBattle(next);
+  };
+  const schedule = (callback: () => void, delay: number) => {
+    timersRef.current.push(setTimeout(callback, delay));
+  };
 
   const handleStartBattle = () => {
+    updateBattle(transitionBossBattle(battleRef.current, { type: 'start' }));
     soundService.playBossHit();
-    setBattleState('fighting');
   };
 
-  /**
-   * Authoritative Answer Outcome Event:
-   * Called ONCE AND ONLY ONCE when a question attempt resolves.
-   */
-  const handleAnswerResolved = (isCorrect: boolean) => {
-    if (hasResolvedQuestionRef.current || !currentQuestion) return;
-    hasResolvedQuestionRef.current = true;
-
-    if (isCorrect) {
-      // --- CORRECT SPELL SEQUENCE ---
-      setIsActionLocked(true);
-      const nextCombo = comboCount + 1;
-      setComboCount(nextCombo);
-
-      // Hero casts attack spell
-      setHeroCasting(true);
-      setProjectile('hero');
-      soundService.playCorrect();
-
-      // Projectile travels Hero -> Dragon (400ms)
-      setTimeout(() => {
-        setHeroCasting(false);
-        setProjectile(null);
-        setDragonHit(true);
-        soundService.playBossHit();
-
-        // Exactly 10 Boss Damage (Rule 1 & 14)
-        setBossHp(prevHp => {
-          const nextHp = clampBossHp(prevHp - 10);
-          return nextHp;
-        });
-
-        setFloatingDamage({
-          text: '-10 HP',
-          type: 'dragon',
-        });
-
-        // Record question in analytics
-        recordQuestionResult(currentQuestion, true, false);
-
-        setTimeout(() => {
-          setDragonHit(false);
-          setFloatingDamage(null);
-          setIsActionLocked(false);
-        }, 550);
-      }, 400);
-    } else {
-      // --- WRONG SPELL SEQUENCE (Second Attempt Failure) ---
-      setIsActionLocked(true);
-      setComboCount(0);
-
-      // Dragon counter-attacks Hero
-      setDragonAttacking(true);
-      setProjectile('dragon');
+  // All gameplay changes happen synchronously here. Timer callbacks only animate.
+  const handleAnswerResolved = (isCorrect: boolean, answer: string) => {
+    if (actionLockedRef.current || !currentQuestion) return false;
+    const previous = battleRef.current;
+    const next = transitionBossBattle(previous, { type: 'answer', questionIndex: currentIndex, correct: isCorrect });
+    if (next === previous) return false;
+    updateBattle(next);
+    if (next.resolution === 'retry') {
       soundService.playWrong();
-
-      setTimeout(() => {
-        setDragonAttacking(false);
-        setProjectile(null);
-        setHeroHurt(true);
-
-        // Player loses exactly 1 heart
-        recordQuestionResult(currentQuestion, false, true);
-
-        setFloatingDamage({
-          text: '-1 ❤️',
-          type: 'hero',
-        });
-
-        setTimeout(() => {
-          setHeroHurt(false);
-          setFloatingDamage(null);
-          setIsActionLocked(false);
-
-          // Check if hearts reached zero
-          if (state.hearts <= 1) {
-            setBattleState('defeat');
-          }
-        }, 550);
-      }, 400);
+      return true;
     }
+    actionLockedRef.current = true;
+    setIsActionLocked(true);
+    recordQuestionResult(currentQuestion, isCorrect, !isCorrect, isCorrect ? undefined : answer);
+    setHeroCasting(isCorrect);
+    setDragonAttacking(!isCorrect);
+    setProjectile(isCorrect ? 'hero' : 'dragon');
+    if (isCorrect) soundService.playCorrect();
+    else soundService.playWrong();
+    schedule(() => {
+      setHeroCasting(false);
+      setDragonAttacking(false);
+      setProjectile(null);
+      setDragonHit(isCorrect);
+      setHeroHurt(!isCorrect);
+      setFloatingDamage({ text: isCorrect ? '-10 HP' : '-1 ❤️', type: isCorrect ? 'dragon' : 'hero' });
+      if (isCorrect) soundService.playBossHit();
+    }, 400);
+    schedule(() => {
+      setDragonHit(false);
+      setHeroHurt(false);
+      setFloatingDamage(null);
+      actionLockedRef.current = false;
+      setIsActionLocked(false);
+    }, 950);
+    return true;
   };
 
-  /**
-   * Next Question Handler:
-   * Increments question index ONLY when user presses Next.
-   * Checks if Boss is at 0 HP or if all 10 questions ended.
-   */
-  const handleNextQuestion = () => {
-    hasResolvedQuestionRef.current = false;
-    setIsActionLocked(false);
-
-    // If boss reached 0 HP: Victory!
-    if (bossHp <= 10 && hasResolvedQuestionRef.current) {
-      // already resolved to 0
-    }
-    if (bossHp <= 0) {
-      triggerBossVictory();
-      return;
-    }
-
-    // Check if next question is available
-    if (currentIndex + 1 < questions.length) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      // All 10 questions finished!
-      if (bossHp <= 0) {
-        triggerBossVictory();
-      } else {
-        // Boss Survived! (Rule 7)
-        setBattleState('survived');
-      }
-    }
+  const handleTryAgain = () => {
+    if (actionLockedRef.current) return;
+    updateBattle(transitionBossBattle(battleRef.current, { type: 'retry', questionIndex: currentIndex }));
   };
 
   const triggerBossVictory = () => {
-    if (hasClaimedVictoryRef.current) {
-      setBattleState('victory');
-      return;
-    }
+    if (hasClaimedVictoryRef.current || battleRef.current.bossHp !== 0) return;
     hasClaimedVictoryRef.current = true;
-
+    const result = recordBossVictory(battleIdRef.current);
+    setVictoryRewards(result);
     soundService.playVictory();
-    const result = recordBossVictory();
-
-    setVictoryRewards({
-      xp: result.isFirstVictory ? 100 : 20,
-      coins: result.isFirstVictory ? 50 : 10,
-      isFirstVictory: result.isFirstVictory,
-      newLevel: result.newLevel,
-    });
-
-    setBattleState('victory');
-
-    if (result.leveledUp) {
-      setTimeout(() => setShowLevelUp(true), 500);
-    }
-
+    if (result.leveledUp) schedule(() => setShowLevelUp(true), 500);
     try {
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.5 },
-      });
-    } catch {
-      // Safe fallback
-    }
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+    } catch { /* Celebration is optional. */ }
   };
 
-  const handleRetryBattle = () => {
-    initializeFreshBattle();
-    setBattleState('fighting');
+  const handleNextQuestion = () => {
+    if (actionLockedRef.current) return;
+    const previous = battleRef.current;
+    const next = transitionBossBattle(previous, { type: 'next', questionIndex: currentIndex });
+    if (next === previous) return;
+    updateBattle(next);
+    if (next.status === 'victory') triggerBossVictory();
   };
+
+  const handleRetryBattle = () => initializeFreshBattle('fighting');
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 text-white flex flex-col justify-between overflow-x-hidden selection:bg-amber-400 selection:text-slate-900">
@@ -302,7 +209,7 @@ export const BossBattleScreen: React.FC = () => {
       {/* ============================================================== */}
       {/* ZONE 1: TOP HUD (~48px) - Header, Hearts, Combo, Phase */}
       {/* ============================================================== */}
-      <header className="relative z-10 max-w-4xl mx-auto w-full px-4 py-2 border-b border-indigo-900/60 flex items-center justify-between gap-2 h-12">
+      <header className="relative z-10 max-w-4xl mx-auto w-full px-4 py-2 border-b border-indigo-900/60 flex items-center justify-between gap-2 min-h-14">
         <button
           type="button"
           onClick={() => navigateTo('map')}
@@ -319,8 +226,9 @@ export const BossBattleScreen: React.FC = () => {
               ⚔️ GRAMMAR CASTLE
             </span>
             <span className="text-xs font-bold text-slate-300">
-              Spell {Math.min(currentIndex + 1, 10)} / 10
+              SPELL {Math.min(currentIndex + 1, 10)} / 10
             </span>
+            <span className="text-[10px] text-slate-400 block">Successful Hits: {successfulHits}</span>
           </div>
 
           {comboCount >= 2 && (
@@ -333,7 +241,9 @@ export const BossBattleScreen: React.FC = () => {
 
         {/* Phase Pill (Rule 4) */}
         <div className="flex items-center gap-2">
-          {phase === 3 ? (
+          {phase === 'defeated' ? (
+            <span className="px-2 py-0.5 rounded-xl bg-emerald-700 text-white font-black text-[11px]">DEFEATED</span>
+          ) : phase === 3 ? (
             <span className="px-2 py-0.5 rounded-xl bg-rose-600 text-white font-black text-[11px] border border-rose-400 animate-pulse">
               🔥 FINAL PHASE!
             </span>
@@ -413,8 +323,8 @@ export const BossBattleScreen: React.FC = () => {
                     avatarId={state.profile.avatarId}
                     name={state.profile.name}
                     title={state.profile.title}
-                    hearts={state.hearts}
-                    maxHearts={state.maxHearts}
+                    hearts={battle.playerHearts}
+                    maxHearts={5}
                     isCasting={heroCasting}
                     isHurt={heroHurt}
                   />
@@ -493,9 +403,13 @@ export const BossBattleScreen: React.FC = () => {
             {/* ZONE 3: MAGICAL SPELL QUESTION PANEL (HIGH CONTRAST & COMPACT) */}
             {currentQuestion && (
               <BossQuestionPanel
+                key={`${battleIdRef.current}:${currentQuestion.id}`}
                 question={currentQuestion}
                 isActionLocked={isActionLocked}
                 comboCount={comboCount}
+                wrongAttempts={battle.wrongAttempts}
+                resolution={battle.resolution}
+                onTryAgain={handleTryAgain}
                 onAnswerResolved={handleAnswerResolved}
                 onNextQuestion={handleNextQuestion}
               />
@@ -509,7 +423,7 @@ export const BossBattleScreen: React.FC = () => {
         {battleState === 'victory' && (
           <div className="max-w-md mx-auto my-auto bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 border-4 border-amber-400 text-center space-y-4 shadow-2xl animate-pop">
             <div className="w-20 h-20 mx-auto flex items-center justify-center">
-              <GrammarDragon hp={0} phase={1} isDefeated={true} />
+              <GrammarDragon hp={0} phase="defeated" isDefeated={true} />
             </div>
 
             <div className="space-y-1">
@@ -532,13 +446,13 @@ export const BossBattleScreen: React.FC = () => {
               <div className="bg-indigo-950/80 p-3 rounded-2xl border border-indigo-700">
                 <span className="text-[10px] font-bold text-indigo-300 block">XP Gained</span>
                 <span className="text-xl font-black text-amber-300">
-                  <AnimatedCounter from={0} to={victoryRewards?.xp || 100} prefix="+" suffix=" XP" />
+                  <AnimatedCounter from={0} to={victoryRewards?.xp ?? 0} prefix="+" suffix=" XP" />
                 </span>
               </div>
               <div className="bg-amber-950/80 p-3 rounded-2xl border border-amber-700">
                 <span className="text-[10px] font-bold text-amber-300 block">Gold Reward</span>
                 <span className="text-xl font-black text-yellow-300">
-                  <AnimatedCounter from={0} to={victoryRewards?.coins || 50} prefix="+" suffix=" 🪙" />
+                  <AnimatedCounter from={0} to={victoryRewards?.coins ?? 0} prefix="+" suffix=" 🪙" />
                 </span>
               </div>
             </div>
@@ -546,7 +460,7 @@ export const BossBattleScreen: React.FC = () => {
             {/* Achievement Badge */}
             <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-400/40 text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5">
               <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Achievement Unlocked: Grammar Castle Champion!</span>
+              <span>{victoryRewards?.isFirstVictory ? 'Achievement Unlocked: Grammar Castle Champion!' : 'Grammar Castle Champion!'}</span>
             </div>
 
             <div className="flex flex-col gap-2 pt-1">

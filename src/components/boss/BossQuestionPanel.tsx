@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { RotateCcw, Check, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { Question } from '../../types';
 import { checkAnswer } from '../../engine/validator';
+import { fisherYatesShuffle } from '../../engine/sessionQuestions';
+import { BossBattleState } from '../../engine/bossLogic';
 import { PronounceButton } from '../common/PronounceButton';
 import { Button } from '../common/Button';
 import { useGame } from '../../context/GameContext';
@@ -10,7 +12,10 @@ interface BossQuestionPanelProps {
   question: Question;
   isActionLocked: boolean;
   comboCount: number;
-  onAnswerResolved: (isCorrect: boolean) => void;
+  wrongAttempts: number;
+  resolution: BossBattleState['resolution'];
+  onTryAgain: () => void;
+  onAnswerResolved: (isCorrect: boolean, answer: string) => boolean;
   onNextQuestion: () => void;
 }
 
@@ -18,6 +23,9 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
   question,
   isActionLocked,
   comboCount,
+  wrongAttempts,
+  resolution,
+  onTryAgain,
   onAnswerResolved,
   onNextQuestion,
 }) => {
@@ -30,17 +38,12 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
   const [placedWords, setPlacedWords] = useState<{ id: string; text: string }[]>([]);
   const [bankWords, setBankWords] = useState<{ id: string; text: string }[]>([]);
 
-  // 2-Attempt tracking per question
-  const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [hasAnswered, setHasAnswered] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const hasAnswered = resolution !== 'ready';
+  const isCorrect = resolution === 'resolved' && wrongAttempts < 2;
 
   // Reset when question changes
   useEffect(() => {
     setSelectedOption(null);
-    setWrongAttempts(0);
-    setHasAnswered(false);
-    setIsCorrect(false);
 
     if (question.type === 'sentence-builder') {
       const rawWords =
@@ -52,54 +55,30 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
         id: `${word}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
         text: word,
       }));
-      setBankWords([...items].sort(() => 0.5 - Math.random()));
+      setBankWords(fisherYatesShuffle(items));
       setPlacedWords([]);
     }
   }, [question.id, question.type, question.words, question.answer]);
 
-  // Multiple Choice / Fill Gap / Error Hunter evaluation
   const handleSelectOption = (option: string) => {
-    if (isActionLocked || (hasAnswered && (isCorrect || wrongAttempts >= 2))) return;
-
-    setSelectedOption(option);
-    const correct = checkAnswer(option, question.answer);
-    handleAnswerOutcome(correct);
+    if (isActionLocked || hasAnswered) return;
+    if (onAnswerResolved(checkAnswer(option, question.answer), option)) setSelectedOption(option);
   };
 
-  // Sentence Builder Check evaluation
   const handleCheckSentence = () => {
-    if (placedWords.length === 0 || isActionLocked) return;
-    const userSentence = placedWords.map(w => w.text).join(' ');
-    const correct = checkAnswer(userSentence, question.answer);
-    handleAnswerOutcome(correct);
-  };
-
-  const handleAnswerOutcome = (correct: boolean) => {
-    if (correct) {
-      setIsCorrect(true);
-      setHasAnswered(true);
-      onAnswerResolved(true);
-    } else {
-      const nextWrong = wrongAttempts + 1;
-      setWrongAttempts(nextWrong);
-      setIsCorrect(false);
-      setHasAnswered(true);
-
-      if (nextWrong >= 2) {
-        // Second wrong attempt: authoritative failure
-        onAnswerResolved(false);
-      }
-    }
+    if (placedWords.length === 0 || isActionLocked || hasAnswered) return;
+    const answer = placedWords.map(w => w.text).join(' ');
+    onAnswerResolved(checkAnswer(answer, question.answer), answer);
   };
 
   const handleTryAgain = () => {
+    if (isActionLocked || resolution !== 'retry') return;
     setSelectedOption(null);
-    setHasAnswered(false);
     if (question.type === 'sentence-builder') {
-      const all = [...placedWords, ...bankWords].sort(() => 0.5 - Math.random());
-      setBankWords(all);
+      setBankWords(fisherYatesShuffle([...placedWords, ...bankWords]));
       setPlacedWords([]);
     }
+    onTryAgain();
   };
 
   const canTryAgain = hasAnswered && !isCorrect && wrongAttempts < 2;
@@ -155,11 +134,10 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
                 <button
                   key={item.id}
                   type="button"
-                  disabled={isActionLocked || (hasAnswered && (isCorrect || !canTryAgain))}
+                  disabled={isActionLocked || hasAnswered}
                   onClick={() => {
                     setPlacedWords(prev => prev.filter(w => w.id !== item.id));
                     setBankWords(prev => [...prev, item]);
-                    if (hasAnswered && canTryAgain) setHasAnswered(false);
                   }}
                   className="px-3 py-1.5 rounded-xl bg-amber-500 text-white font-extrabold text-sm sm:text-base shadow-xs active:scale-95 cursor-pointer"
                 >
@@ -176,11 +154,10 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
                 <button
                   key={item.id}
                   type="button"
-                  disabled={isActionLocked || (hasAnswered && (isCorrect || !canTryAgain))}
+                  disabled={isActionLocked || hasAnswered}
                   onClick={() => {
                     setBankWords(prev => prev.filter(w => w.id !== item.id));
                     setPlacedWords(prev => [...prev, item]);
-                    if (hasAnswered && canTryAgain) setHasAnswered(false);
                   }}
                   className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-sm sm:text-base shadow-xs hover:border-amber-400 hover:bg-amber-50 active:scale-95 cursor-pointer"
                 >
@@ -190,7 +167,7 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
             </div>
 
             {/* CHECK SPELL BUTTON */}
-            {(!hasAnswered || canTryAgain) && (
+            {!hasAnswered && (
               <Button
                 variant="primary"
                 size="sm"
@@ -238,7 +215,7 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
               <button
                 key={option}
                 type="button"
-                disabled={isActionLocked || (hasAnswered && (isCorrect || !canTryAgain))}
+                disabled={isActionLocked || hasAnswered}
                 onClick={() => handleSelectOption(option)}
                 className={`p-3 sm:p-3.5 rounded-2xl flex items-center gap-3 text-left font-bold text-sm sm:text-base transition-all cursor-pointer ${cardStyle} ${
                   hasAnswered && (isCorrect || !canTryAgain)
@@ -293,7 +270,7 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
                     ? '⚡ SUPER SPELL! -10 HP'
                     : '✓ PERFECT SPELL! -10 HP'
                   : canTryAgain
-                  ? '⚠ SPELL MISSED! Try once more.'
+                  ? 'Almost! Try again.'
                   : 'The Dragon strikes back! (-1 ❤️)'}
               </span>
 
