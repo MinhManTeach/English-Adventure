@@ -1,0 +1,89 @@
+{
+  "rig": "v1",
+  "canvas": [
+    768,
+    1280
+  ],
+  "entries": [
+    {
+      "name": "body-boy",
+      "url": "/avatars/v1/bodies/boy/base.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "effb98be1e0efbad99f3dc49f39d7fc295657972ad4a13db88a402109202e5fa",
+      "bytes": 32968
+    },
+    {
+      "name": "body-girl",
+      "url": "/avatars/v1/bodies/girl/base.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "f94c2f5d89fc1896a0f25ef6c5998e7a3ddeb03196220b5790cef4c12d5d05f6",
+      "bytes": 33336
+    },
+    {
+      "name": "hair.starter-boy",
+      "url": "/avatars/v1/items/hair.starter-boy/boy/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "81ae7195e5abf12a450c9c62777dae77ee38fede0f07d49b058a3965844c742b",
+      "bytes": 7312
+    },
+    {
+      "name": "hair.starter-girl",
+      "url": "/avatars/v1/items/hair.starter-girl/girl/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "c23b6c59c4ac616790a4dda35859aeab036a13c514a71183bba0b78a299a7180",
+      "bytes": 10480
+    },
+    {
+      "name": "top.starter-blue",
+      "url": "/avatars/v1/items/top.starter-blue/shared/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "86b4178d248f6f35fad63df4b536ba6a31382e2465137e4b78cffe375b7e3fb2",
+      "bytes": 11656
+    },
+    {
+      "name": "top.starter-mint",
+      "url": "/avatars/v1/items/top.starter-mint/shared/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "91fd0458b077aeadade6b6f5c85bcb988b90242d8d5c3d939648d72dd16dd117",
+      "bytes": 11552
+    },
+    {
+      "name": "bottom.starter-shorts",
+      "url": "/avatars/v1/items/bottom.starter-shorts/shared/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "f2b77461efb0a470cc95498de3611efb07211990f4db1465a20d38f9cbff7d1d",
+      "bytes": 8334
+    },
+    {
+      "name": "bottom.starter-jeans",
+      "url": "/avatars/v1/items/bottom.starter-jeans/shared/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "0340105137602ac480dace4bdbd5356f0574e65e67dfe7f69a5a3ceeea6fda90",
+      "bytes": 13180
+    },
+    {
+      "name": "shoes.starter-white",
+      "url": "/avatars/v1/items/shoes.starter-white/shared/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "d1daf27a6da8ff212744b9dc4d90a0ddfdbb201a469c4674dd0406787dbddeb1",
+      "bytes": 3100
+    },
+    {
+      "name": "shoes.starter-navy",
+      "url": "/avatars/v1/items/shoes.starter-navy/shared/front.webp",
+      "width": 768,
+      "height": 1280,
+      "sha256": "650516bece8fc6c4ef215fbe0ce7aa4a0f9f615cb5d9a2c932712b2e57453eb3",
+      "bytes": 2708
+    }
+  ]
+}

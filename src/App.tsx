@@ -85,7 +85,12 @@ const MainAppContent: React.FC = () => {
   );
 };
 
+const AvatarVisualLab = import.meta.env.DEV ? React.lazy(() => import('./dev/AvatarVisualLab')) : null;
+
 export default function App() {
+  if (import.meta.env.DEV && AvatarVisualLab && new URLSearchParams(window.location.search).has('avatarLab')) {
+    return <React.Suspense fallback={<p role="status">Loading avatar lab…</p>}><AvatarVisualLab /></React.Suspense>;
+  }
   return (
     <GameProvider>
       <MainAppContent />

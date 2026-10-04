@@ -1,11 +1,14 @@
 import type { AvatarGender, AvatarSlot, RequiredSlot, StoreItem, UnlockCondition } from '../types/cosmetics';
+import { STARTER_ASSET_PATHS } from './avatarAssets';
 
-// Metadata is approved; no production artwork is available in Phase 2.5B.
+// Only the verified starter slice has production artwork.
 const item = (id: string, en: string, slot: AvatarSlot, compatibleWith: AvatarGender[], price: number,
   rarity: StoreItem['rarity'], unlock: UnlockCondition, vi: string): StoreItem => ({
   id, name: { en, vi }, slot, compatibleWith, price, rarity, unlock,
-  starter: rarity === 'starter', assetStatus: 'unavailable', assets: {},
-  preview: { thumbnailSrc: null, alt: en },
+  starter: rarity === 'starter', assetStatus: STARTER_ASSET_PATHS[id] ? 'ready' : 'unavailable',
+  assets: STARTER_ASSET_PATHS[id] ? Object.fromEntries(compatibleWith.map(gender => [gender,
+    [{ plane: slot === 'accessory' ? 'accessory-front' : slot, src: STARTER_ASSET_PATHS[id] }]])) : {},
+  preview: { thumbnailSrc: STARTER_ASSET_PATHS[id] ? `/avatars/v1/previews/${id}.webp` : null, alt: en },
 });
 export const COSMETIC_CATALOG: readonly StoreItem[] = [
   item('hair.starter-boy', 'Starter Short Hair', 'hair', ['boy'], 0, 'starter', { kind: 'always' }, 'Tóc ngắn khởi đầu'),

@@ -52,7 +52,7 @@ for (const [name, alter] of [
   ['unknown unlock', (x: StoreItem) => ({ ...x, unlock: { kind: 'pay' } })],
   ['bad compatibility', (x: StoreItem) => ({ ...x, compatibleWith: ['other'] })],
   ['charged starter', (x: StoreItem) => ({ ...x, price: 10 })],
-  ['false readiness', (x: StoreItem) => ({ ...x, assetStatus: 'ready' })],
+  ['false readiness', (x: StoreItem) => ({ ...x, assetStatus: 'ready', assets: {}, preview: { ...x.preview, thumbnailSrc: null } })],
   ['remote path', (x: StoreItem) => ({ ...x, assets: { boy: [{ plane: 'hair', src: 'https://external/hair.svg' }] } })],
 ] as const) test(`catalog rejects ${name}`, () => {
   const catalog = [...COSMETIC_CATALOG]; catalog[0] = alter(catalog[0]) as StoreItem;
