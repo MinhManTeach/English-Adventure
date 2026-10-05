@@ -118,15 +118,18 @@ export function unequipItem(state: UserProgressState, slot: AvatarSlot): Cosmeti
   return success(state, { ...c, avatar: { ...c.avatar, equipped: { ...c.avatar.equipped,
     [slot]: slot === 'accessory' ? null : STARTER_DEFAULTS[c.avatar.gender][slot] } } });
 }
-export function changeAvatarGender(state: UserProgressState, gender: AvatarGender, catalog = COSMETIC_CATALOG): CosmeticTransaction {
-  if (gender !== 'boy' && gender !== 'girl') return rejected(state, 'invalid-gender');
-  if (validateCosmeticCatalog(catalog).length) return rejected(state, 'invalid-catalog');
-  const c = state.cosmetics ?? createDefaultCosmetics();
+export function resolveGenderEquipment(c: CosmeticState, gender: AvatarGender, catalog = COSMETIC_CATALOG) {
   const equipped = { ...STARTER_DEFAULTS[gender], accessory: null as string | null };
   for (const slot of AVATAR_SLOTS) {
     const item = catalog.find(x => x.id === c.avatar.equipped[slot]);
     if (item && c.ownedItemIds.includes(item.id) && item.slot === slot && item.compatibleWith.includes(gender)
       && (item.starter || hasUsableAssets(item, gender))) equipped[slot] = item.id;
   }
-  return success(state, { ...c, avatar: { gender, equipped } });
+  return { gender, equipped };
+}
+export function changeAvatarGender(state: UserProgressState, gender: AvatarGender, catalog = COSMETIC_CATALOG): CosmeticTransaction {
+  if (gender !== 'boy' && gender !== 'girl') return rejected(state, 'invalid-gender');
+  if (validateCosmeticCatalog(catalog).length) return rejected(state, 'invalid-catalog');
+  const c = state.cosmetics ?? createDefaultCosmetics();
+  return success(state, { ...c, avatar: resolveGenderEquipment(c, gender, catalog) });
 }

@@ -3,10 +3,18 @@ import { AvatarRenderer } from '../components/avatar/AvatarRenderer';
 import { AVATAR_BODY_ASSETS, STARTER_ASSET_PATHS } from '../data/avatarAssets';
 import { STARTER_DEFAULTS } from '../data/cosmeticsCatalog';
 import type { AvatarGender, AvatarState } from '../types';
+import { AvatarEditor } from '../components/avatar/AvatarEditor';
+import { createDefaultCosmetics } from '../engine/avatarCosmetics';
+import { saveAvatarDraft } from '../engine/avatarCloset';
+import { createDefaultState } from '../services/storage';
+import { persistBeforePublish, runCosmeticAction } from '../services/durableState';
 
 export default function AvatarVisualLab() {
   const [mixed, setMixed] = useState(false);
   const [failure, setFailure] = useState('none');
+  const [saveDiagnostic, setSaveDiagnostic] = useState('success');
+  const [fixture, setFixture] = useState(createDefaultState);
+  const [editorRevision, setEditorRevision] = useState(0);
   const avatar = (gender: AvatarGender): AvatarState => ({ gender, equipped: {
     ...STARTER_DEFAULTS[gender], accessory: null,
     ...(mixed ? STARTER_DEFAULTS[gender === 'boy' ? 'girl' : 'boy'] : {}),
@@ -32,5 +40,18 @@ export default function AvatarVisualLab() {
         <h3>Unknown equipment fallback</h3><AvatarRenderer avatar={{ ...avatar(gender), equipped: { ...avatar(gender).equipped, top: 'unknown', accessory: 'accessory.castle-crown' } }} />
       </section>)}
     </div>
+    <section className="mt-8 space-y-4" aria-label="Creator save diagnostics">
+      <h2 className="text-2xl font-bold">Creator save diagnostics (memory fixture only)</h2>
+      <label>Save diagnostic <select value={saveDiagnostic} onChange={event => setSaveDiagnostic(event.target.value)} className="min-h-12 border-2 p-2 max-w-full">
+        <option value="success">Successful save</option><option value="storage-failed">Storage failure</option><option value="read-only">Read-only tab</option>
+      </select></label>
+      <AvatarEditor key={editorRevision} cosmetics={fixture.cosmetics ?? createDefaultCosmetics()} canSave={true}
+        onCancel={() => setEditorRevision(value => value + 1)} onSave={draft => {
+          const writer = saveDiagnostic === 'read-only' ? 'read-only' : 'writable';
+          return runCosmeticAction(state => saveAvatarDraft(state, draft), () => fixture, writer, true,
+            next => persistBeforePublish(next, writer, () => saveDiagnostic !== 'storage-failed', setFixture));
+        }} />
+      <p role="status">Fixture setup completed: {fixture.cosmetics?.setupCompleted ? 'yes' : 'no'}</p>
+    </section>
   </main>;
 }

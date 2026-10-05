@@ -19,7 +19,8 @@ import { SaveWriter, WriterStatus } from '../services/saveWriter';
 import { persistBeforePublish, runCosmeticAction, PublicationStatus } from '../services/durableState';
 import { purchaseItem as purchase, equipItem as equip, unequipItem as unequip, changeAvatarGender as switchGender, CosmeticTransaction } from '../engine/avatarCosmetics';
 import { applyDevShortcut } from '../engine/devShortcuts';
-import type { AvatarGender, AvatarSlot, CosmeticResult } from '../types';
+import { saveAvatarDraft as saveDraft } from '../engine/avatarCloset';
+import type { AvatarGender, AvatarSlot, AvatarState, CosmeticResult } from '../types';
 
 export type AppScreen =
   | 'welcome'
@@ -51,6 +52,7 @@ interface GameContextType {
   equipItem: (id: string) => CosmeticResult;
   unequipItem: (slot: AvatarSlot) => CosmeticResult;
   changeAvatarGender: (gender: AvatarGender) => CosmeticResult;
+  saveAvatarDraft: (draft: AvatarState) => CosmeticResult;
   createLearningSession: (unit: number, stage: StudyStage, count?: number) => Question[];
   createReviewSession: (chapter?: ChapterId) => Question[];
   createBossSession: (chapter: ChapterId) => Question[];
@@ -144,6 +146,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const equipItem = useCallback((id: string) => runCosmetic(state => equip(state, id)), [runCosmetic]);
   const unequipItem = useCallback((slot: AvatarSlot) => runCosmetic(state => unequip(state, slot)), [runCosmetic]);
   const changeAvatarGender = useCallback((gender: AvatarGender) => runCosmetic(state => switchGender(state, gender)), [runCosmetic]);
+  const saveAvatarDraft = useCallback((draft: AvatarState) => runCosmetic(state => saveDraft(state, draft)), [runCosmetic]);
   const [activeChapterId, setActiveChapterId] = useState<ChapterId>(1);
   const [isReviewGate, setIsReviewGate] = useState(false);
   const [activeUnitId, setActiveUnitId] = useState<number | null>(1);
@@ -302,7 +305,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value = useMemo(
     () => ({
-      writerStatus, storageStatus, saveStatus, purchaseItem, equipItem, unequipItem, changeAvatarGender,
+      writerStatus, storageStatus, saveStatus, purchaseItem, equipItem, unequipItem, changeAvatarGender, saveAvatarDraft,
       createLearningSession, createReviewSession, createBossSession,
       state,
       levelInfo,
@@ -330,7 +333,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       devAddCoins,
     }),
     [
-      writerStatus, storageStatus, saveStatus, purchaseItem, equipItem, unequipItem, changeAvatarGender,
+      writerStatus, storageStatus, saveStatus, purchaseItem, equipItem, unequipItem, changeAvatarGender, saveAvatarDraft,
       createLearningSession, createReviewSession, createBossSession,
       state,
       levelInfo,
