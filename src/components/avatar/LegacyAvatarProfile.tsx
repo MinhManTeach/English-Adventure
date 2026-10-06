@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
+import { PlayerAvatar } from './PlayerAvatar';
 import { AVATAR_PRESETS } from '../../data/avatarsData';
 import { Button } from '../common/Button';
 
@@ -11,7 +12,7 @@ export function LegacyAvatarProfile() {
   const [feedback, setFeedback] = useState('');
   const preset = AVATAR_PRESETS.find(item => item.id === state.profile.avatarId) ?? AVATAR_PRESETS[0];
   return <section className="rounded-3xl bg-white p-4 sm:p-6 border border-amber-100 space-y-4" aria-labelledby="profile-heading">
-    <div className="flex items-center gap-4"><span role="img" aria-label={`Legacy avatar ${preset.name}`} className="text-5xl">{preset.icon}</span>
+    <div className="flex items-center gap-4"><PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" />
       <div className="min-w-0 break-words"><h2 id="profile-heading" className="font-game text-xl font-black text-slate-900">{state.profile.name || 'Hero'}</h2>
         <p className="text-sm font-bold text-amber-900">{state.profile.title || 'Brave Explorer'}</p></div></div>
     <details><summary className="min-h-12 py-3 font-bold cursor-pointer text-slate-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300">Classic avatar & hero title</summary>

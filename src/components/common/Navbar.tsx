@@ -1,6 +1,7 @@
 import React from 'react';
 import { Volume2, VolumeX, Shield, Heart, Flame, Coins, Sparkles, Settings, ShoppingBag } from 'lucide-react';
 import { useGame, AppScreen } from '../../context/GameContext';
+import { PlayerAvatar } from '../avatar/PlayerAvatar';
 import { AVATAR_PRESETS } from '../../data/avatarsData';
 
 export const Navbar: React.FC = () => {
@@ -162,11 +163,10 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('avatar')}
-              className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-2xl bg-amber-100/70 border border-amber-200 hover:bg-amber-200 transition-all cursor-pointer group"
+              aria-label="Open My Avatar"
+              className="min-h-12 flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-2xl bg-amber-100/70 border border-amber-200 hover:bg-amber-200 transition-all cursor-pointer group"
             >
-              <span className="text-xl leading-none group-hover:scale-110 transition-transform">
-                {currentAvatar.icon}
-              </span>
+              <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" variant="compact" decorative />
               <span className="text-xs font-bold text-slate-800 max-w-[70px] truncate hidden md:inline">
                 {state.profile.name || 'Hero'}
               </span>

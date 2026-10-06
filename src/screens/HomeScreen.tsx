@@ -1,6 +1,7 @@
 import React from 'react';
 import { Play, Sparkles, Map, BookOpen, RotateCcw, Trophy, User, BarChart2, Shield } from 'lucide-react';
 import { useGame } from '../context/GameContext';
+import { PlayerAvatar } from '../components/avatar/PlayerAvatar';
 import { AVATAR_PRESETS } from '../data/avatarsData';
 import { ALL_UNITS } from '../data/unitsMeta';
 import { Button } from '../components/common/Button';
@@ -29,17 +30,17 @@ export const HomeScreen: React.FC = () => {
         <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-amber-600/20 rounded-full blur-xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
-          <div className="flex items-center gap-4 text-center sm:text-left">
+          <div className="flex min-w-0 items-center gap-4 text-center sm:text-left">
             <button
               type="button"
               onClick={() => navigateTo('avatar')}
-              title="Change Avatar"
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white/20 backdrop-blur-md border-2 border-white/40 flex items-center justify-center text-5xl shadow-md hover:scale-105 transition-transform cursor-pointer"
+              title="Change Avatar" aria-label="Change avatar"
+              className="shrink-0 rounded-3xl p-2 bg-white/20 backdrop-blur-md border-2 border-white/40 flex items-center justify-center text-5xl shadow-md hover:scale-105 motion-reduce:hover:scale-100 motion-reduce:transition-none transition-transform cursor-pointer"
             >
-              {currentAvatar.icon}
+              <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="medium" decorative />
             </button>
 
-            <div className="space-y-1">
+            <div className="min-w-0 break-words space-y-1">
               <div className="flex items-center gap-2 justify-center sm:justify-start">
                 <span className="text-xs font-black uppercase tracking-widest bg-white/25 px-2.5 py-0.5 rounded-lg text-white">
                   LEVEL {levelInfo.level}

@@ -19,6 +19,7 @@ import { Button } from '../components/common/Button';
 import { AnimatedCounter } from '../components/common/AnimatedCounter';
 import { LevelUpModal } from '../components/common/LevelUpModal';
 import { GrammarDragon } from '../components/boss/GrammarDragon';
+import { PlayerAvatar } from '../components/avatar/PlayerAvatar';
 import { BattleHero } from '../components/boss/BattleHero';
 import { BossQuestionPanel } from '../components/boss/BossQuestionPanel';
 import { soundService } from '../services/sound';
@@ -333,6 +334,7 @@ export const BossBattleScreen: React.FC = () => {
                 <div className="relative z-10 flex flex-col items-center">
                   <BattleHero
                     avatarId={state.profile.avatarId}
+                    cosmetics={state.cosmetics}
                     name={state.profile.name}
                     title={state.profile.title}
                     hearts={battle.playerHearts}
@@ -434,8 +436,9 @@ export const BossBattleScreen: React.FC = () => {
         {/* ============================================================== */}
         {battleState === 'victory' && (
           <div className="max-w-md mx-auto my-auto bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 border-4 border-amber-400 text-center space-y-4 shadow-2xl animate-pop">
-            <div className="w-20 h-20 mx-auto flex items-center justify-center">
-              <BossVisual hp={0} phase="defeated" isDefeated={true} />
+            <div className="mx-auto flex items-center justify-center gap-4">
+              <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="medium" decorative />
+              <div className="w-20 h-20 flex items-center justify-center"><BossVisual hp={0} phase="defeated" isDefeated={true} /></div>
             </div>
 
             <div className="space-y-1">
@@ -561,9 +564,7 @@ export const BossBattleScreen: React.FC = () => {
         {/* ============================================================== */}
         {battleState === 'defeat' && (
           <div className="max-w-md mx-auto my-auto bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 border-2 border-rose-500/80 text-center space-y-4 shadow-2xl animate-pop">
-            <div className="w-16 h-16 mx-auto rounded-3xl bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center text-3xl shadow-md">
-              💔
-            </div>
+            <div className="mx-auto flex justify-center"><PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" decorative /></div>
 
             <div className="space-y-1">
               <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">

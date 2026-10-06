@@ -1,9 +1,12 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
+import type { CosmeticState } from '../../types';
+import { PlayerAvatar } from '../avatar/PlayerAvatar';
 import { AVATAR_PRESETS } from '../../data/avatarsData';
 
 interface BattleHeroProps {
   avatarId: string;
+  cosmetics?: CosmeticState;
   name: string;
   title: string;
   hearts: number;
@@ -14,6 +17,7 @@ interface BattleHeroProps {
 
 export const BattleHero: React.FC<BattleHeroProps> = ({
   avatarId,
+  cosmetics,
   name,
   title,
   hearts,
@@ -49,7 +53,7 @@ export const BattleHero: React.FC<BattleHeroProps> = ({
         />
 
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-amber-400 via-orange-400 to-amber-500 border-3 border-white shadow-xl flex items-center justify-center text-4xl sm:text-5xl relative z-10">
-          {currentAvatar.icon}
+          <PlayerAvatar profile={{ avatarId, name }} cosmetics={cosmetics} size="medium" variant="compact" decorative />
 
           {/* Wizard Staff / Spell Wand badge */}
           <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs shadow-md border-2 border-white">

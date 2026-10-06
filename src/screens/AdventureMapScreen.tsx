@@ -1,5 +1,6 @@
 import { Chapter2Map } from '../components/common/Chapter2Map';
 import React from 'react';
+import { PlayerAvatar } from '../components/avatar/PlayerAvatar';
 import { Star, CheckCircle2, Lock, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { getUnitStatus, getReviewGateStatus, canEnterBoss } from '../engine/worldProgression';
@@ -40,11 +41,14 @@ export const AdventureMapScreen: React.FC = () => {
         <div className="space-y-8 relative">
           {/* Start Landmark */}
           <div className="flex flex-col items-center justify-center">
-            <div className="px-5 py-2 rounded-2xl bg-white border-2 border-amber-300 shadow-md text-center">
+            <div className="max-w-full flex items-center gap-3 px-5 py-2 rounded-2xl bg-white border-2 border-amber-300 shadow-md text-center">
+              <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" />
+              <div className="min-w-0">
               <span className="text-xs font-extrabold text-amber-800 uppercase tracking-widest block">
                 🏁 Journey Begins
               </span>
               <p className="text-sm font-bold text-slate-800">English Adventure Basecamp</p>
+              </div>
             </div>
           </div>
 
