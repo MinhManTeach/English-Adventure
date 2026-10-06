@@ -13,7 +13,7 @@ import { applyBossVictory, applyQuestionResult } from '../src/engine/progression
 import { applySessionCompletion } from '../src/engine/sessionCompletion';
 import { getAllQuestions } from '../src/data/curriculum';
 
-// Ready art is a test-only deployment fixture, never production catalog data.
+// Synthetic paths isolate transaction behavior from production asset files.
 const readyCatalog: StoreItem[] = COSMETIC_CATALOG.map(item => ({ ...item, assetStatus: 'ready',
   preview: { ...item.preview, thumbnailSrc: `/avatars/v1/previews/${item.id}.webp` },
   assets: Object.fromEntries(item.compatibleWith.map(g => [g, [{
@@ -25,8 +25,9 @@ const player = (): UserProgressState => ({ ...createDefaultState(), coins: 200, 
   profile: { ...createDefaultState().profile, name: 'Existing learner', avatarId: 'draco', title: 'Dragon Knight' } });
 const excludingCosmetics = (state: UserProgressState) => { const { cosmetics, ...rest } = state; return rest; };
 const purchase = (state = player(), id = 'top.sunshine-tee') => purchaseItem(state, id, readyCatalog);
+const unavailableCatalog = COSMETIC_CATALOG.map(item => item.starter ? item : { ...item, assetStatus: 'unavailable' as const });
 
-test('38 approved items have valid metadata and paid artwork remains unavailable', () => {
+test('38 approved items have valid metadata and unavailable artwork rejects purchases', () => {
   assert.equal(COSMETIC_CATALOG.length, 38);
   assert.deepEqual(validateCosmeticCatalog(COSMETIC_CATALOG), []);
   assert.deepEqual(validateCosmeticCatalog(readyCatalog), []);
@@ -40,7 +41,7 @@ test('38 approved items have valid metadata and paid artwork remains unavailable
     }
   }
   for (const item of COSMETIC_CATALOG.filter(x => !x.starter && x.unlock.kind === 'always' && x.compatibleWith.includes('boy')))
-    assert.equal(purchaseItem(player(), item.id).result.status, 'asset-unavailable');
+    assert.equal(purchaseItem(player(), item.id, unavailableCatalog).result.status, 'asset-unavailable');
 });
 
 for (const [name, alter] of [
@@ -131,7 +132,7 @@ test('nonexistent, locked, incompatible and unavailable assets reject', () => {
   assert.equal(purchase(player(), 'unknown').result.status, 'invalid-item');
   assert.equal(purchase(player(), 'top.castle-jacket').result.status, 'locked');
   assert.equal(purchase(player(), 'hair.pony-tail').result.status, 'incompatible');
-  assert.equal(purchaseItem(player(), 'top.sunshine-tee').result.status, 'asset-unavailable');
+  assert.equal(purchaseItem(player(), 'top.sunshine-tee', unavailableCatalog).result.status, 'asset-unavailable');
 });
 test('unit, XP-derived level and Boss unlocks use progress, not legacy level', () => {
   assert.equal(purchase({ ...player(), completedUnits: [1] }, 'hair.tidy-spikes').result.status, 'success');
@@ -153,7 +154,7 @@ test('equip rejects unowned, invalid, incompatible, wrong-slot catalog and unava
   assert.equal(equipItem(player(), 'unknown', readyCatalog).result.status, 'invalid-item');
   const state = player(); state.cosmetics!.ownedItemIds.push('hair.pony-tail', 'top.sunshine-tee');
   assert.equal(equipItem(state, 'hair.pony-tail', readyCatalog).result.status, 'incompatible');
-  assert.equal(equipItem(state, 'top.sunshine-tee').result.status, 'asset-unavailable');
+  assert.equal(equipItem(state, 'top.sunshine-tee', unavailableCatalog).result.status, 'asset-unavailable');
   const wrong = readyCatalog.map(x => x.id === 'top.sunshine-tee' ? { ...x, slot: 'shoes' as const } : x);
   assert.equal(equipItem(state, 'top.sunshine-tee', wrong).result.status, 'invalid-catalog');
 });

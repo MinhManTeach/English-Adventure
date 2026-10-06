@@ -1,14 +1,18 @@
 import type { AvatarGender, AvatarSlot, RequiredSlot, StoreItem, UnlockCondition } from '../types/cosmetics';
 import { STARTER_ASSET_PATHS } from './avatarAssets';
+import { COSMETIC_ASSET_PACK } from './cosmeticAssetPack';
 
-// Only the verified starter slice has production artwork.
+// Only explicit, visually verified Rig V1 exports are ready. Readiness does not grant ownership.
 const item = (id: string, en: string, slot: AvatarSlot, compatibleWith: AvatarGender[], price: number,
   rarity: StoreItem['rarity'], unlock: UnlockCondition, vi: string): StoreItem => ({
   id, name: { en, vi }, slot, compatibleWith, price, rarity, unlock,
-  starter: rarity === 'starter', assetStatus: STARTER_ASSET_PATHS[id] ? 'ready' : 'unavailable',
-  assets: STARTER_ASSET_PATHS[id] ? Object.fromEntries(compatibleWith.map(gender => [gender,
-    [{ plane: slot === 'accessory' ? 'accessory-front' : slot, src: STARTER_ASSET_PATHS[id] }]])) : {},
-  preview: { thumbnailSrc: STARTER_ASSET_PATHS[id] ? `/avatars/v1/previews/${id}.webp` : null, alt: en },
+  starter: rarity === 'starter', assetStatus: STARTER_ASSET_PATHS[id] || COSMETIC_ASSET_PACK[id] ? 'ready' : 'unavailable',
+  assets: Object.fromEntries(compatibleWith.flatMap(gender => {
+    const layers = COSMETIC_ASSET_PACK[id] ?? (STARTER_ASSET_PATHS[id]
+      ? [{ plane: slot === 'accessory' ? 'accessory-front' as const : slot, src: STARTER_ASSET_PATHS[id] }] : null);
+    return layers ? [[gender, layers]] : [];
+  })),
+  preview: { thumbnailSrc: STARTER_ASSET_PATHS[id] || COSMETIC_ASSET_PACK[id] ? `/avatars/v1/previews/${id}.webp` : null, alt: en },
 });
 export const COSMETIC_CATALOG: readonly StoreItem[] = [
   item('hair.starter-boy', 'Starter Short Hair', 'hair', ['boy'], 0, 'starter', { kind: 'always' }, 'Tóc ngắn khởi đầu'),

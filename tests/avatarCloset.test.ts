@@ -69,7 +69,7 @@ test('repeated gender previews preserve compatible clothes, ownership, profile a
     assert.deepEqual(state.profile, profile); assert.equal(state.coins, 200); assert.equal(state.xp, 350);
     assert.equal(state.cosmetics?.avatar.equipped.hair, `hair.starter-${gender}`);
   }
-  assert.ok(COSMETIC_CATALOG.filter(item => !item.starter).every(item => item.assetStatus === 'unavailable'));
+  assert.ok(COSMETIC_CATALOG.filter(item => !item.starter).every(item => !state.cosmetics?.ownedItemIds.includes(item.id)));
 });
 test('valid draft is written exactly once and reload restores the whole outfit', () => {
   let authoritative = player(); const before = authoritative; let serialized = ''; let writes = 0;
@@ -84,8 +84,9 @@ test('valid draft is written exactly once and reload restores the whole outfit',
 test('owned but unavailable paid artwork cannot be saved or shown', () => {
   const state = player(); state.cosmetics = { ...createDefaultCosmetics(), ownedItemIds: [...createDefaultCosmetics().ownedItemIds, 'top.sunshine-tee'] };
   const draft = previewAvatarGender(state.cosmetics, 'boy'); draft.equipped.top = 'top.sunshine-tee';
-  assert.equal(saveAvatarDraft(state, draft).result.status, 'asset-unavailable');
-  assert.ok(!ownedClosetItems(state.cosmetics, 'boy', 'top').some(item => item.id === 'top.sunshine-tee'));
+  const unavailable = COSMETIC_CATALOG.map(item => item.id === 'top.sunshine-tee' ? { ...item, assetStatus: 'unavailable' as const } : item);
+  assert.equal(saveAvatarDraft(state, draft, unavailable).result.status, 'asset-unavailable');
+  assert.ok(!ownedClosetItems(state.cosmetics, 'boy', 'top', unavailable).some(item => item.id === 'top.sunshine-tee'));
 });
 test('invalid or incomplete drafts never confirm setup', () => {
   const state = player();

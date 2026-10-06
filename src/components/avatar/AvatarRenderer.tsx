@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import type { AvatarState } from '../../types';
+import type { AvatarState, StoreItem } from '../../types';
+import { COSMETIC_CATALOG } from '../../data/cosmeticsCatalog';
 import { AVATAR_BODY_ASSETS } from '../../data/avatarAssets';
 import { AVATAR_PLANES, AVATAR_SIZES, AvatarPresentation, AvatarSize, resolveAvatarLayers } from '../../engine/avatarRendering';
 
@@ -11,6 +12,7 @@ export interface AvatarRendererProps {
   className?: string;
   /** Read-only asset overrides support previews and failure diagnostics; never player save data. */
   bodyAssets?: typeof AVATAR_BODY_ASSETS;
+  catalog?: readonly StoreItem[];
   unavailableSources?: readonly string[];
 }
 const NO_SOURCES: readonly string[] = [];
@@ -32,12 +34,12 @@ function NeutralAvatar() {
 }
 
 export const AvatarRenderer = memo(function AvatarRenderer({ avatar, size = 'medium', presentation = 'complete',
-  label, className = '', bodyAssets = AVATAR_BODY_ASSETS, unavailableSources = NO_SOURCES }: AvatarRendererProps) {
+  label, className = '', bodyAssets = AVATAR_BODY_ASSETS, catalog = COSMETIC_CATALOG, unavailableSources = NO_SOURCES }: AvatarRendererProps) {
   const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());
   const [loaded, setLoaded] = useState<ReadonlySet<string>>(() => new Set());
   const blocked = useMemo(() => new Set([...failed, ...unavailableSources]), [failed, unavailableSources]);
-  const plan = useMemo(() => resolveAvatarLayers(avatar, { failedSources: blocked, presentation, bodyAssets }),
-    [avatar, blocked, presentation, bodyAssets]);
+  const plan = useMemo(() => resolveAvatarLayers(avatar, { failedSources: blocked, presentation, bodyAssets, catalog }),
+    [avatar, blocked, presentation, bodyAssets, catalog]);
   const onError = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
     const src = event.currentTarget.getAttribute('src');
     if (src) setFailed(previous => previous.has(src) ? previous : new Set([...previous, src]));

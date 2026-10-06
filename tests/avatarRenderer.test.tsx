@@ -24,7 +24,8 @@ for (const gender of ['boy', 'girl'] as const) {
   test(`${gender}: unknown, incompatible and unavailable equipment falls back safely`, () => {
     const state = avatar(gender);
     for (const id of ['unknown', 'top.space-sweater', STARTER_DEFAULTS[gender === 'boy' ? 'girl' : 'boy'].hair]) {
-      const plan = resolveAvatarLayers({ ...state, equipped: { ...state.equipped, hair: id, accessory: 'accessory.castle-crown' } });
+      const unavailable = COSMETIC_CATALOG.map(item => item.id === 'accessory.castle-crown' ? { ...item, assetStatus: 'unavailable' as const } : item);
+      const plan = resolveAvatarLayers({ ...state, equipped: { ...state.equipped, hair: id, accessory: 'accessory.castle-crown' } }, { catalog: unavailable });
       assert.equal(plan.placeholder, false); assert.equal(plan.usedFallback, true); assert.equal(plan.layers.length, 5);
     }
     assert.equal(resolveAvatarLayers(state, { failedSources: new Set([AVATAR_BODY_ASSETS[gender].src]) }).placeholder, true);
@@ -59,15 +60,15 @@ for (const size of Object.keys(AVATAR_SIZES) as (keyof typeof AVATAR_SIZES)[]) t
   assert.ok(html.includes(`width:${AVATAR_SIZES[size]}px`)); assert.ok(html.includes('max-width:100%'));
   assert.equal((html.match(/alt=""/g) ?? []).length, 5); assert.ok(html.includes('aspect-ratio:3 / 5'));
 });
-test('only eight verified free starters are ready; paid metadata remains unavailable', () => {
+test('all 38 verified items are ready without changing the eight free starters', () => {
   assert.deepEqual(validateCosmeticCatalog(COSMETIC_CATALOG), []);
-  const ready = COSMETIC_CATALOG.filter(item => item.assetStatus === 'ready'); assert.equal(ready.length, 8);
+  const ready = COSMETIC_CATALOG.filter(item => item.assetStatus === 'ready'); assert.equal(ready.length, 38);
   for (const item of ready) {
-    assert.equal(item.starter, true); assert.equal(item.price, 0);
+    if (item.starter) assert.equal(item.price, 0);
     assert.ok(existsSync(`public${item.preview.thumbnailSrc}`));
     for (const gender of item.compatibleWith) assert.ok(existsSync(`public${item.assets[gender]![0].src}`));
   }
-  assert.ok(COSMETIC_CATALOG.filter(item => !item.starter).every(item => item.assetStatus === 'unavailable' && !item.preview.thumbnailSrc));
+  assert.equal(ready.filter(item => item.starter).length, 8);
 });
 test('all ten transparent lossless exports match reviewed masters and the common rig', () => {
   const manifest = JSON.parse(readFileSync('assets/avatar-rig-v1/verified-exports.json', 'utf8'));

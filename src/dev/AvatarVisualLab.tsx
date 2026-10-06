@@ -8,6 +8,7 @@ import { createDefaultCosmetics } from '../engine/avatarCosmetics';
 import { saveAvatarDraft } from '../engine/avatarCloset';
 import { createDefaultState } from '../services/storage';
 import { persistBeforePublish, runCosmeticAction } from '../services/durableState';
+import { CatalogVisualLab } from './CatalogVisualLab';
 
 export default function AvatarVisualLab() {
   const [mixed, setMixed] = useState(false);
@@ -25,6 +26,7 @@ export default function AvatarVisualLab() {
   return <main style={{ padding: 20, maxWidth: 1200, margin: 'auto', color: '#24374b' }}>
     <h1 style={{ fontSize: 28 }}>Starter avatar visual lab</h1>
     <p>Development only. These previews never read or write player progress.</p>
+    <CatalogVisualLab />
     <button onClick={() => setMixed(value => !value)} aria-pressed={mixed} style={{ minHeight: 48, padding: 12, border: '2px solid #526a83', margin: '12px 12px 12px 0' }}>Swap starter clothes</button>
     <label style={{ display: 'inline-block', maxWidth: '100%' }}>Asset diagnostic <select value={failure} onChange={event => setFailure(event.target.value)} style={{ minHeight: 48, maxWidth: '100%', border: '2px solid #526a83', padding: 8 }}>
       <option value="none">All assets available</option><option value="body">Missing boy body (real image error)</option><option value="clothing">Missing required tops</option>
