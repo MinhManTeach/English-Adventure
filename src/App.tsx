@@ -10,6 +10,7 @@ import { GameSessionScreen } from './screens/GameSessionScreen';
 import { BossBattleScreen } from './screens/BossBattleScreen';
 import { SmartReviewScreen } from './screens/SmartReviewScreen';
 import { AchievementsScreen } from './screens/AchievementsScreen';
+import { StoreScreen } from './screens/StoreScreen';
 import { AvatarScreen } from './screens/AvatarScreen';
 import { MyProgressScreen } from './screens/MyProgressScreen';
 import { ParentDashboardScreen } from './screens/ParentDashboardScreen';
@@ -39,6 +40,8 @@ const MainAppContent: React.FC = () => {
         return <SmartReviewScreen />;
       case 'achievements':
         return <AchievementsScreen />;
+      case 'store':
+        return <StoreScreen />;
       case 'avatar':
         return <AvatarScreen />;
       case 'progress':
@@ -87,7 +90,12 @@ const MainAppContent: React.FC = () => {
 
 const AvatarVisualLab = import.meta.env.DEV ? React.lazy(() => import('./dev/AvatarVisualLab')) : null;
 
+const StoreVisualLab = import.meta.env.DEV ? React.lazy(() => import('./dev/StoreVisualLab')) : null;
+
 export default function App() {
+  if (import.meta.env.DEV && StoreVisualLab && new URLSearchParams(window.location.search).has('storeLab')) {
+    return <React.Suspense fallback={<p role="status">Loading store lab…</p>}><StoreVisualLab /></React.Suspense>;
+  }
   if (import.meta.env.DEV && AvatarVisualLab && new URLSearchParams(window.location.search).has('avatarLab')) {
     return <React.Suspense fallback={<p role="status">Loading avatar lab…</p>}><AvatarVisualLab /></React.Suspense>;
   }

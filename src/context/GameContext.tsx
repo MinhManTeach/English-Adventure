@@ -33,6 +33,7 @@ export type AppScreen =
   | 'review'
   | 'achievements'
   | 'avatar'
+  | 'store'
   | 'progress'
   | 'parent'
   | 'settings';

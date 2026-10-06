@@ -80,7 +80,7 @@ export interface CosmeticTransaction { state: UserProgressState; result: Cosmeti
 const rejected = (state: UserProgressState, status: CosmeticResult['status']): CosmeticTransaction => ({ state, result: { status } });
 const success = (state: UserProgressState, cosmetics: CosmeticState, coins = state.coins): CosmeticTransaction =>
   ({ state: { ...state, cosmetics, coins }, result: { status: 'success' } });
-function unlocked(state: UserProgressState, item: StoreItem): boolean {
+export function isCosmeticUnlocked(state: UserProgressState, item: StoreItem): boolean {
   const u = item.unlock;
   switch (u.kind) {
     case 'always': return true;
@@ -95,7 +95,7 @@ export function purchaseItem(state: UserProgressState, id: string, catalog = COS
   if (!item) return rejected(state, 'invalid-item');
   const cosmetics = state.cosmetics ?? createDefaultCosmetics();
   if (cosmetics.ownedItemIds.includes(id)) return rejected(state, 'already-owned');
-  if (!unlocked(state, item)) return rejected(state, 'locked');
+  if (!isCosmeticUnlocked(state, item)) return rejected(state, 'locked');
   if (!item.compatibleWith.includes(cosmetics.avatar.gender)) return rejected(state, 'incompatible');
   if (!hasUsableAssets(item, cosmetics.avatar.gender)) return rejected(state, 'asset-unavailable');
   if (!Number.isSafeInteger(state.coins) || state.coins < 0) return rejected(state, 'invalid-balance');

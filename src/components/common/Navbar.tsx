@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, Shield, Heart, Flame, Coins, Sparkles, Settings } from 'lucide-react';
+import { Volume2, VolumeX, Shield, Heart, Flame, Coins, Sparkles, Settings, ShoppingBag } from 'lucide-react';
 import { useGame, AppScreen } from '../../context/GameContext';
 import { AVATAR_PRESETS } from '../../data/avatarsData';
 
@@ -15,6 +15,7 @@ export const Navbar: React.FC = () => {
     { screen: 'review', label: 'Smart Review', labelVi: 'Ôn Tập' },
     { screen: 'achievements', label: 'Badges', labelVi: 'Huy Hiệu' },
     { screen: 'avatar', label: 'My Avatar', labelVi: 'Nhân Vật' },
+    { screen: 'store', label: 'Store', labelVi: 'Cửa Hàng' },
     { screen: 'progress', label: 'My Progress', labelVi: 'Tiến Độ' },
   ];
 
@@ -57,7 +58,7 @@ export const Navbar: React.FC = () => {
                   isActive ? 'text-amber-600 font-extrabold' : 'text-slate-600'
                 }`}
               >
-                {link.label}
+                {link.screen === 'store' && <ShoppingBag aria-hidden="true" className="inline mr-1 h-4 w-4" />}{link.label}
                 {isActive && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full" />
                 )}
@@ -188,7 +189,7 @@ export const Navbar: React.FC = () => {
               currentScreen === link.screen ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600'
             }`}
           >
-            {link.label}
+            {link.screen === 'store' && <ShoppingBag aria-hidden="true" className="inline mr-1 h-4 w-4" />}{link.label}
           </button>
         ))}
       </div>
