@@ -222,6 +222,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight the Snack Snatcher!', gateGoal: 'Prepare for the Pantry Bandit', gatePass: 'PASS — the Snack Snatcher is unlocked!',
     },
   },
+  {
+    chapter: 9, units: [25, 26, 27], title: 'Village of Faces', titleVi: 'Làng Muôn Mặt', emojis: '🎒 ❓ 😊 🎭',
+    intro: 'Meet the villagers: find out what they have got, ask the right questions and describe every face!',
+    lockedHint: 'Complete Chapter 8 by defeating the Snack Snatcher to begin this adventure.',
+    completeMessage: 'You mastered have got, Wh-questions, question tags and words for people!',
+    reviewTitle: 'Village of Faces Review',
+    reviewQuota: [[25, 3], [26, 3], [27, 2]], bossQuota: [[25, 3], [26, 4], [27, 3]],
+    bossStageKey: 'boss9', firstClear: { xp: 600, coins: 300 }, achievementId: 'people_reader',
+    badge: { title: 'PEOPLE READER', titleVi: 'Bậc thầy đọc người', icon: '🔍' }, bossColor: '#ec4899',
+    boss: {
+      name: 'The Masked Mimic', fullName: 'The Masked Mimic · Face Stealer', emoji: '🎭 🪞', arena: 'MIRROR HALL', leaveLabel: 'Leave the Village',
+      awaits: 'The Masked Mimic Awaits!', intro: 'The Masked Mimic has stolen the villagers\' faces! Cast 10 accurate spells about have got, questions and people to give them back.',
+      strikeLabel: '🪞 Mirror Trick!', defeatedTitle: 'MASKED MIMIC DEFEATED!', defeatedSubtitle: 'EVERY FACE IS BACK WHERE IT BELONGS!',
+      defeatedMessage: 'You mastered have got, questions and describing people. Chapter 9 is complete!',
+      survivedTitle: 'THE MASKED MIMIC SLIPPED AWAY!',
+      defeatMessage: 'The Masked Mimic is still wearing stolen faces. Review your mistakes and try again!',
+      levelTitle: 'People Reader', achievementTitle: 'PEOPLE READER!',
+      unlockHint: 'Defeat the Masked Mimic in Chapter 9 to unlock.',
+      mapBlurb: 'Ask sharp questions and describe every face to unmask the Mimic.',
+      fightLabel: 'Fight the Masked Mimic!', gateGoal: 'Prepare for the Face Stealer', gatePass: 'PASS — the Masked Mimic is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
