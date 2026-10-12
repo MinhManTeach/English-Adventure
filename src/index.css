@@ -100,3 +100,8 @@
 .animate-float {
   animation: float-gentle 3s ease-in-out infinite;
 }
+
+/* Clouds drift slowly across the sky on the main screens. */
+@keyframes cloud-drift { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 16rem)); } }
+.cloud-drift { animation: cloud-drift 80s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .cloud-drift { animation: none; left: 10%; } }

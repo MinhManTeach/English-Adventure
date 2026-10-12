@@ -22,7 +22,7 @@ export const AdventureMapScreen: React.FC = () => {
   }, []);
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-6 sm:py-8">
+    <div className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
       <div className="sticky top-[66px] z-20 -mx-1 mb-6 flex items-center gap-3 rounded-2xl border-2 border-line bg-white/95 p-2.5 pl-4 backdrop-blur">
         <div className="min-w-0 flex-1">
           <h1 className="eyebrow text-ink-soft">Adventure Map · Bản đồ</h1>
@@ -32,7 +32,7 @@ export const AdventureMapScreen: React.FC = () => {
           {step.kind === 'done' ? 'Review' : 'Go!'}
         </Button>
       </div>
-      <div className="space-y-12">
+      <div className="space-y-8">
         {WORLDS.map(world => (
           <WorldPath key={world.chapter} chapter={world.chapter} currentKey={currentKey} selectedKey={selectedKey} onSelect={setSelectedKey} />
         ))}

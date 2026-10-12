@@ -1,6 +1,7 @@
 import React from 'react';
 import { GameProvider, useGame } from './context/GameContext';
 import { Navbar, SideNav, BottomTabs } from './components/common/Navbar';
+import { SceneBackground } from './components/common/SceneBackground';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { AdventureMapScreen } from './screens/AdventureMapScreen';
@@ -60,8 +61,9 @@ const MainAppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-ink flex flex-col font-body selection:bg-sky-200">
+      {showNavbar && <SceneBackground />}
       {showNavbar && <SideNav />}
-      <div className={`flex min-h-screen flex-1 flex-col ${showNavbar ? 'pb-20 lg:pb-0 lg:pl-64' : ''}`}>
+      <div className={`relative z-10 flex min-h-screen flex-1 flex-col ${showNavbar ? 'pb-20 lg:pb-0 lg:pl-64' : ''}`}>
         {showNavbar && <Navbar />}
         {(writerStatus !== 'writable' || storageStatus !== 'ready' || saveStatus === 'storage-failed') && (
           <div role="status" className="bg-amber-100 px-4 py-3 text-sm text-amber-950">

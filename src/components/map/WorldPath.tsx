@@ -17,6 +17,8 @@ const STATUS_VI: Record<NodeStatus, string> = {
 const finished = (status: NodeStatus) => status === 'COMPLETED' || status === 'MASTERED';
 /** Horizontal offsets that make the path zig-zag; odd and even worlds bend opposite ways. */
 const OFFSETS = [0, 52, 78, 52, 0];
+/** Scenery planted beside the path; each world mixes its own emojis with these. */
+const NATURE = ['🌳', '🌼', '🍄', '🌲', '🌷', '⛰️', '🌻', '🪨'];
 
 interface Props { chapter: ChapterId; currentKey: string | null; selectedKey: string | null; onSelect: (key: string | null) => void }
 
@@ -30,6 +32,8 @@ export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, o
   const cleared = isChapterBossDefeated(state, chapter);
   const doneCount = Math.round(getWorldCompletion(path) * path.length);
   const side = chapter % 2 === 0 ? -1 : 1;
+  const own = world.emojis.split(' ').filter(Boolean);
+  const scenery = [own[1] ?? NATURE[0], NATURE[chapter % NATURE.length], own[2] ?? NATURE[1], NATURE[(chapter + 3) % NATURE.length], own[0] ?? NATURE[2]];
 
   const describe = (node: PathNode) => {
     if (node.kind === 'unit') {
@@ -45,8 +49,11 @@ export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, o
   };
 
   return (
-    <section aria-label={`World ${chapter} ${world.title}`} className="space-y-6">
-      <header className="flex items-center gap-3 rounded-3xl p-4 text-white sm:p-5"
+    <section aria-label={`World ${chapter} ${world.title}`} className="relative space-y-6 overflow-hidden rounded-[2rem] border-2 border-white/80 p-3 sm:p-4"
+      style={{ background: open ? `linear-gradient(180deg, ${colors.soft} 0%, rgba(255,255,255,.55) 100%)` : 'linear-gradient(180deg, #ececec 0%, rgba(255,255,255,.5) 100%)',
+      }}>
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60" style={{ backgroundImage: `radial-gradient(${open ? colors.main : '#bdbdbd'}22 2px, transparent 2.5px)`, backgroundSize: '24px 24px' }} />
+      <header className="relative flex items-center gap-3 rounded-3xl p-4 text-white shadow-[0_8px_20px_-10px_rgba(0,0,0,0.3)] sm:p-5"
         style={open ? { backgroundColor: colors.main, borderBottom: `5px solid ${colors.dark}` } : { backgroundColor: '#afafaf', borderBottom: '5px solid #8f8f8f' }}>
         <div className="min-w-0 flex-1">
           <p className="eyebrow text-white/85">World {chapter} · {STATUS_VI[cleared ? 'COMPLETED' : open ? 'AVAILABLE' : 'LOCKED']}</p>
@@ -59,7 +66,7 @@ export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, o
         </div>
       </header>
 
-      <ol className="flex flex-col items-center gap-8 pb-2 pt-6">
+      <ol className="relative flex flex-col items-center gap-8 pb-4 pt-6">
         {path.map((node, index) => {
           const key = nodeKey(node);
           const info = describe(node);
@@ -72,6 +79,8 @@ export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, o
           const selected = selectedKey === key;
           return (
             <li key={key} className="relative flex w-full flex-col items-center">
+              {!isCurrent && <span aria-hidden="true" className={`pointer-events-none absolute top-1/2 -translate-y-1/2 select-none text-4xl drop-shadow sm:text-5xl ${open ? '' : 'opacity-40 grayscale'}`}
+                style={{ left: `calc(50% + ${-side * (128 + (index % 2) * 28)}px - 24px)` }}>{scenery[index % scenery.length]}</span>}
               <div className="relative" style={{ transform: `translateX(${x}px)` }}>
                 {isCurrent && !selected && (
                   <span className="animate-nudge absolute -top-11 left-1/2 z-10 whitespace-nowrap rounded-xl border-2 border-line bg-white px-3 py-1.5 font-display text-sm font-black uppercase"
@@ -126,7 +135,7 @@ export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, o
       </ol>
 
       {cleared && (
-        <section aria-label={`World ${chapter} Complete`} className="card-3d mx-auto max-w-md p-4 text-center">
+        <section aria-label={`World ${chapter} Complete`} className="card-3d relative mx-auto max-w-md p-4 text-center">
           <p aria-hidden="true" className="text-3xl">🎉</p>
           <h3 className="font-display text-lg font-black text-ink">World {chapter} complete!</h3>
           <p className="text-sm font-bold text-ink-soft">{world.completeMessage}</p>
