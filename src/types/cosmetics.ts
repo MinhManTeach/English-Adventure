@@ -1,9 +1,10 @@
+import type { ChapterId } from './index';
 export type AvatarGender = 'boy' | 'girl';
 export type AvatarSlot = 'hair' | 'top' | 'bottom' | 'shoes' | 'accessory';
 export type RequiredSlot = Exclude<AvatarSlot, 'accessory'>;
 export type LayerPlane = 'behind-body' | 'bottom' | 'shoes' | 'top' | 'hair' | 'accessory-front';
 export type UnlockCondition = { kind: 'always' } | { kind: 'level'; minimum: number }
-  | { kind: 'unit-completed'; unitId: number } | { kind: 'boss-defeated'; chapter: 1 | 2 };
+  | { kind: 'unit-completed'; unitId: number } | { kind: 'boss-defeated'; chapter: ChapterId };
 export interface AvatarState {
   gender: AvatarGender;
   equipped: Record<RequiredSlot, string> & { accessory: string | null };

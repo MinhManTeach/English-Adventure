@@ -1,0 +1,127 @@
+import type { ChapterId } from '../types';
+
+/** One unit with the number of questions it contributes to a mixed session. */
+export type UnitQuota = readonly [unit: number, count: number];
+
+/** Player-facing words for a chapter boss. Kept as data so a new world needs no screen edits. */
+export interface BossProfile {
+  name: string;
+  fullName: string;
+  emoji: string;
+  arena: string;
+  leaveLabel: string;
+  awaits: string;
+  intro: string;
+  strikeLabel: string;
+  defeatedTitle: string;
+  defeatedSubtitle: string;
+  defeatedMessage: string;
+  survivedTitle: string;
+  defeatMessage: string;
+  levelTitle: string;
+  achievementTitle: string;
+  unlockHint: string;
+  mapBlurb: string;
+  fightLabel: string;
+  gateGoal: string;
+  gatePass: string;
+}
+
+export interface WorldConfig {
+  chapter: ChapterId;
+  units: readonly [number, number, number];
+  title: string;
+  titleVi: string;
+  emojis: string;
+  intro: string;
+  lockedHint: string;
+  completeMessage: string;
+  reviewTitle: string;
+  reviewQuota: readonly UnitQuota[];
+  bossQuota: readonly UnitQuota[];
+  /** Marker stored in startedStages once a boss question is attempted. */
+  bossStageKey: string;
+  firstClear: { xp: number; coins: number };
+  achievementId: string;
+  boss: BossProfile;
+}
+
+export const WORLDS: readonly WorldConfig[] = [
+  {
+    chapter: 1, units: [1, 2, 3], title: 'Beginner Kingdom', titleVi: 'Vương Quốc Khởi Đầu', emojis: '🏰 🏡 🛋️',
+    intro: 'Complete Units 1–3, pass Review Gate, then enter Grammar Castle!',
+    lockedHint: '', completeMessage: 'You completed Units 1–3 and defeated Lord Verbose!',
+    reviewTitle: 'Review Gate',
+    reviewQuota: [[1, 3], [2, 3], [3, 2]], bossQuota: [[1, 3], [2, 4], [3, 3]],
+    bossStageKey: 'boss', firstClear: { xp: 100, coins: 50 }, achievementId: 'boss_slayer',
+    boss: {
+      name: 'Lord Verbose', fullName: 'Lord Verbose', emoji: '🐉', arena: 'GRAMMAR CASTLE', leaveLabel: 'Leave Castle',
+      awaits: 'Lord Verbose Awaits!', intro: "Lord Verbose guards Grammar Castle! Cast 10 accurate spells to claim the champion's trophy!",
+      strikeLabel: '🔥 Dragon Strikes!', defeatedTitle: 'BOSS DEFEATED!', defeatedSubtitle: 'LORD VERBOSE HAS BEEN DEFEATED!',
+      defeatedMessage: 'With your English grammar mastery, Grammar Castle is now unlocked!',
+      survivedTitle: 'THE DRAGON SURVIVED!',
+      defeatMessage: 'The Grammar Dragon is still guarding the castle. Review your weak questions and try again!',
+      levelTitle: 'Castle Champion', achievementTitle: 'Grammar Castle Champion!',
+      unlockHint: 'Defeat the Grammar Castle dragon to unlock.',
+      mapBlurb: 'Lord Verbose awaits! Defeat him with your A1 grammar and home vocabulary mastery!',
+      fightLabel: 'Fight Boss!', gateGoal: 'Prepare for Grammar Castle', gatePass: 'PASS — Grammar Castle is unlocked!',
+    },
+  },
+  {
+    chapter: 2, units: [4, 5, 6], title: 'Everyday Adventure', titleVi: 'Hành Trình Mỗi Ngày', emojis: '🏡 🚲 🌳 ⛵',
+    intro: 'Follow the trail, explore Action Park and share your hobbies!',
+    lockedHint: 'Complete Chapter 1 by defeating Lord Verbose to begin this adventure.',
+    completeMessage: 'You mastered everyday routines, actions, and hobbies!',
+    reviewTitle: 'Everyday Adventure Review',
+    reviewQuota: [[4, 3], [5, 3], [6, 2]], bossQuota: [[4, 3], [5, 4], [6, 3]],
+    bossStageKey: 'boss2', firstClear: { xp: 250, coins: 125 }, achievementId: 'time_master',
+    boss: {
+      name: 'Chronos', fullName: 'Chronos · Time Keeper', emoji: '⏱️ ⚙️', arena: 'TIME PORTAL', leaveLabel: 'Leave Time Portal',
+      awaits: 'Chronos Awaits!', intro: 'Chronos guards the Time Portal! Cast 10 accurate spells about routines, actions and hobbies.',
+      strikeLabel: '⏱️ Time Strike!', defeatedTitle: 'CHRONOS DEFEATED!', defeatedSubtitle: 'THE TIME KEEPER HAS BEEN DEFEATED!',
+      defeatedMessage: 'You mastered everyday routines, actions and hobbies. Chapter 2 is complete!',
+      survivedTitle: 'THE TIME KEEPER SURVIVED!',
+      defeatMessage: 'Chronos still guards the portal. Review your mistakes and try again!',
+      levelTitle: 'Time Master', achievementTitle: 'TIME MASTER!',
+      unlockHint: 'Defeat Chronos in Chapter 2 to unlock.',
+      mapBlurb: 'Control routines, actions and hobbies to open the Time Portal.',
+      fightLabel: 'Fight Chronos!', gateGoal: 'Prepare for the Time Keeper', gatePass: 'PASS — Chronos is unlocked!',
+    },
+  },
+  {
+    chapter: 3, units: [7, 8, 9], title: 'School of Yesterday', titleVi: 'Ngôi Trường Hôm Qua', emojis: '⏰ 📜 🏫 🦉',
+    intro: 'Choose now or every day, travel back to yesterday and explore school life!',
+    lockedHint: 'Complete Chapter 2 by defeating Chronos to begin this adventure.',
+    completeMessage: 'You mastered present tenses, the past simple and school life!',
+    reviewTitle: 'School of Yesterday Review',
+    reviewQuota: [[7, 3], [8, 3], [9, 2]], bossQuota: [[7, 3], [8, 4], [9, 3]],
+    bossStageKey: 'boss3', firstClear: { xp: 300, coins: 150 }, achievementId: 'top_of_the_class',
+    boss: {
+      name: 'Professor Hoot', fullName: 'Professor Hoot · Exam Owl', emoji: '🦉 📚', arena: 'GREAT EXAM HALL', leaveLabel: 'Leave Exam Hall',
+      awaits: 'Professor Hoot Awaits!', intro: 'Professor Hoot guards the Great Exam Hall! Cast 10 accurate spells about now, yesterday and school life.',
+      strikeLabel: '📚 Pop Quiz!', defeatedTitle: 'PROFESSOR HOOT DEFEATED!', defeatedSubtitle: 'THE EXAM OWL HAS BEEN DEFEATED!',
+      defeatedMessage: 'You mastered present tenses, the past simple and school life. Chapter 3 is complete!',
+      survivedTitle: 'THE EXAM OWL SURVIVED!',
+      defeatMessage: 'Professor Hoot still guards the exam hall. Review your mistakes and try again!',
+      levelTitle: 'Top of the Class', achievementTitle: 'TOP OF THE CLASS!',
+      unlockHint: 'Defeat Professor Hoot in Chapter 3 to unlock.',
+      mapBlurb: 'Show what happens now, what happened yesterday and how school works to pass the Great Exam.',
+      fightLabel: 'Fight Professor Hoot!', gateGoal: 'Prepare for the Exam Owl', gatePass: 'PASS — Professor Hoot is unlocked!',
+    },
+  },
+];
+
+export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
+export const ALL_WORLD_UNIT_IDS: readonly number[] = WORLDS.flatMap(world => world.units);
+
+export function getWorld(chapter: ChapterId): WorldConfig {
+  return WORLDS.find(world => world.chapter === chapter) ?? WORLDS[0];
+}
+
+export function getWorldOfUnit(unitId: number): WorldConfig | undefined {
+  return WORLDS.find(world => world.units.includes(unitId));
+}
+
+export function isChapterId(value: unknown): value is ChapterId {
+  return WORLDS.some(world => world.chapter === value);
+}

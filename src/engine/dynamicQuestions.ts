@@ -3,6 +3,8 @@ import { QUESTION_TEMPLATES, renderTemplate, StudyStage, validateControlledFrame
 import { calculateReviewPriority } from './review';
 import { getReviewQuestionPool } from '../data/curriculum';
 import { fisherYatesShuffle, prepareSessionQuestions } from './sessionQuestions';
+import { ALL_WORLD_UNIT_IDS, getWorld } from '../data/worlds';
+import { isUnitAvailable } from './worldProgression';
 
 export function validateGeneratedQuestion(q: Question): boolean {
   if (!q.conceptId || !q.templateId || !q.variantId || !q.contextKey || !q.question.trim() || !q.explanation.en || !q.explanation.vi) return false;
@@ -85,7 +87,7 @@ function buildChapterUnit(state: UserProgressState, unit: number, count: number,
 export function buildDynamicReview(state: UserProgressState, chapter?: ChapterId, rng = Math.random): GeneratedSession {
   let current = state; const questions: Question[] = [];
   if (chapter) {
-    for (const [unit, count] of (chapter === 1 ? [[1,3],[2,3],[3,2]] : [[4,3],[5,3],[6,2]])) {
+    for (const [unit, count] of getWorld(chapter).reviewQuota) {
       const session = buildChapterUnit(current, unit, count, rng);
       questions.push(...session.questions.map(q => ({ ...q, reviewOf: Object.entries(state.errorBank).filter(([, e]) => !e.mastered && (e.conceptId === q.conceptId || !e.conceptId && e.unit === q.unit && e.topic === q.topic)).map(([key]) => key) }))); current = { ...current, recentQuestionHistory: session.history };
     }
@@ -112,7 +114,7 @@ export function buildDynamicReview(state: UserProgressState, chapter?: ChapterId
       questions.push(...session.questions.map(q => ({ ...q, reviewOf: [key] })));
       current = { ...current, recentQuestionHistory: session.history };
     }
-    const units = state.unlockedUnits.filter(u => u >= 1 && u <= 6);
+    const units = ALL_WORLD_UNIT_IDS.filter(u => state.unlockedUnits.includes(u) || isUnitAvailable(state, u));
     for (let i = 0; i < 8 && questions.length < 8; i++) {
       const session = buildDynamicSession(current, units[i % Math.max(1,units.length)] ?? 1, 'challenge', 1, rng, undefined, q => !questions.some(x => x.variantId === q.variantId));
       questions.push(...session.questions); current = { ...current, recentQuestionHistory: session.history };
@@ -122,7 +124,7 @@ export function buildDynamicReview(state: UserProgressState, chapter?: ChapterId
 }
 export function buildDynamicBoss(state: UserProgressState, chapter: ChapterId, rng = Math.random): GeneratedSession {
   let current = state; const questions: Question[] = [];
-  for (const [unit,count] of chapter === 1 ? [[1,3],[2,4],[3,3]] : [[4,3],[5,4],[6,3]]) {
+  for (const [unit,count] of getWorld(chapter).bossQuota) {
     const session = buildChapterUnit(current, unit, count, rng, true);
     questions.push(...session.questions.map(q => ({ ...q, id: `BOSS-${q.id}`, type: 'multiple-choice' as const })));
     current = { ...current, recentQuestionHistory: session.history };

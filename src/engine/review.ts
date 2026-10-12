@@ -3,6 +3,7 @@
  * Prioritizes frequently missed questions, recent mistakes, and weak topics.
  */
 import { ErrorBankItem, Question, TopicMastery, ChapterId } from '../types';
+import { getWorld } from '../data/worlds';
 
 export function calculateReviewPriority(item: ErrorBankItem, now = Date.now()): number {
   const lastWrongTime = new Date(item.lastWrongAt).getTime();
@@ -70,7 +71,7 @@ export function selectAdaptiveReviewQuestions(
 export function selectReviewGateQuestions(
   errorBank: Record<string, ErrorBankItem>, questions: Question[], mastery: Record<string, TopicMastery>, chapter: ChapterId = 1,
 ): Question[] {
-  const selected = (chapter === 2 ? [4, 5, 6] : [1, 2, 3]).flatMap((unit, index) => {
+  const selected = getWorld(chapter).units.flatMap((unit, index) => {
     const unitQuestions = questions.filter(q => q.unit === unit);
     const unitErrors = Object.fromEntries(Object.entries(errorBank).filter(([, item]) => item.unit === unit));
     return selectAdaptiveReviewQuestions(unitErrors, unitQuestions, index === 2 ? 2 : 3, mastery);

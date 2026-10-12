@@ -1,6 +1,7 @@
 import type { AvatarGender, AvatarSlot, AvatarState, StoreItem, UserProgressState, CosmeticStatus } from '../types';
 import { COSMETIC_CATALOG } from '../data/cosmeticsCatalog';
 import { hasUsableAssets, isCosmeticUnlocked } from './avatarCosmetics';
+import { getWorld } from '../data/worlds';
 
 export type StoreCategory = AvatarSlot | 'all';
 export const STORE_CATEGORIES: readonly { slot: StoreCategory; label: string }[] = [
@@ -30,7 +31,7 @@ export function unlockDescription(item: StoreItem): string {
     case 'always': return 'Ready for your adventure';
     case 'level': return `Reach level ${item.unlock.minimum} to unlock.`;
     case 'unit-completed': return `Complete Unit ${item.unlock.unitId} to unlock.`;
-    case 'boss-defeated': return item.unlock.chapter === 1 ? 'Defeat the Grammar Castle dragon to unlock.' : 'Defeat Chronos in Chapter 2 to unlock.';
+    case 'boss-defeated': return getWorld(item.unlock.chapter).boss.unlockHint;
   }
 }
 export function cosmeticFeedback(status: CosmeticStatus, item: StoreItem, coins: number): string {

@@ -2,6 +2,10 @@ import { UserProgressState } from '../types';
 import { createDefaultCosmetics, normalizeCosmetics } from '../engine/avatarCosmetics';
 import { calculateLevel } from '../engine/scoring';
 import { INITIAL_ACHIEVEMENTS } from '../data/achievementsData';
+import { ALL_WORLD_UNIT_IDS, WORLDS } from '../data/worlds';
+
+/** Chapters whose progress is stored under `chapters` (Chapter 2 keeps its own field). */
+const LATER_CHAPTERS = WORLDS.filter(world => world.chapter > 2).map(world => String(world.chapter));
 
 const STORAGE_KEY = 'ENGLISH_ADVENTURE_STATE_V1';
 const CURRENT_VERSION = 1;
@@ -108,6 +112,7 @@ export function createDefaultState(): UserProgressState {
     recentQuestionHistory: {},
     conceptMastery: {},
     chapter2: { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false },
+    chapters: Object.fromEntries(LATER_CHAPTERS.map(chapter => [chapter, { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false }])),
     acknowledgedLevel: 1,
     reviewGateCompleted: false,
     reviewGateAttempts: 0,
@@ -123,14 +128,14 @@ export function migrateState(value: unknown): UserProgressState {
   const object = <T extends object>(candidate: T | undefined, fallback: T): T =>
     candidate && typeof candidate === 'object' && !Array.isArray(candidate) ? { ...fallback, ...candidate } : fallback;
   const unitList = (candidate: number[] | undefined, fallback: number[]) =>
-    Array.isArray(candidate) ? [...new Set(candidate.filter(id => [1, 2, 3, 4, 5, 6].includes(id)))] : fallback;
+    Array.isArray(candidate) ? [...new Set(candidate.filter(id => ALL_WORLD_UNIT_IDS.includes(id)))] : fallback;
   const completedUnits = unitList(old.completedUnits, []);
   const unitStageProgress = object(old.unitStageProgress, {});
   // Legacy completion did not always record Learn/Practice/Mini Game. Grandfather it.
   for (const unit of completedUnits) {
     for (const stage of ['learn', 'practice', 'minigame', 'challenge']) unitStageProgress[`unit${unit}-${stage}`] = true;
   }
-  for (const unit of [1, 2, 3, 4, 5, 6]) {
+  for (const unit of ALL_WORLD_UNIT_IDS) {
     const stages = ['learn', 'practice', 'minigame', 'challenge'];
     for (let index = 1; index < stages.length; index++) {
       if (unitStageProgress[`unit${unit}-${stages[index]}`]) {
@@ -154,7 +159,7 @@ export function migrateState(value: unknown): UserProgressState {
     }
   }
   const boundedStrings = (value: unknown, max: number): string[] => Array.isArray(value) ? value.filter((x): x is string => typeof x === 'string').slice(-max) : [];
-  const recentQuestionHistory = Object.fromEntries(Object.entries(object(old.recentQuestionHistory, {})).filter(([unit]) => /^[1-6]$/.test(unit)).map(([unit, history]) => [unit, {
+  const recentQuestionHistory = Object.fromEntries(Object.entries(object(old.recentQuestionHistory, {})).filter(([unit]) => ALL_WORLD_UNIT_IDS.some(id => String(id) === unit)).map(([unit, history]) => [unit, {
     variantIds: boundedStrings(history?.variantIds, 50), templateIds: boundedStrings(history?.templateIds, 20), cycleVariantIds: boundedStrings(history?.cycleVariantIds, 2000),
     lastSessionContextFamilyKeys: boundedStrings(history?.lastSessionContextFamilyKeys, 24),
     conceptIds: boundedStrings(history?.conceptIds, 50), visibleTaskKeys: boundedStrings(history?.visibleTaskKeys, 50),
@@ -166,6 +171,7 @@ export function migrateState(value: unknown): UserProgressState {
     recentQuestionHistory,
     conceptMastery: object(old.conceptMastery, {}),
     chapter2: object(old.chapter2, defaults.chapter2!),
+    chapters: Object.fromEntries(LATER_CHAPTERS.map(chapter => [chapter, object(old.chapters?.[chapter], defaults.chapters![chapter])])),
     profile: object(old.profile, defaults.profile), settings: object(old.settings, defaults.settings),
     errorBank: object(old.errorBank, {}), stagePerformance: object(old.stagePerformance, {}),
     unlockedUnits: [...new Set([1, ...(old.bossDefeated ? [4] : []), ...unitList(old.unlockedUnits, [1]), ...completedUnits,

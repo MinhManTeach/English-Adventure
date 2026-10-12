@@ -1,6 +1,8 @@
 import type { AvatarGender, AvatarSlot, CosmeticState, CosmeticResult, StoreItem, UserProgressState } from '../types';
 import { COSMETIC_CATALOG, STARTER_DEFAULTS, STARTER_IDS } from '../data/cosmeticsCatalog';
 import { calculateLevel } from './scoring';
+import { ALL_WORLD_UNIT_IDS, isChapterId } from '../data/worlds';
+import { isChapterBossDefeated } from './worldProgression';
 
 export const AVATAR_SLOTS: readonly AvatarSlot[] = ['hair', 'top', 'bottom', 'shoes', 'accessory'];
 const planes = { hair: ['behind-body', 'hair'], top: ['top'], bottom: ['bottom'], shoes: ['shoes'], accessory: ['behind-body', 'accessory-front'] };
@@ -34,8 +36,8 @@ export function validateCosmeticCatalog(catalog: readonly StoreItem[]): string[]
       || item.compatibleWith.some(g => g !== 'boy' && g !== 'girl')) fail('invalid compatibility');
     const u = item.unlock;
     if (!u || !(u.kind === 'always' || (u.kind === 'level' && Number.isSafeInteger(u.minimum) && u.minimum >= 1)
-      || (u.kind === 'unit-completed' && Number.isInteger(u.unitId) && u.unitId >= 1 && u.unitId <= 6)
-      || (u.kind === 'boss-defeated' && (u.chapter === 1 || u.chapter === 2)))) fail('invalid unlock');
+      || (u.kind === 'unit-completed' && ALL_WORLD_UNIT_IDS.includes(u.unitId))
+      || (u.kind === 'boss-defeated' && isChapterId(u.chapter)))) fail('invalid unlock');
     if (item.starter !== STARTER_IDS.includes(item.id) || (item.starter && (item.price !== 0 || item.rarity !== 'starter' || u?.kind !== 'always'))
       || (!item.starter && item.rarity === 'starter')) fail('invalid starter');
     if (item.assetStatus !== 'unavailable' && item.assetStatus !== 'ready') fail('invalid asset status');
@@ -86,7 +88,7 @@ export function isCosmeticUnlocked(state: UserProgressState, item: StoreItem): b
     case 'always': return true;
     case 'level': return calculateLevel(state.xp).level >= u.minimum;
     case 'unit-completed': return state.completedUnits.includes(u.unitId);
-    case 'boss-defeated': return u.chapter === 1 ? state.bossDefeated : !!state.chapter2?.bossDefeated;
+    case 'boss-defeated': return isChapterBossDefeated(state, u.chapter);
   }
 }
 export function purchaseItem(state: UserProgressState, id: string, catalog = COSMETIC_CATALOG): CosmeticTransaction {
