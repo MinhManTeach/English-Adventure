@@ -1,6 +1,7 @@
 import { Chronos } from '../components/boss/Chronos';
 import { ProfessorHoot } from '../components/boss/ProfessorHoot';
 import { CaptainFogbeard } from '../components/boss/CaptainFogbeard';
+import { createEmojiBoss } from '../components/boss/EmojiBoss';
 import { getWorld } from '../data/worlds';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import confetti from 'canvas-confetti';
@@ -17,7 +18,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { useGame } from '../context/GameContext';
-import { Question } from '../types';
+import { ChapterId, Question } from '../types';
 import { Button } from '../components/common/Button';
 import { AnimatedCounter } from '../components/common/AnimatedCounter';
 import { LevelUpModal } from '../components/common/LevelUpModal';
@@ -26,9 +27,21 @@ import { PlayerAvatar } from '../components/avatar/PlayerAvatar';
 import { BattleHero } from '../components/boss/BattleHero';
 import { BossQuestionPanel } from '../components/boss/BossQuestionPanel';
 import { soundService } from '../services/sound';
-import { getBossPhase, createBossBattle, transitionBossBattle, canClaimBossVictory } from '../engine/bossLogic';
+import { BossPhase, getBossPhase, createBossBattle, transitionBossBattle, canClaimBossVictory } from '../engine/bossLogic';
 
-const BOSS_VISUALS = { 1: GrammarDragon, 2: Chronos, 3: ProfessorHoot, 4: CaptainFogbeard } as const;
+type BossVisualComponent = React.FC<{ hp: number; phase: BossPhase; isHit?: boolean; isAttacking?: boolean; isDefeated?: boolean }>;
+const BOSS_VISUALS: Partial<Record<ChapterId, BossVisualComponent>> = { 1: GrammarDragon, 2: Chronos, 3: ProfessorHoot, 4: CaptainFogbeard };
+/** Worlds without a hand-drawn boss show their boss emoji. Built once per chapter so React keeps the same component. */
+const emojiBosses = new Map<ChapterId, BossVisualComponent>();
+const bossVisualFor = (chapter: ChapterId): BossVisualComponent => {
+  const drawn = BOSS_VISUALS[chapter];
+  if (drawn) return drawn;
+  if (!emojiBosses.has(chapter)) {
+    const world = getWorld(chapter);
+    emojiBosses.set(chapter, createEmojiBoss(world.boss.name, [...world.boss.emoji][0], world.bossColor ?? '#38bdf8'));
+  }
+  return emojiBosses.get(chapter)!;
+};
 
 export const BossBattleScreen: React.FC = () => {
   const {
@@ -42,7 +55,7 @@ export const BossBattleScreen: React.FC = () => {
   } = useGame();
 
   const boss = getWorld(activeChapterId).boss;
-  const BossVisual = BOSS_VISUALS[activeChapterId];
+  const BossVisual = bossVisualFor(activeChapterId);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [battle, setBattle] = useState(() => createBossBattle());
   const battleRef = useRef(battle);

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { ALL_WORLD_UNIT_IDS, WORLDS } from '../src/data/worlds';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { buildDynamicSession, getDynamicPool, visibleTaskFingerprint } from '../src/engine/dynamicQuestions';
@@ -12,7 +13,7 @@ import { PictureMatch } from '../src/games/PictureMatch';
 import { ErrorHunter } from '../src/games/ErrorHunter';
 import { TimeAttack } from '../src/games/TimeAttack';
 const seeded=(seed=24)=>()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
-for(const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) test(`Unit ${unit}: fair curriculum quotas survive repeated sessions and saved histories`,{timeout:30000},()=>{ // 20 sessions x 3 stages; needs more than the 5s default on slower machines
+for(const unit of ALL_WORLD_UNIT_IDS) test(`Unit ${unit}: fair curriculum quotas survive repeated sessions and saved histories`,{timeout:30000},()=>{ // 20 sessions x 3 stages; needs more than the 5s default on slower machines
   for(const stage of ['practice','minigame','challenge'] as const) {
     let state=createDefaultState();const rng=seeded(unit),concepts=[...new Set(getDynamicPool(unit,stage).map(q=>q.conceptId!))];
     const absences=new Map(concepts.map(c=>[c,0]));
@@ -27,7 +28,7 @@ for(const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) test(`Unit ${unit}: fair curricu
     }
   }
 });
-for(const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) test(`Unit ${unit}: mixed-stage transitions avoid immediately previous semantic contexts`,()=>{
+for(const unit of ALL_WORLD_UNIT_IDS) test(`Unit ${unit}: mixed-stage transitions avoid immediately previous semantic contexts`,()=>{
   let state=createDefaultState();const rng=seeded(unit+100);let previous=new Set<string>(), previousFamilies=new Set<string>();
   for(let cycle=0;cycle<10;cycle++) for(const stage of ['practice','minigame','challenge'] as const) {
     const built=buildDynamicSession(state,unit,stage,6,rng);
@@ -50,7 +51,7 @@ test('Challenge pre-answer audio is absent in every choice engine; Practice scaf
     assert.doesNotMatch(render(true),/aria-label="Listen to /);
     assert.match(render(false),/aria-label="Listen to /);
   }
-  for(const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) assert.ok(buildDynamicSession(createDefaultState(),unit,'challenge',6,seeded()).questions.every(q=>q.disablePreAnswerAudio));
+  for(const unit of ALL_WORLD_UNIT_IDS) assert.ok(buildDynamicSession(createDefaultState(),unit,'challenge',6,seeded()).questions.every(q=>q.disablePreAnswerAudio));
 });
 test('Time Attack actually renders the context needed for a short-answer/repair task',()=>{
   const question=getDynamicPool(5,'minigame').find(q=>q.subPrompt?.includes('Answer yes:'))!;

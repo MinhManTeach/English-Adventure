@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { ALL_WORLD_UNIT_IDS, WORLDS } from '../src/data/worlds';
 import { buildDynamicSession, buildDynamicReview, buildDynamicBoss, getDynamicPool } from '../src/engine/dynamicQuestions';
 import { createDefaultState, migrateState } from '../src/services/storage';
 import { applyQuestionResult } from '../src/engine/progression';
@@ -16,7 +17,7 @@ test('Semantic clusters ignore subject, polarity, task mode and cosmetic time di
   assert.ok(routines.some(q => q.audioText?.includes('after school')));
   assert.equal(new Set(routines.map(q => q.contextKey)).size, 1);
 });
-for (const unit of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
+for (const unit of ALL_WORLD_UNIT_IDS) {
   // Twelve seeds x three stages build many sessions; slower machines need more than the 5s default.
   test(`Unit ${unit}: six questions diversify contexts without dropping eligible concepts`, { timeout: 30000 }, () => {
     for (const stage of ['practice', 'minigame', 'challenge'] as const) for (let seed = 1; seed <= 12; seed++) {
@@ -26,7 +27,7 @@ for (const unit of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
       assert.equal(new Set(session.questions.map(q => q.contextKey)).size, 6);
       const concepts = new Set(getDynamicPool(unit, stage).map(q => q.conceptId));
       assert.equal(new Set(session.questions.map(q => q.conceptId)).size, Math.min(6, concepts.size));
-      if ([2, 4, 5, 7, 8, 10, 11].includes(unit)) assert.ok(new Set(session.questions.map(q => q.subjectKey)).size >= 4);
+      if ([2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 25, 35].includes(unit)) assert.ok(new Set(session.questions.map(q => q.subjectKey)).size >= 4);
     }
   });
   test(`Unit ${unit}: consecutive sessions use all available new contexts before necessary recycling`, { timeout: 30000 }, () => {
@@ -106,7 +107,7 @@ test('Context migration adds bounded defaults, retains previous session and pres
   assert.deepEqual(migrateState(bounded), bounded);
 });
 test('Composite review and Boss histories retain each unit’s complete last-session context set', () => {
-  for (const build of [buildDynamicReview, buildDynamicBoss]) for (const chapter of [1, 2, 3, 4] as const) {
+  for (const build of [buildDynamicReview, buildDynamicBoss]) for (const chapter of WORLDS.map(w => w.chapter)) {
     const session = build(createDefaultState(), chapter, seeded());
     for (const unit of new Set(session.questions.map(q => q.unit))) assert.deepEqual(new Set(session.history[unit].lastSessionContextKeys), new Set(session.questions.filter(q => q.unit === unit).map(q => q.contextKey)));
   }

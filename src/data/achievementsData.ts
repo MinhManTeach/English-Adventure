@@ -1,6 +1,14 @@
 import { Achievement } from '../types';
+import { WORLDS } from './worlds';
+
+/** Boss badges declared on later worlds. */
+const WORLD_BADGES: Record<string, Achievement> = Object.fromEntries(WORLDS.filter(world => world.badge).map(world => [world.achievementId, {
+  id: world.achievementId, title: world.badge!.title, titleVi: world.badge!.titleVi,
+  description: `Defeat ${world.boss.name} in ${world.title}.`, icon: world.badge!.icon, category: 'special' as const, unlockedAt: null,
+  xpReward: 0, coinReward: 0, maxProgress: 1, currentProgress: 0 }]));
 
 export const INITIAL_ACHIEVEMENTS: Record<string, Achievement> = {
+  ...WORLD_BADGES,
   time_master: { id: 'time_master', title: 'TIME MASTER', titleVi: 'Bậc thầy thời gian',
     description: 'Defeat Chronos in Everyday Adventure.', icon: '⏱️', category: 'special', unlockedAt: null,
     xpReward: 0, coinReward: 0, maxProgress: 1, currentProgress: 0 },

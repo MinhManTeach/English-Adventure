@@ -1,6 +1,7 @@
 import { CHAPTER2_QUESTIONS } from './A1/chapter2';
 import { CHAPTER3_QUESTIONS } from './A1/chapter3';
 import { CHAPTER4_QUESTIONS } from './A1/chapter4';
+import { LATER_CHAPTERS, LATER_CHAPTER_QUESTIONS } from './chapters';
 import { ChapterId, Question } from '../types';
 import { getWorld } from './worlds';
 import { UNIT_01_QUESTIONS } from './A1/unit01';
@@ -20,6 +21,7 @@ export const ALL_CURRICULUM_QUESTIONS: Question[] = [
   ...CHAPTER2_QUESTIONS,
   ...CHAPTER3_QUESTIONS,
   ...CHAPTER4_QUESTIONS,
+  ...LATER_CHAPTER_QUESTIONS,
 ];
 
 const toBossQuestions = (questions: Question[], chapter: ChapterId): Question[] =>
@@ -28,7 +30,10 @@ export const CHRONOS_QUESTIONS: Question[] = toBossQuestions(CHAPTER2_QUESTIONS,
 export const HOOT_QUESTIONS: Question[] = toBossQuestions(CHAPTER3_QUESTIONS, 3);
 export const FOGBEARD_QUESTIONS: Question[] = toBossQuestions(CHAPTER4_QUESTIONS, 4);
 /** Authored boss cards for each chapter after the first. */
-const CHAPTER_BOSS_QUESTIONS: Partial<Record<ChapterId, Question[]>> = { 2: CHRONOS_QUESTIONS, 3: HOOT_QUESTIONS, 4: FOGBEARD_QUESTIONS };
+const CHAPTER_BOSS_QUESTIONS: Partial<Record<ChapterId, Question[]>> = {
+  2: CHRONOS_QUESTIONS, 3: HOOT_QUESTIONS, 4: FOGBEARD_QUESTIONS,
+  ...Object.fromEntries(Object.entries(LATER_CHAPTERS).map(([chapter, content]) => [chapter, toBossQuestions(content.questions, Number(chapter) as ChapterId)])),
+};
 const ALL_CHAPTER_BOSS_QUESTIONS: Question[] = Object.values(CHAPTER_BOSS_QUESTIONS).flat();
 
 export function getAllQuestions(): Question[] {

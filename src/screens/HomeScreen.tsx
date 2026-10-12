@@ -1,215 +1,151 @@
 import React from 'react';
-import { ALL_WORLD_UNIT_IDS, WORLDS } from '../data/worlds';
-import { Play, Sparkles, Map, BookOpen, RotateCcw, Trophy, User, BarChart2, Shield } from 'lucide-react';
-import { useGame } from '../context/GameContext';
+import { useGame, AppScreen } from '../context/GameContext';
 import { PlayerAvatar } from '../components/avatar/PlayerAvatar';
-import { AVATAR_PRESETS } from '../data/avatarsData';
-import { ALL_UNITS } from '../data/unitsMeta';
 import { Button } from '../components/common/Button';
-import { WorldBackground } from '../components/common/WorldBackground';
+import { MascotSays } from '../components/common/Mascot';
+import { getNextStep, getWorldPath, getWorldCompletion } from '../engine/journey';
+import { getWorld } from '../data/worlds';
+import { describeStep, openStep, worldColors } from '../components/map/journeyUi';
+import { PronounceButton } from '../components/common/PronounceButton';
+import { DAILY_XP_GOAL, xpEarnedOn, weekActivity, sentenceOfTheDay } from '../engine/daily';
+import { getTodayDateString } from '../services/storage';
+
+const TILES: readonly { screen: AppScreen; icon: string; title: string; titleVi: string; tint: string }[] = [
+  { screen: 'map', icon: '🗺️', title: 'Map', titleVi: 'Bản đồ phiêu lưu', tint: '#d7ffb8' },
+  { screen: 'learn', icon: '📖', title: 'Learn', titleVi: 'Thẻ ngữ pháp', tint: '#ddf4ff' },
+  { screen: 'review', icon: '🎯', title: 'Review', titleVi: 'Luyện câu sai', tint: '#ffdfe0' },
+  { screen: 'achievements', icon: '🏆', title: 'Badges', titleVi: 'Huy hiệu', tint: '#fff4cc' },
+  { screen: 'store', icon: '🛍️', title: 'Shop', titleVi: 'Cửa hàng', tint: '#f3e3ff' },
+  { screen: 'progress', icon: '📊', title: 'Progress', titleVi: 'Tiến độ', tint: '#d2fbef' },
+];
 
 export const HomeScreen: React.FC = () => {
   const { state, levelInfo, navigateTo } = useGame();
-
-  const currentAvatar =
-    AVATAR_PRESETS.find(a => a.id === state.profile.avatarId) || AVATAR_PRESETS[0];
-
-  // Find next playable unit
-  const nextUnitId =
-    ALL_UNITS.find(u => !state.completedUnits.includes(u.id))?.id || 1;
-
-  const mistakesCount = Object.values(state.errorBank).filter(i => !i.mastered).length;
+  const step = getNextStep(state);
+  const info = describeStep(step);
+  const world = getWorld(step.chapter);
+  const colors = worldColors(step.chapter);
+  const done = Math.round(getWorldCompletion(getWorldPath(state, step.chapter)) * 5);
+  const mistakes = Object.values(state.errorBank).filter(item => !item.mastered).length;
+  const name = state.profile.name || 'Hero';
+  const today = getTodayDateString();
+  const xpToday = xpEarnedOn(state, today);
+  const week = weekActivity(state, today);
+  const sentence = sentenceOfTheDay(step.kind === 'unit' ? step.unitId : world.units[0], today);
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)]">
-      <WorldBackground unitId={nextUnitId} />
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-8 space-y-8">
-      {/* Hero Character Card */}
-      <div className="bg-gradient-to-br from-amber-400 via-orange-400 to-amber-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-        {/* Subtle decorative circles */}
-        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-xl pointer-events-none" />
-        <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-amber-600/20 rounded-full blur-xl pointer-events-none" />
+    <div className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div className="space-y-6">
+        <MascotSays title={`Hi ${name}! 👋`} subtitle={step.kind === 'done' ? 'Bạn đã là nhà vô địch A1!' : 'Hôm nay mình học tiếp nhé!'} />
 
-        <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
-          <div className="flex min-w-0 items-center gap-4 text-center sm:text-left">
-            <button
-              type="button"
-              onClick={() => navigateTo('avatar')}
-              title="Change Avatar" aria-label="Change avatar"
-              className="shrink-0 rounded-3xl p-2 bg-white/20 backdrop-blur-md border-2 border-white/40 flex items-center justify-center text-5xl shadow-md hover:scale-105 motion-reduce:hover:scale-100 motion-reduce:transition-none transition-transform cursor-pointer"
-            >
-              <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="medium" decorative />
-            </button>
-
-            <div className="min-w-0 break-words space-y-1">
-              <div className="flex items-center gap-2 justify-center sm:justify-start">
-                <span className="text-xs font-black uppercase tracking-widest bg-white/25 px-2.5 py-0.5 rounded-lg text-white">
-                  LEVEL {levelInfo.level}
-                </span>
-                <span className="text-xs font-bold text-amber-100">
-                  {levelInfo.title}
-                </span>
+        {/* Continue card: always opens the next stop the player can actually play. */}
+        <section aria-label="Continue" className="relative overflow-hidden rounded-3xl p-5 text-white shadow-[0_10px_30px_-12px_rgba(0,0,0,0.25)] sm:p-7"
+          style={{ backgroundColor: colors.main, borderBottom: `6px solid ${colors.dark}`,
+            backgroundImage: 'radial-gradient(circle at 85% 20%, rgba(255,255,255,.28) 0 60px, transparent 61px), radial-gradient(circle at 70% 110%, rgba(255,255,255,.18) 0 90px, transparent 91px), radial-gradient(rgba(255,255,255,.18) 2px, transparent 2.5px)',
+            backgroundSize: 'auto, auto, 22px 22px' }}>
+          <span aria-hidden="true" className="pointer-events-none absolute -right-2 top-2 select-none text-[96px] leading-none drop-shadow-lg sm:text-[150px] animate-float">{info.icon}</span>
+          <p className="eyebrow relative max-w-[72%] text-white/90">{info.eyebrow} · {world.title}</p>
+          <h1 className="relative mt-1 max-w-[75%] font-display text-3xl font-black leading-tight drop-shadow-sm sm:text-4xl">{info.title}</h1>
+          <p className="relative mt-1 max-w-[70%] text-sm font-bold text-white/95">{info.titleVi}</p>
+          {step.kind !== 'done' && (
+            <div className="relative mt-4 flex max-w-sm items-center gap-3">
+              <div className="h-4 flex-1 rounded-full bg-black/15" role="progressbar" aria-label={`World ${step.chapter} progress`} aria-valuemin={0} aria-valuemax={5} aria-valuenow={done}>
+                <div className="h-full rounded-full bg-white transition-all" style={{ width: `${(done / 5) * 100}%` }} />
               </div>
-
-              <h1 className="text-3xl font-black font-game leading-tight">
-                {state.profile.name || 'Hero Explorer'}
-              </h1>
-              <p className="text-xs text-amber-100 font-semibold">{currentAvatar.tagline}</p>
+              <span className="text-sm font-black tabular-nums">{done}/5</span>
             </div>
-          </div>
-
-          {/* Quick Stats Pill Group */}
-          <div className="grid grid-cols-2 gap-2 text-center text-xs font-extrabold text-slate-900 w-full sm:w-auto">
-            <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-xs">
-              <span className="text-slate-500 block text-[10px] uppercase">Streak</span>
-              <span className="text-base text-orange-600 font-black">🔥 {state.streak} Days</span>
-            </div>
-            <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-xs">
-              <span className="text-slate-500 block text-[10px] uppercase">Coins</span>
-              <span className="text-base text-amber-600 font-black">🪙 {state.coins}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Level XP Progress Bar */}
-        <div className="relative z-10 mt-6 pt-4 border-t border-white/20 space-y-1.5">
-          <div className="flex items-center justify-between text-xs font-extrabold text-white">
-            <span>LEVEL {levelInfo.level} PROGRESS</span>
-            <span className="tabular-nums">
-              {levelInfo.currentLevelXP} / {levelInfo.neededLevelXP} XP
-            </span>
-          </div>
-          <div className="w-full bg-black/20 rounded-full h-3 p-0.5 shadow-inner">
-            <div
-              className="bg-white rounded-full h-full transition-all duration-300 shadow-xs"
-              style={{ width: `${levelInfo.progressPercent}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Primary CTA: CONTINUE ADVENTURE */}
-      <div className="text-center py-2">
-        <Button
-          variant="amber"
-          size="xl"
-          onClick={() => navigateTo('unit', { unitId: nextUnitId })}
-          className="w-full sm:w-auto min-w-[320px] gap-3 text-slate-900 font-black shadow-amber-600 text-2xl py-5"
-        >
-          <Play className="w-7 h-7 fill-slate-900" />
-          <span>CONTINUE ADVENTURE</span>
-        </Button>
-      </div>
-
-      {/* Secondary Hub Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {/* Adventure Map */}
-        <button
-          type="button"
-          onClick={() => navigateTo('map')}
-          className="p-5 rounded-3xl bg-white border-2 border-amber-200 hover:border-amber-400 hover:shadow-md transition-all text-left space-y-2 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            🗺️
-          </div>
-          <h3 className="text-base font-black text-slate-800 font-game">Adventure Map</h3>
-          <p className="text-xs text-slate-500 font-medium">
-            Explore {ALL_WORLD_UNIT_IDS.length} A1 lands and {WORLDS.length} chapter bosses.
-          </p>
-        </button>
-
-        {/* Learn Screen */}
-        <button
-          type="button"
-          onClick={() => navigateTo('learn')}
-          className="p-5 rounded-3xl bg-white border-2 border-indigo-200 hover:border-indigo-400 hover:shadow-md transition-all text-left space-y-2 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            📖
-          </div>
-          <h3 className="text-base font-black text-slate-800 font-game">Learn Academy</h3>
-          <p className="text-xs text-slate-500 font-medium">
-            Bite-sized grammar & audio cards.
-          </p>
-        </button>
-
-        {/* Smart Review */}
-        <button
-          type="button"
-          onClick={() => navigateTo('review')}
-          className="p-5 rounded-3xl bg-white border-2 border-rose-200 hover:border-rose-400 hover:shadow-md transition-all text-left space-y-2 cursor-pointer group relative"
-        >
-          {mistakesCount > 0 && (
-            <span className="absolute top-4 right-4 text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500 text-white">
-              {mistakesCount} to review
-            </span>
           )}
-          <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            🎯
-          </div>
-          <h3 className="text-base font-black text-slate-800 font-game">Smart Review</h3>
-          <p className="text-xs text-slate-500 font-medium">
-            Practice weak spots & error bank.
-          </p>
-        </button>
-
-        {/* Achievements / Badges */}
-        <button
-          type="button"
-          onClick={() => navigateTo('achievements')}
-          className="p-5 rounded-3xl bg-white border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-md transition-all text-left space-y-2 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            🏆
-          </div>
-          <h3 className="text-base font-black text-slate-800 font-game">Badges</h3>
-          <p className="text-xs text-slate-500 font-medium">
-            View unlocked crowns & trophies.
-          </p>
-        </button>
-
-        {/* Avatar Customization */}
-        <button
-          type="button"
-          onClick={() => navigateTo('avatar')}
-          className="p-5 rounded-3xl bg-white border-2 border-violet-200 hover:border-violet-400 hover:shadow-md transition-all text-left space-y-2 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            🦊
-          </div>
-          <h3 className="text-base font-black text-slate-800 font-game">My Avatar</h3>
-          <p className="text-xs text-slate-500 font-medium">
-            Change characters & hero titles.
-          </p>
-        </button>
-
-        {/* My Progress */}
-        <button
-          type="button"
-          onClick={() => navigateTo('progress')}
-          className="p-5 rounded-3xl bg-white border-2 border-sky-200 hover:border-sky-400 hover:shadow-md transition-all text-left space-y-2 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            📊
-          </div>
-          <h3 className="text-base font-black text-slate-800 font-game">My Progress</h3>
-          <p className="text-xs text-slate-500 font-medium">
-            Grammar, vocab & listening stats.
-          </p>
-        </button>
+          <Button variant="secondary" size="xl" onClick={() => openStep(navigateTo, step)}
+            className="relative mt-5 w-full uppercase sm:w-auto sm:min-w-64" style={{ color: colors.dark }}>
+            {step.kind === 'done' ? 'Open map · Xem bản đồ' : step.kind === 'boss' ? 'Fight! · Chiến thôi' : 'Start · Bắt đầu'}
+          </Button>
+        </section>
       </div>
 
-      {/* Parent Dashboard Quick Entry (Discreet parent area) */}
-      <div className="pt-4 text-center">
-        <button
-          type="button"
-          onClick={() => navigateTo('parent')}
-          className="text-xs font-bold text-slate-400 hover:text-slate-700 underline underline-offset-4 cursor-pointer"
-        >
-          Parent Dashboard · Khu Vực Phụ Huynh & Báo Cáo
-        </button>
+      <aside className="space-y-4 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        {/* Hero */}
+        <section aria-label="My hero" className="card-3d flex items-center gap-3 p-4">
+          <button type="button" onClick={() => navigateTo('avatar')} aria-label="Change avatar"
+            className="shrink-0 rounded-2xl border-2 border-line bg-sky-50 p-1 hover:border-sky-brand cursor-pointer">
+            <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" decorative />
+          </button>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-lg font-black text-ink">{name}</p>
+            <p className="text-xs font-extrabold text-ink-soft">Level {levelInfo.level} · {levelInfo.title}</p>
+            <div className="mt-1.5 h-3 rounded-full bg-line" role="progressbar" aria-label="Level progress" aria-valuemin={0} aria-valuemax={levelInfo.neededLevelXP} aria-valuenow={levelInfo.currentLevelXP}>
+              <div className="h-full rounded-full bg-sun" style={{ width: `${levelInfo.progressPercent}%` }} />
+            </div>
+            <p className="mt-1 text-[11px] font-bold text-ink-soft tabular-nums">{levelInfo.currentLevelXP} / {levelInfo.neededLevelXP} XP · 🪙 {state.coins} xu</p>
+          </div>
+        </section>
+
+        {/* Daily goal */}
+        <section aria-label="Daily goal" className="card-3d p-4">
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className={`text-4xl ${xpToday >= DAILY_XP_GOAL ? 'animate-float' : ''}`}>{xpToday >= DAILY_XP_GOAL ? '🎁' : '🎯'}</span>
+            <div className="min-w-0 flex-1">
+              <p className="eyebrow text-flame">Daily goal</p>
+              <p className="font-display text-base font-black text-ink">Mục tiêu hôm nay</p>
+              <p className="text-xs font-bold text-ink-soft">{xpToday >= DAILY_XP_GOAL ? 'Hoàn thành rồi, giỏi quá!' : `Kiếm ${DAILY_XP_GOAL} XP hôm nay`}</p>
+            </div>
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <div className="h-4 flex-1 rounded-full bg-line" role="progressbar" aria-label="Daily XP" aria-valuemin={0} aria-valuemax={DAILY_XP_GOAL} aria-valuenow={Math.min(xpToday, DAILY_XP_GOAL)}>
+              <div className="h-full rounded-full bg-flame" style={{ width: `${Math.min(100, (xpToday / DAILY_XP_GOAL) * 100)}%` }} />
+            </div>
+            <span className="text-xs font-black tabular-nums text-ink-soft">{Math.min(xpToday, DAILY_XP_GOAL)}/{DAILY_XP_GOAL}</span>
+          </div>
+        </section>
+
+        {/* Streak this week */}
+        <section aria-label="Streak this week" className="card-3d p-4">
+          <p className="font-display text-base font-black text-ink"><span aria-hidden="true">🔥</span> {state.streak} ngày liên tiếp</p>
+          <ol className="mt-3 grid grid-cols-7 gap-1 text-center">
+            {week.map(day => (
+              <li key={day.date} className="flex flex-col items-center gap-1">
+                <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm ${day.active ? 'bg-flame text-white' : 'bg-line'} ${day.isToday ? 'ring-2 ring-flame ring-offset-2' : ''}`}
+                  aria-label={`${day.label}${day.active ? ': đã học' : ''}`}>{day.active ? '🔥' : ''}</span>
+                <span className={`text-[11px] font-black ${day.isToday ? 'text-flame' : 'text-ink-soft'}`}>{day.label}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Sentence of the day */}
+        {sentence && (
+          <section aria-label="Sentence of the day" className="card-3d p-4">
+            <p className="eyebrow text-grape-dark">Câu hay hôm nay</p>
+            <div className="mt-1 flex items-start gap-2">
+              <p className="min-w-0 flex-1 font-display text-lg font-black leading-snug text-ink">{sentence.en}</p>
+              <PronounceButton text={sentence.en} label="Nghe" />
+            </div>
+            <p className="mt-1 text-sm font-bold text-ink-soft">{sentence.vi}</p>
+          </section>
+        )}
+      </aside>
+
+      <div className="space-y-6 lg:col-start-1">
+        <section aria-label="More to do" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {TILES.map(tile => (
+            <button key={tile.screen} type="button" onClick={() => navigateTo(tile.screen)} className="card-3d relative flex items-center gap-3 p-3 text-left cursor-pointer sm:p-4">
+              <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl" style={{ backgroundColor: tile.tint }}>{tile.icon}</span>
+              <span className="min-w-0">
+                <span className="block font-display text-base font-black text-ink">{tile.title}</span>
+                <span className="block truncate text-xs font-bold text-ink-soft">{tile.titleVi}</span>
+              </span>
+              {tile.screen === 'review' && mistakes > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 min-w-6 rounded-full border-2 border-white bg-berry px-1.5 text-center text-xs font-black text-white">{mistakes}</span>
+              )}
+            </button>
+          ))}
+        </section>
+
+        <p className="text-center">
+          <button type="button" onClick={() => navigateTo('parent')} className="rounded-full bg-white/70 px-3 py-1 text-xs font-extrabold text-ink-soft underline underline-offset-4 hover:text-ink cursor-pointer">
+            Góc phụ huynh · Parent dashboard
+          </button>
+        </p>
       </div>
     </div>
-  </div>
   );
 };

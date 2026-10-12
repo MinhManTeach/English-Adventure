@@ -6,6 +6,7 @@ import { createDefaultState, migrateState } from '../src/services/storage';
 import { applyQuestionResult } from '../src/engine/progression';
 import { prepareSessionQuestions } from '../src/engine/sessionQuestions';
 import { SUBJECTS, ACTIVITIES } from '../src/data/templates/controlledPools';
+import { ALL_WORLD_UNIT_IDS, WORLDS, getWorld } from '../src/data/worlds';
 const seeded = (seed = 42) => () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
 const ids = (questions: ReturnType<typeof buildDynamicSession>['questions']) => questions.map(q => q.variantId!);
 for (const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) {
@@ -29,7 +30,7 @@ for (const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) {
   });
 }
 test('Ten seeded six-question Practice replays use 60 different variants when the pool permits', () => {
-  for (const unit of [1,2,3,4,5,7,8,9,10,11,12]) {
+  for (const unit of ALL_WORLD_UNIT_IDS.filter(unit => unit !== 6)) {
     let state = createDefaultState(); const rng = seeded(unit), seen = new Set<string>();
     for (let i=0;i<10;i++) { const session = buildDynamicSession(state,unit,'practice',6,rng); session.questions.forEach(q => {assert.equal(seen.has(q.variantId!), false);seen.add(q.variantId!);}); state={...state,recentQuestionHistory:session.history}; }
     assert.equal(seen.size, 60); assert.equal(state.recentQuestionHistory![unit].variantIds.length, 50);
@@ -94,10 +95,10 @@ test('Failed fresh review resets recovery and preserves history without a second
   state=applyQuestionResult(state,q,false,false,'2026-10-04T02:00:00Z','wrong',undefined,'review');
   assert.equal(state.errorBank[key].reviewCorrectStreak, 0);assert.equal(state.errorBank[key].wrongCount, 2);assert.equal(state.errorBank[key].recoveryVariantIds!.length, 1);assert.equal(Object.keys(state.errorBank).length, 1);
 });
-for(const chapter of [1,2,3,4] as const) test(`Dynamic Boss ${chapter} preserves ten spells, balance, options and fresh replays`,()=>{
+for(const chapter of WORLDS.map(w=>w.chapter)) test(`Dynamic Boss ${chapter} preserves ten spells, balance, options and fresh replays`,()=>{
   let state=createDefaultState();const rng=seeded(chapter), first=buildDynamicBoss(state,chapter,rng);state={...state,recentQuestionHistory:first.history};const second=buildDynamicBoss(state,chapter,rng);
   assert.equal(first.questions.length, 10);assert.equal(new Set(ids(first.questions)).size, 10);
-  assert.deepEqual(first.questions.map(q=>q.unit).sort(), ({1:[1,1,1,2,2,2,2,3,3,3],2:[4,4,4,5,5,5,5,6,6,6],3:[7,7,7,8,8,8,8,9,9,9],4:[10,10,10,11,11,11,11,12,12,12]}[chapter]));
+  assert.deepEqual(first.questions.map(q=>q.unit).sort((a,b)=>a-b), getWorld(chapter).bossQuota.flatMap(([unit,count])=>Array(count).fill(unit)));
   for(const q of first.questions) {assert.equal(q.type, 'multiple-choice');assert.equal(q.options!.filter(x=>x===q.answer).length, 1);assert.ok(!(ids(second.questions)).includes(q.variantId!));}
 });
 test('Additive history migration preserves progress and rejects malformed/bloated history',()=>{
@@ -105,7 +106,7 @@ test('Additive history migration preserves progress and rejects malformed/bloate
   const state=migrateState(old);assert.equal(state.xp, 1234);assert.equal(state.coins, 456);assert.equal(state.bossDefeated, true);assert.equal(state.recentQuestionHistory!['1'].variantIds.length, 50);assert.deepEqual(state.recentQuestionHistory!['1'].templateIds, ['template']);assert.deepEqual(state.recentQuestionHistory!['1'].cycleVariantIds, []);assert.deepEqual(migrateState(state), state);
 });
 test('Stage-specific providers offer manipulation and mixed independent application',()=>{
-  for(const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) {
+  for(const unit of ALL_WORLD_UNIT_IDS) {
     const practice=buildDynamicSession(createDefaultState(),unit,'practice',6,seeded()).questions;
     assert.equal(practice.every(q=>q.difficulty<=2), true);
     const mini=buildDynamicSession(createDefaultState(),unit,'minigame',6,seeded()).questions;
@@ -122,7 +123,7 @@ test('Legacy Unit 0 Boss mistakes and old topic aliases receive fresh concept re
   }
 });
 test('Dynamic Review Gates retain 3/3/2 balance and Chapter 2 tense contrast',()=>{
-  for(const chapter of [1,2,3,4] as const) {const session=buildDynamicReview(createDefaultState(),chapter,seeded());assert.equal(session.questions.length, 8);assert.equal(new Set(ids(session.questions)).size, 8);if(chapter===2)assert.equal(session.questions.some(q=>q.topic==='present-simple-vs-continuous'), true);}
+  for(const chapter of WORLDS.map(w=>w.chapter)) {const session=buildDynamicReview(createDefaultState(),chapter,seeded());assert.equal(session.questions.length, 8);assert.equal(new Set(ids(session.questions)).size, 8);if(chapter===2)assert.equal(session.questions.some(q=>q.topic==='present-simple-vs-continuous'), true);}
   assert.equal(buildDynamicBoss(createDefaultState(),2,seeded()).questions.filter(q=>q.topic==='present-simple-vs-continuous').length, 2);
 });
 test('Quality guards reject malformed punctuation, agreement and number',()=>{

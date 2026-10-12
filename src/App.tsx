@@ -1,6 +1,7 @@
 import React from 'react';
 import { GameProvider, useGame } from './context/GameContext';
-import { Navbar } from './components/common/Navbar';
+import { Navbar, SideNav, BottomTabs } from './components/common/Navbar';
+import { SceneBackground } from './components/common/SceneBackground';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { AdventureMapScreen } from './screens/AdventureMapScreen';
@@ -55,35 +56,34 @@ const MainAppContent: React.FC = () => {
     }
   };
 
-  const showNavbar = currentScreen !== 'welcome' && currentScreen !== 'boss';
+  // Lessons and boss fights are full-screen, like a game level; they have their own Exit buttons.
+  const showNavbar = currentScreen !== 'welcome' && currentScreen !== 'boss' && currentScreen !== 'session';
 
   return (
-    <div className="min-h-screen bg-amber-50/40 text-slate-800 flex flex-col font-sans selection:bg-amber-200">
-      {showNavbar && <Navbar />}
-      {(writerStatus !== 'writable' || storageStatus !== 'ready' || saveStatus === 'storage-failed') && (
-        <div role="status" className="bg-amber-100 px-4 py-3 text-sm text-amber-950">
-          {storageStatus === 'invalid-save' ? 'Your saved data could not be read. The original save is preserved; changes are disabled.'
-            : storageStatus !== 'ready' || saveStatus === 'storage-failed' ? 'Progress could not be saved. Changes are not applied; check browser storage and retry.'
-            : writerStatus === 'starting' ? 'Preparing safe saving…'
-            : writerStatus === 'unsupported' || writerStatus === 'unavailable' ? 'Safe saving is unavailable in this browser. This tab is read-only.'
-            : 'This tab is read-only while another tab is active. Close the active tab to continue here.'}
-        </div>
-      )}
-
-      <main className="flex-1 w-full">{renderScreen()}</main>
-
-      {showNavbar && (
-        <footer className="border-t border-amber-100/80 bg-white/60 py-6 mt-12 text-center text-xs text-slate-500">
-          <div className="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="font-medium">
-              English Adventure · Hành Trình Chinh Phục Tiếng Anh (CEFR A1)
-            </p>
-            <p className="text-[11px] text-slate-400">
-              Interactive Educational Game Engine · Designed for Vietnamese Learners
-            </p>
+    <div className="min-h-screen bg-white text-ink flex flex-col font-body selection:bg-sky-200">
+      {showNavbar && <SceneBackground />}
+      {showNavbar && <SideNav />}
+      <div className={`relative z-10 flex min-h-screen flex-1 flex-col ${showNavbar ? 'pb-20 lg:pb-0 lg:pl-64' : ''}`}>
+        {showNavbar && <Navbar />}
+        {(writerStatus !== 'writable' || storageStatus !== 'ready' || saveStatus === 'storage-failed') && (
+          <div role="status" className="bg-amber-100 px-4 py-3 text-sm text-amber-950">
+            {storageStatus === 'invalid-save' ? 'Your saved data could not be read. The original save is preserved; changes are disabled.'
+              : storageStatus !== 'ready' || saveStatus === 'storage-failed' ? 'Progress could not be saved. Changes are not applied; check browser storage and retry.'
+              : writerStatus === 'starting' ? 'Preparing safe saving…'
+              : writerStatus === 'unsupported' || writerStatus === 'unavailable' ? 'Safe saving is unavailable in this browser. This tab is read-only.'
+              : 'This tab is read-only while another tab is active. Close the active tab to continue here.'}
           </div>
-        </footer>
-      )}
+        )}
+
+        <main className="flex-1 w-full">{renderScreen()}</main>
+
+        {showNavbar && (
+          <footer className="py-6 text-center text-xs font-bold text-ink-soft/70">
+            English Adventure · Tiếng Anh A1 cho học sinh Việt Nam
+          </footer>
+        )}
+      </div>
+      {showNavbar && <BottomTabs />}
     </div>
   );
 };
