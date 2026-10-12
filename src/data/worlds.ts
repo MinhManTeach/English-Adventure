@@ -266,6 +266,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight Storm Queen Tempesta!', gateGoal: 'Prepare for the Ruler of Thunder', gatePass: 'PASS — Storm Queen Tempesta is unlocked!',
     },
   },
+  {
+    chapter: 11, units: [31, 32, 33], title: 'Fashion Fort', titleVi: 'Pháo Đài Thời Trang', emojis: '🔑 👥 👗 🧙',
+    intro: 'Find out whose things are whose, master every pronoun and dress up for the big show!',
+    lockedHint: 'Complete Chapter 10 by defeating Storm Queen Tempesta to begin this adventure.',
+    completeMessage: "You mastered 's, Whose, pronouns and words for clothes and fashion!",
+    reviewTitle: 'Fashion Fort Review',
+    reviewQuota: [[31, 3], [32, 3], [33, 2]], bossQuota: [[31, 3], [32, 4], [33, 3]],
+    bossStageKey: 'boss11', firstClear: { xp: 700, coins: 350 }, achievementId: 'style_star',
+    badge: { title: 'STYLE STAR', titleVi: 'Ngôi sao phong cách', icon: '⭐' }, bossColor: '#a855f7',
+    boss: {
+      name: 'The Wardrobe Witch', fullName: 'The Wardrobe Witch · Thief of Things', emoji: '🧙 👗', arena: 'GRAND RUNWAY', leaveLabel: 'Leave the Fort',
+      awaits: 'The Wardrobe Witch Awaits!', intro: 'The Wardrobe Witch has mixed up everyone\'s things! Cast 10 accurate spells about owners, pronouns and clothes to sort them out.',
+      strikeLabel: '🧵 Tangle Spell!', defeatedTitle: 'WARDROBE WITCH DEFEATED!', defeatedSubtitle: 'EVERYTHING IS BACK WITH ITS OWNER!',
+      defeatedMessage: 'You mastered possessives, pronouns and clothes words. Chapter 11 is complete!',
+      survivedTitle: 'THE WARDROBE WITCH FLEW AWAY!',
+      defeatMessage: 'The Wardrobe Witch is still mixing things up. Review your mistakes and try again!',
+      levelTitle: 'Style Star', achievementTitle: 'STYLE STAR!',
+      unlockHint: 'Defeat the Wardrobe Witch in Chapter 11 to unlock.',
+      mapBlurb: "Say whose it is, pick the right pronoun and dress well to beat the Witch.",
+      fightLabel: 'Fight the Wardrobe Witch!', gateGoal: 'Prepare for the Thief of Things', gatePass: 'PASS — the Wardrobe Witch is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;

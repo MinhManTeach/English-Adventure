@@ -8,6 +8,7 @@ import * as chapter7 from './chapter7';
 import * as chapter8 from './chapter8';
 import * as chapter9 from './chapter9';
 import * as chapter10 from './chapter10';
+import * as chapter11 from './chapter11';
 
 interface ChapterContent {
   questions: Question[];
@@ -22,6 +23,7 @@ export const LATER_CHAPTERS: Record<number, ChapterContent> = {
   8: chapter8,
   9: chapter9,
   10: chapter10,
+  11: chapter11,
 };
 
 export const LATER_CHAPTER_QUESTIONS: Question[] = Object.values(LATER_CHAPTERS).flatMap(chapter => chapter.questions);
