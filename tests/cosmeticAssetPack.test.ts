@@ -28,10 +28,10 @@ function losslessWebP(src: string, width: number, height: number) {
   assert.ok(found, 'lossless WebP image chunk'); return bytes;
 }
 
-test('all 30 missing cosmetics have intact full-canvas masters, exports and transparent thumbnails', () => {
+test('every non-starter cosmetic has intact full-canvas masters, exports and transparent thumbnails', () => {
   const manifest = JSON.parse(readFileSync('assets/avatar-rig-v1/cosmetics/exports.json', 'utf8'));
-  assert.equal(Object.keys(COSMETIC_ASSET_PACK).length, 30); assert.equal(manifest.entries.length, 32);
-  assert.equal(new Set(COSMETIC_CATALOG.map(i => i.id)).size, 38);
+  assert.equal(Object.keys(COSMETIC_ASSET_PACK).length, 51); assert.equal(manifest.entries.length, 55);
+  assert.equal(new Set(COSMETIC_CATALOG.map(i => i.id)).size, 59);
   for (const entry of manifest.entries) {
     assert.ok(COSMETIC_CATALOG.some(i => i.id === entry.id && !i.starter));
     assert.ok(existsSync(entry.source));
@@ -47,7 +47,7 @@ test('all 30 missing cosmetics have intact full-canvas masters, exports and tran
 const candidates = COSMETIC_CATALOG;
 test('every declared compatible item resolves on its body with allowed planes and actual files', () => {
   assert.deepEqual(validateCosmeticCatalog(candidates), []);
-  assert.equal(candidates.filter(item => item.assetStatus === 'ready').length, 38);
+  assert.equal(candidates.filter(item => item.assetStatus === 'ready').length, 59);
   for (const item of candidates) for (const gender of item.compatibleWith) {
     const avatar: AvatarState = { gender, equipped: { ...STARTER_DEFAULTS[gender], accessory: null, [item.slot]: item.id } };
     const plan = resolveAvatarLayers(avatar, { catalog: candidates });

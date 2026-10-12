@@ -30,31 +30,31 @@ export function AvatarEditor({ cosmetics, canSave, onSave, onCancel }: {
   };
   return <section className="space-y-5" aria-label="Avatar creator and closet">
     <div className={`grid gap-6 items-start ${draft ? 'grid-cols-1 md:grid-cols-[256px_1fr] lg:grid-cols-[292px_1fr]' : 'grid-cols-1'}`}>
-      <div className={`rounded-3xl border-2 border-amber-200 bg-white p-4 space-y-4 ${draft ? 'md:sticky md:top-32' : ''}`}>
-        <h2 className="font-game text-xl font-black text-slate-900">{cosmetics.setupCompleted ? 'Your hero preview' : 'Choose your hero'}</h2>
-        {draft && <div className="flex justify-center rounded-2xl bg-amber-50"><AvatarRenderer avatar={draft} size="large" /></div>}
+      <div className={`card-3d p-4 space-y-4 ${draft ? 'md:sticky md:top-24' : ''}`}>
+        <h2 className="font-display text-xl font-black text-ink">{cosmetics.setupCompleted ? 'Your hero preview' : 'Choose your hero'}</h2>
+        {draft && <div className="relative flex justify-center overflow-hidden rounded-2xl" style={{ background: 'radial-gradient(circle at 50% 35%, #ffffff 0 35%, #ddf4ff 72%)' }}><AvatarRenderer avatar={draft} size="large" /></div>}
         <div role="group" aria-label="Choose Boy or Girl" className={`grid gap-3 ${draft ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'}`}>
           {(['boy', 'girl'] as const).map(gender => <button key={gender} type="button" aria-label={gender === 'boy' ? 'Boy · Bé trai' : 'Girl · Bé gái'} aria-pressed={draft?.gender === gender}
-            onClick={() => chooseGender(gender)} className={`min-h-12 p-3 rounded-2xl border-2 font-black text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300 ${draft?.gender === gender ? 'border-amber-600 bg-amber-100' : 'border-slate-200 bg-white'}`}>
+            onClick={() => chooseGender(gender)} className={`card-3d min-h-12 p-3 font-display font-black text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-300 ${draft?.gender === gender ? '!border-sky-brand !bg-sky-50 text-sky-brand-dark' : ''}`}>
             {!draft && <div className="flex justify-center"><AvatarRenderer avatar={createDefaultCosmetics(gender).avatar} size="large" /></div>}
             {gender === 'boy' ? 'Boy · Bé trai' : 'Girl · Bé gái'}{draft?.gender === gender ? ' ✓' : ''}
           </button>)}
         </div>
-        <p className="text-sm text-slate-600">Switch heroes anytime. Your clothes stay yours.</p>
-        <p className="text-sm font-bold text-amber-900">Preview only — save when you love your look.</p>
+        <p className="text-sm text-ink-soft">Switch heroes anytime. Your clothes stay yours.</p>
+        <p className="text-sm font-bold text-grape-dark">Preview only — save when you love your look.</p>
         {!canSave && <p className="text-sm text-slate-700">Saving is unavailable in this tab. You can still try a look.</p>}
         <div className="grid grid-cols-1 gap-3">
-          <Button size="lg" variant="amber" className="text-slate-900! whitespace-normal! motion-reduce:transition-none motion-reduce:active:translate-y-0" disabled={!draft || !canSave} onClick={save}>
+          <Button size="lg" variant="success" className="whitespace-normal! motion-reduce:transition-none motion-reduce:active:translate-y-0" disabled={!draft || !canSave} onClick={save}>
             {cosmetics.setupCompleted ? 'Save / Equip' : 'Save my hero'}
           </Button>
           <Button size="lg" variant="secondary" className="whitespace-normal! motion-reduce:transition-none motion-reduce:active:translate-y-0" onClick={onCancel}>Cancel preview</Button>
         </div>
         <p role={failed ? 'alert' : 'status'} aria-live={failed ? 'assertive' : 'polite'} className={`text-sm font-bold ${failed ? 'text-rose-800' : 'text-emerald-800'}`}>{feedback}</p>
       </div>
-      <div className="rounded-3xl bg-white border border-amber-100 p-4 sm:p-6">
+      <div className="card-3d p-4 sm:p-6">
         {draft ? <AvatarCloset cosmetics={cosmetics} draft={draft} category={category} onCategory={setCategory}
           onSelect={(slot, id) => { setDraft({ ...draft, equipped: { ...draft.equipped, [slot]: id } }); setFeedback(''); setFailed(false); }} />
-          : <div className="space-y-3"><h2 className="text-2xl font-black font-game text-slate-900">A new hero, the same adventure!</h2>
+          : <div className="space-y-3"><h2 className="font-display text-2xl font-black text-ink">A new hero, the same adventure!</h2>
             <p className="text-slate-700">Choose Boy or Girl to try your free starter outfit. Nothing changes until you save.</p>
             <p className="text-sm text-slate-600" lang="vi">Chọn nhân vật và thử trang phục. Chỉ lưu khi em sẵn sàng.</p></div>}
       </div>

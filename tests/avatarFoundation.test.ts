@@ -27,13 +27,13 @@ const excludingCosmetics = (state: UserProgressState) => { const { cosmetics, ..
 const purchase = (state = player(), id = 'top.sunshine-tee') => purchaseItem(state, id, readyCatalog);
 const unavailableCatalog = COSMETIC_CATALOG.map(item => item.starter ? item : { ...item, assetStatus: 'unavailable' as const });
 
-test('38 approved items have valid metadata and unavailable artwork rejects purchases', () => {
-  assert.equal(COSMETIC_CATALOG.length, 38);
+test('59 approved items have valid metadata and unavailable artwork rejects purchases', () => {
+  assert.equal(COSMETIC_CATALOG.length, 59);
   assert.deepEqual(validateCosmeticCatalog(COSMETIC_CATALOG), []);
   assert.deepEqual(validateCosmeticCatalog(readyCatalog), []);
-  assert.equal(new Set(COSMETIC_CATALOG.map(x => x.id)).size, 38);
+  assert.equal(new Set(COSMETIC_CATALOG.map(x => x.id)).size, 59);
   for (const gender of ['boy', 'girl'] as const) {
-    assert.equal(COSMETIC_CATALOG.filter(x => x.slot === 'hair' && x.compatibleWith.includes(gender)).length, 6);
+    assert.equal(COSMETIC_CATALOG.filter(x => x.slot === 'hair' && x.compatibleWith.includes(gender)).length, 8);
     for (const [slot, id] of Object.entries(STARTER_DEFAULTS[gender])) {
       const item = COSMETIC_CATALOG.find(x => x.id === id)!;
       assert.equal(item.slot, slot); assert.equal(item.price, 0); assert.equal(item.starter, true);

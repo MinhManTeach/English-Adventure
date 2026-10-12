@@ -16,6 +16,8 @@ export interface CosmeticState {
   avatar: AvatarState;
 }
 export interface AvatarAssetLayer { plane: LayerPlane; src: string }
+/** Fashion palette an item belongs to, used to group the store. */
+export type StoreCollection = 'classic' | 'pastel' | 'street' | 'earth' | 'sporty' | 'tet' | 'royal';
 export interface StoreItem {
   id: string;
   name: { en: string; vi: string };
@@ -28,6 +30,7 @@ export interface StoreItem {
   assetStatus: 'unavailable' | 'ready';
   assets: Partial<Record<AvatarGender, readonly AvatarAssetLayer[]>>;
   preview: { thumbnailSrc: string | null; alt: string };
+  collection?: StoreCollection;
 }
 export type CosmeticStatus = 'success' | 'already-owned' | 'insufficient-coins' | 'locked'
   | 'incompatible' | 'asset-unavailable' | 'storage-failed' | 'read-only'
