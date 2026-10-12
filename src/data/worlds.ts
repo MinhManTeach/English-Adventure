@@ -310,6 +310,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight Mister Maybe!', gateGoal: 'Prepare for the Master of If', gatePass: 'PASS — Mister Maybe is unlocked!',
     },
   },
+  {
+    chapter: 13, units: [37, 38, 39], title: 'Record Mountain', titleVi: 'Núi Kỷ Lục', emojis: '⚖️ 🏆 🗽 👑',
+    intro: 'Compare, rank and break records on your way to the Hall of Fame at the top!',
+    lockedHint: 'Complete Chapter 12 by defeating Mister Maybe to begin this adventure.',
+    completeMessage: 'You mastered comparatives, superlatives and words for famous people and places!',
+    reviewTitle: 'Record Mountain Review',
+    reviewQuota: [[37, 3], [38, 3], [39, 2]], bossQuota: [[37, 3], [38, 4], [39, 3]],
+    bossStageKey: 'boss13', firstClear: { xp: 800, coins: 400 }, achievementId: 'record_breaker',
+    badge: { title: 'RECORD BREAKER', titleVi: 'Người phá kỷ lục', icon: '🥇' }, bossColor: '#eab308',
+    boss: {
+      name: 'King Boastalot', fullName: 'King Boastalot · The Biggest Show-off', emoji: '👑 🏆', arena: 'HALL OF FAME', leaveLabel: 'Leave the Mountain',
+      awaits: 'King Boastalot Awaits!', intro: 'King Boastalot says he is the best at everything! Cast 10 accurate spells about comparing and famous places to prove him wrong.',
+      strikeLabel: '👑 Boast Blast!', defeatedTitle: 'KING BOASTALOT DEFEATED!', defeatedSubtitle: 'YOU ARE THE GREATEST!',
+      defeatedMessage: 'You mastered comparatives, superlatives and famous people and places. Chapter 13 is complete!',
+      survivedTitle: 'KING BOASTALOT IS STILL BOASTING!',
+      defeatMessage: 'King Boastalot still thinks he is the best. Review your mistakes and try again!',
+      levelTitle: 'Record Breaker', achievementTitle: 'RECORD BREAKER!',
+      unlockHint: 'Defeat King Boastalot in Chapter 13 to unlock.',
+      mapBlurb: 'Compare and rank everything to show the King who is really the best.',
+      fightLabel: 'Fight King Boastalot!', gateGoal: 'Prepare for the Biggest Show-off', gatePass: 'PASS — King Boastalot is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
