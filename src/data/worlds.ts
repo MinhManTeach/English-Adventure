@@ -43,6 +43,10 @@ export interface WorldConfig {
   bossStageKey: string;
   firstClear: { xp: number; coins: number };
   achievementId: string;
+  /** Badge for worlds whose achievement is generated from this entry. */
+  badge?: { title: string; titleVi: string; icon: string };
+  /** Glow colour for worlds whose boss is drawn from its emoji. */
+  bossColor?: string;
   boss: BossProfile;
 }
 
@@ -128,6 +132,28 @@ export const WORLDS: readonly WorldConfig[] = [
       unlockHint: 'Defeat Captain Fogbeard in Chapter 4 to unlock.',
       mapBlurb: 'Tell what was happening, what happened next and who your friends are to clear the fog.',
       fightLabel: 'Fight Captain Fogbeard!', gateGoal: 'Prepare for the Memory Thief', gatePass: 'PASS — Captain Fogbeard is unlocked!',
+    },
+  },
+  {
+    chapter: 5, units: [13, 14, 15], title: 'Globe Trotters', titleVi: 'Vòng Quanh Thế Giới', emojis: '✈️ 🚉 🧳 🌀',
+    intro: 'Share your experiences, count the years since you started and pack your bags for a world tour!',
+    lockedHint: 'Complete Chapter 4 by defeating Captain Fogbeard to begin this adventure.',
+    completeMessage: 'You mastered the present perfect, for and since, and travel words!',
+    reviewTitle: 'Globe Trotters Review',
+    reviewQuota: [[13, 3], [14, 3], [15, 2]], bossQuota: [[13, 3], [14, 4], [15, 3]],
+    bossStageKey: 'boss5', firstClear: { xp: 400, coins: 200 }, achievementId: 'globe_trotter',
+    badge: { title: 'GLOBE TROTTER', titleVi: 'Nhà du hành', icon: '🌍' }, bossColor: '#f59e0b',
+    boss: {
+      name: 'Sir Jetlag', fullName: 'Sir Jetlag · Lord of Lost Luggage', emoji: '🧳 🌀', arena: 'STORMY TERMINAL', leaveLabel: 'Leave the Terminal',
+      awaits: 'Sir Jetlag Awaits!', intro: 'Sir Jetlag has mixed up every suitcase in the terminal! Cast 10 accurate spells about experiences, for and since, and travel.',
+      strikeLabel: '🌀 Luggage Storm!', defeatedTitle: 'SIR JETLAG DEFEATED!', defeatedSubtitle: 'THE LORD OF LOST LUGGAGE HAS BEEN DEFEATED!',
+      defeatedMessage: 'You mastered the present perfect and travel words. Chapter 5 is complete!',
+      survivedTitle: 'SIR JETLAG IS STILL SPINNING!',
+      defeatMessage: 'Sir Jetlag still blocks the terminal. Review your mistakes and try again!',
+      levelTitle: 'Globe Trotter', achievementTitle: 'GLOBE TROTTER!',
+      unlockHint: 'Defeat Sir Jetlag in Chapter 5 to unlock.',
+      mapBlurb: 'Tell what you have done, how long you have done it and where you travelled to clear the terminal.',
+      fightLabel: 'Fight Sir Jetlag!', gateGoal: 'Prepare for the Lord of Lost Luggage', gatePass: 'PASS — Sir Jetlag is unlocked!',
     },
   },
 ];

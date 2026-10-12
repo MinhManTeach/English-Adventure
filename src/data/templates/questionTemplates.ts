@@ -5,7 +5,9 @@ import { SUBJECTS, ACTIVITIES, CONTINUOUS_ACTIVITIES, ROUTINE_TIMES, COUNTED_OBJ
 import { HOME_SITUATIONS, HOME_RESPONSES } from './homeSituations';
 import { LEISURE_SITUATIONS } from './leisureSituations';
 import { HABIT_MARKERS, NOW_MARKERS, STATIVE_VERBS, PAST_VERBS, PAST_TIMES, PAST_SPELLING_RULES } from './chapter3Pools';
-import { SCHOOL_WORDS, SchoolWord } from './schoolLife';
+import { SCHOOL_WORDS } from './schoolLife';
+import type { VocabWord } from '../chapters/shared';
+import { addLaterChapterTemplates } from '../chapters';
 import { WAS_WERE_PREDICATES, IRREGULAR_VERBS, LONG_ACTIONS, PAST_MOMENTS, INTERRUPTIONS } from './chapter4Pools';
 import { FRIEND_WORDS } from './friendship';
 
@@ -182,7 +184,7 @@ for (const form of ['affirmative','ed-spelling','negative','question','short-ans
   register(8,'past-simple',form,frames);
 }
 /** Vocabulary units: every word appears in three authored situations, with distractors from its own topic. */
-function registerWordUnit(unit: number, words: readonly (Omit<SchoolWord, 'topic'> & { topic: string })[], contextPrefix: string, family: string) {
+function registerWordUnit(unit: number, words: readonly VocabWord[], contextPrefix: string, family: string) {
   for (const topic of [...new Set(words.map(word => word.topic))]) {
     const topicWords=words.filter(word=>word.topic===topic);
     const frames=topicWords.flatMap((word,index)=>word.situations.map((situation,j)=>{
@@ -246,6 +248,11 @@ for (const form of ['affirmative','negative','question','short-answer','interrup
 }
 // Unit 12: making friends words, each in three authored situations.
 registerWordUnit(12, FRIEND_WORDS, 'friends', 'friend-meaning');
+/** Helpers handed to later chapters so each chapter keeps its templates in its own folder. */
+export interface TemplateApi {
+  register: typeof register; frame: typeof frame; withContext: typeof withContext; cap: typeof cap; registerWordUnit: typeof registerWordUnit;
+}
+addLaterChapterTemplates({ register, frame, withContext, cap, registerWordUnit });
 export const QUESTION_TEMPLATES: readonly QuestionTemplate[] = templates;
 
 export function renderTemplate(template: QuestionTemplate, f: ControlledFrame): Question {

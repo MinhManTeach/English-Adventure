@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGame } from '../../context/GameContext';
+import { ALL_UNITS } from '../../data/unitsMeta';
 
 interface WorldBackgroundProps {
   unitId?: number | null;
@@ -33,6 +34,15 @@ export const WorldBackground: React.FC<WorldBackgroundProps> = ({ unitId, isBoss
         </svg>
       </div>
     );
+  }
+
+  if (effectiveUnit >= 13) {
+    const unit = ALL_UNITS.find(item => item.id === effectiveUnit);
+    return <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-b from-violet-50 via-sky-50/70 to-amber-50">
+      <div className="absolute top-24 right-10 h-40 w-40 rounded-full blur-2xl opacity-30" style={{ backgroundColor: unit?.color ?? '#a78bfa' }} />
+      <svg viewBox="0 0 1200 180" preserveAspectRatio="none" className="absolute bottom-0 h-32 w-full text-violet-200/50"><path fill="currentColor" d="M0 100 Q300 40 600 100 T1200 100 V180 H0 Z" /></svg>
+      <span className="absolute bottom-4 left-6 text-5xl opacity-15">{unit?.icon ?? '⭐'}</span>
+    </div>;
   }
 
   if (effectiveUnit >= 10) {
