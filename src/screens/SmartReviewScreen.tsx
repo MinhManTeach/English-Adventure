@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { getWorld, getWorldOfUnit } from '../data/worlds';
 import { RotateCcw, Target, Sparkles, CheckCircle2, ArrowRight, BookOpen } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { REVIEW_GATE_PASS_PERCENT } from '../engine/worldProgression';
@@ -9,6 +10,7 @@ import { soundService } from '../services/sound';
 
 export const SmartReviewScreen: React.FC = () => {
   const { state, recordQuestionResult, navigateTo, isReviewGate, completeReviewGate, activeChapterId, createReviewSession } = useGame();
+  const world = getWorld(activeChapterId);
   const [isPlaying, setIsPlaying] = useState(false);
   const [reviewQuestions, setReviewQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -74,7 +76,7 @@ export const SmartReviewScreen: React.FC = () => {
             Adaptive Review
           </span>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-game">
-            {isReviewGate ? activeChapterId === 2 ? 'Review Gate 2 · Everyday Adventure Review' : 'Review Gate' : 'Smart Review'}
+            {isReviewGate ? activeChapterId === 1 ? 'Review Gate' : `Review Gate ${activeChapterId} · ${world.reviewTitle}` : 'Smart Review'}
           </h1>
         </div>
 
@@ -99,10 +101,10 @@ export const SmartReviewScreen: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-black font-game">
-                  {isReviewGate ? activeChapterId === 2 ? 'Prepare for the Time Keeper' : 'Prepare for Grammar Castle' : 'Targeted Weak Spot Recovery'}
+                  {isReviewGate ? world.boss.gateGoal : 'Targeted Weak Spot Recovery'}
                 </h2>
                 <p className="text-xs text-rose-100">
-                  {isReviewGate ? `8 questions from Units ${activeChapterId === 2 ? '4–6' : '1–3'}. Reach 80% to open the ${activeChapterId === 2 ? 'Time Portal' : 'castle'}.` : 'Practice your weak spots with fresh questions. Recover each mistake with three successful reviews.'}
+                  {isReviewGate ? `8 questions from Units ${world.units[0]}–${world.units[2]}. Reach 80% to face ${world.boss.name}.` : 'Practice your weak spots with fresh questions. Recover each mistake with three successful reviews.'}
                 </p>
               </div>
             </div>
@@ -168,7 +170,7 @@ export const SmartReviewScreen: React.FC = () => {
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-extrabold text-rose-600 uppercase">
-                        {item.source === 'boss' || item.questionId.startsWith('BOSS-') ? item.unit >= 4 ? 'Boss 2' : 'Boss' : `Unit ${item.unit}`} · {item.topic}
+                        {item.source === 'boss' || item.questionId.startsWith('BOSS-') ? (getWorldOfUnit(item.unit)?.chapter ?? 1) > 1 ? `Boss ${getWorldOfUnit(item.unit)!.chapter}` : 'Boss' : `Unit ${item.unit}`} · {item.topic}
                       </span>
                       <span className="font-bold text-slate-400">
                         {item.wrongCount}x missed
@@ -218,7 +220,7 @@ export const SmartReviewScreen: React.FC = () => {
           </div>
 
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
-            {isReviewGate ? correctCount / reviewQuestions.length * 100 >= REVIEW_GATE_PASS_PERCENT ? activeChapterId === 2 ? 'PASS — Chronos is unlocked!' : 'PASS — Grammar Castle is unlocked!' : 'Aim for 80%. Review your mistakes and try again!' : 'Your recovery progress has been saved. Historical mistakes are kept.'}
+            {isReviewGate ? correctCount / reviewQuestions.length * 100 >= REVIEW_GATE_PASS_PERCENT ? world.boss.gatePass : 'Aim for 80%. Review your mistakes and try again!' : 'Your recovery progress has been saved. Historical mistakes are kept.'}
           </div>
 
           <div className="flex flex-col gap-2 pt-2">

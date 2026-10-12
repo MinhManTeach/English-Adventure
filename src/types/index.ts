@@ -159,7 +159,7 @@ export interface UserSettings {
   voiceGender?: 'female' | 'male';
 }
 
-export type ChapterId = 1 | 2;
+export type ChapterId = 1 | 2 | 3 | 4;
 export interface ChapterProgress {
   reviewGateCompleted: boolean;
   reviewGateAttempts: number;
@@ -183,6 +183,8 @@ export interface UserProgressState {
   recentQuestionHistory?: Record<string, RecentQuestionHistory>;
   conceptMastery?: Record<string, TopicMastery>;
   chapter2?: ChapterProgress;
+  /** Progress for Chapter 3 onwards, keyed by chapter number. Chapter 2 keeps its original field. */
+  chapters?: Record<string, ChapterProgress>;
   version: number;
   profile: UserProfile;
   xp: number;

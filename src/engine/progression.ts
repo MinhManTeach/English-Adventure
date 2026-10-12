@@ -1,6 +1,8 @@
 import { Question, UserProgressState, ErrorBankItem, TopicMastery, ChapterId } from '../types';
 import { calculateMasteryStatus } from './mastery';
 import { calculateLevel } from './scoring';
+import { getWorld, getWorldOfUnit } from '../data/worlds';
+import { EMPTY_CHAPTER_PROGRESS, getChapterProgress, withChapterProgress } from './worldProgression';
 
 /** Pure progression update, shared by lessons, Boss Battle and Smart Review. */
 export function applyQuestionResult(
@@ -10,7 +12,7 @@ export function applyQuestionResult(
   source: 'practice' | 'review' | 'boss' = question.id.startsWith('BOSS-') ? 'boss' : 'practice',
 ): UserProgressState {
   const next = { ...prev };
-  if (source === 'boss') next.startedStages = [...new Set([...(prev.startedStages ?? []), question.unit >= 4 ? 'boss2' : 'boss'])];
+  if (source === 'boss') next.startedStages = [...new Set([...(prev.startedStages ?? []), getWorldOfUnit(question.unit)?.bossStageKey ?? 'boss'])];
 
   // 1. Error Bank management
   const errorBank = { ...next.errorBank };
@@ -144,18 +146,18 @@ export function applyBossVictory(prev: UserProgressState, battleId: string, toda
   state: UserProgressState; result: BossVictoryResult;
 } {
   const oldLevel = calculateLevel(prev.xp).level;
-  if (chapter === 2) {
-    const progress = prev.chapter2 ?? { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false };
+  if (chapter !== 1) {
+    const world = getWorld(chapter);
+    const progress = getChapterProgress(prev, chapter) ?? EMPTY_CHAPTER_PROGRESS;
     const duplicate = progress.lastBossRewardBattleId === battleId || progress.rewardedBattleIds?.includes(battleId);
     if (duplicate) return { state: prev, result: { isFirstVictory: false, leveledUp: false, newLevel: oldLevel, xp: 0, coins: 0 } };
     const first = !progress.bossDefeated;
-    const xp = first ? 250 : 20, coins = first ? 125 : 10;
-    const achievement = prev.achievements.time_master;
+    const xp = first ? world.firstClear.xp : 20, coins = first ? world.firstClear.coins : 10;
+    const achievement = prev.achievements[world.achievementId];
     const achievements = first && achievement && !achievement.unlockedAt ? { ...prev.achievements,
-      time_master: { ...achievement, unlockedAt: today, currentProgress: 1 } } : prev.achievements;
-    const next = { ...prev, xp: prev.xp + xp, coins: prev.coins + coins, hearts: prev.maxHearts, achievements,
-      chapter2: { ...progress, bossDefeated: true, lastBossRewardBattleId: battleId,
-        rewardedBattleIds: [...(progress.rewardedBattleIds ?? []), battleId] } };
+      [world.achievementId]: { ...achievement, unlockedAt: today, currentProgress: 1 } } : prev.achievements;
+    const next = withChapterProgress({ ...prev, xp: prev.xp + xp, coins: prev.coins + coins, hearts: prev.maxHearts, achievements }, chapter,
+      { ...progress, bossDefeated: true, lastBossRewardBattleId: battleId, rewardedBattleIds: [...(progress.rewardedBattleIds ?? []), battleId] });
     const newLevel = calculateLevel(next.xp).level;
     return { state: next, result: { isFirstVictory: first, leveledUp: newLevel > oldLevel, newLevel, xp, coins } };
   }

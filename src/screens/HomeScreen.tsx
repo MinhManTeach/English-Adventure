@@ -1,4 +1,5 @@
 import React from 'react';
+import { ALL_WORLD_UNIT_IDS, WORLDS } from '../data/worlds';
 import { Play, Sparkles, Map, BookOpen, RotateCcw, Trophy, User, BarChart2, Shield } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { PlayerAvatar } from '../components/avatar/PlayerAvatar';
@@ -113,7 +114,7 @@ export const HomeScreen: React.FC = () => {
           </div>
           <h3 className="text-base font-black text-slate-800 font-game">Adventure Map</h3>
           <p className="text-xs text-slate-500 font-medium">
-            Explore 6 A1 lands and two chapter bosses.
+            Explore {ALL_WORLD_UNIT_IDS.length} A1 lands and {WORLDS.length} chapter bosses.
           </p>
         </button>
 

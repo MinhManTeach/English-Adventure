@@ -1,5 +1,8 @@
 import { CHAPTER2_QUESTIONS } from './A1/chapter2';
-import { Question } from '../types';
+import { CHAPTER3_QUESTIONS } from './A1/chapter3';
+import { CHAPTER4_QUESTIONS } from './A1/chapter4';
+import { ChapterId, Question } from '../types';
+import { getWorld } from './worlds';
 import { UNIT_01_QUESTIONS } from './A1/unit01';
 import { UNIT_02_QUESTIONS } from './A1/unit02';
 import { UNIT_03_QUESTIONS } from './A1/unit03';
@@ -15,16 +18,25 @@ export const ALL_CURRICULUM_QUESTIONS: Question[] = [
   ...UNIT_02_EXPANSION,
   ...UNIT_03_EXPANSION,
   ...CHAPTER2_QUESTIONS,
+  ...CHAPTER3_QUESTIONS,
+  ...CHAPTER4_QUESTIONS,
 ];
 
-export const CHRONOS_QUESTIONS: Question[] = CHAPTER2_QUESTIONS.filter(q => q.type !== 'sentence-builder').map(q => ({ ...q, id: `BOSS-C2-${q.id}`, type: 'multiple-choice' }));
+const toBossQuestions = (questions: Question[], chapter: ChapterId): Question[] =>
+  questions.filter(q => q.type !== 'sentence-builder').map(q => ({ ...q, id: `BOSS-C${chapter}-${q.id}`, type: 'multiple-choice' }));
+export const CHRONOS_QUESTIONS: Question[] = toBossQuestions(CHAPTER2_QUESTIONS, 2);
+export const HOOT_QUESTIONS: Question[] = toBossQuestions(CHAPTER3_QUESTIONS, 3);
+export const FOGBEARD_QUESTIONS: Question[] = toBossQuestions(CHAPTER4_QUESTIONS, 4);
+/** Authored boss cards for each chapter after the first. */
+const CHAPTER_BOSS_QUESTIONS: Partial<Record<ChapterId, Question[]>> = { 2: CHRONOS_QUESTIONS, 3: HOOT_QUESTIONS, 4: FOGBEARD_QUESTIONS };
+const ALL_CHAPTER_BOSS_QUESTIONS: Question[] = Object.values(CHAPTER_BOSS_QUESTIONS).flat();
 
 export function getAllQuestions(): Question[] {
   return ALL_CURRICULUM_QUESTIONS;
 }
 
 export function getReviewQuestionPool(): Question[] {
-  return [...ALL_CURRICULUM_QUESTIONS, ...BOSS_BATTLE_QUESTIONS, ...CHRONOS_QUESTIONS];
+  return [...ALL_CURRICULUM_QUESTIONS, ...BOSS_BATTLE_QUESTIONS, ...ALL_CHAPTER_BOSS_QUESTIONS];
 }
 
 export function getQuestionsByUnit(unitId: number): Question[] {
@@ -73,7 +85,7 @@ export function getQuestionsForStage(
   return prepareSessionQuestions(shuffledSubset, false);
 }
 
-export function getBossQuestions(count = 10, chapter: 1 | 2 = 1): Question[] {
+export function getBossQuestions(count = 10, chapter: ChapterId = 1): Question[] {
   if (chapter === 2 && count === 10) {
     const unit4 = fisherYatesShuffle(CHRONOS_QUESTIONS.filter(q => q.unit === 4)).slice(0, 3);
     const contrast = fisherYatesShuffle(CHRONOS_QUESTIONS.filter(q => q.topic === 'present-simple-vs-continuous')).slice(0, 2);
@@ -81,13 +93,18 @@ export function getBossQuestions(count = 10, chapter: 1 | 2 = 1): Question[] {
     const unit6 = fisherYatesShuffle(CHRONOS_QUESTIONS.filter(q => q.unit === 6)).slice(0, 3);
     return prepareSessionQuestions([...unit4, ...contrast, ...unit5, ...unit6], true);
   }
-  const subset = fisherYatesShuffle(chapter === 2 ? CHRONOS_QUESTIONS : BOSS_BATTLE_QUESTIONS).slice(0, Math.min(count, BOSS_BATTLE_QUESTIONS.length));
+  const bank = CHAPTER_BOSS_QUESTIONS[chapter] ?? BOSS_BATTLE_QUESTIONS;
+  if (chapter !== 1 && count === 10) {
+    const picked = getWorld(chapter).bossQuota.flatMap(([unit, size]) => fisherYatesShuffle(bank.filter(q => q.unit === unit)).slice(0, size));
+    return prepareSessionQuestions(picked, true);
+  }
+  const subset = fisherYatesShuffle(bank).slice(0, Math.min(count, bank.length));
   return prepareSessionQuestions(subset, false);
 }
 
 export function getQuestionById(id: string): Question | undefined {
   if (id.startsWith('BOSS-')) {
-    return [...BOSS_BATTLE_QUESTIONS, ...CHRONOS_QUESTIONS].find(q => q.id === id);
+    return [...BOSS_BATTLE_QUESTIONS, ...ALL_CHAPTER_BOSS_QUESTIONS].find(q => q.id === id);
   }
   return ALL_CURRICULUM_QUESTIONS.find(q => q.id === id);
 }

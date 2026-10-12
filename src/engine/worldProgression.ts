@@ -1,4 +1,5 @@
-import { UserProgressState, ChapterId } from '../types';
+import { UserProgressState, ChapterId, ChapterProgress } from '../types';
+import { getWorld, getWorldOfUnit } from '../data/worlds';
 
 export const WORLD2_UNITS = [4, 5, 6] as const;
 export const WORLD1_UNITS = [1, 2, 3] as const;
@@ -9,9 +10,31 @@ export const CHALLENGE_PASS_PERCENT = 80;
 export const REVIEW_GATE_PASS_PERCENT = 80;
 export const stageKey = (unitId: number, stage: LearningStage) => `unit${unitId}-${stage}`;
 
+export const EMPTY_CHAPTER_PROGRESS: ChapterProgress = { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false };
+
+/** Chapter 2 keeps its original save field; later chapters live under `chapters`. */
+export function getChapterProgress(state: UserProgressState, chapter: ChapterId): ChapterProgress | undefined {
+  return chapter === 2 ? state.chapter2 : state.chapters?.[chapter];
+}
+
+export function withChapterProgress(state: UserProgressState, chapter: ChapterId, progress: ChapterProgress): UserProgressState {
+  return chapter === 2 ? { ...state, chapter2: progress } : { ...state, chapters: { ...state.chapters, [chapter]: progress } };
+}
+
+export function isChapterBossDefeated(state: UserProgressState, chapter: ChapterId): boolean {
+  return chapter === 1 ? state.bossDefeated : !!getChapterProgress(state, chapter)?.bossDefeated;
+}
+
+/** A later chapter opens only after the previous chapter's boss is defeated. */
+function isChapterOpen(state: UserProgressState, chapter: ChapterId): boolean {
+  return chapter === 1 || isChapterBossDefeated(state, (chapter - 1) as ChapterId);
+}
+
 export function isUnitAvailable(state: UserProgressState, unitId: number): boolean {
-  if (unitId >= 4) return WORLD2_UNITS.some(id => id === unitId) && state.bossDefeated && (
-    unitId === 4 || state.completedUnits.includes(unitId) || state.completedUnits.includes(unitId - 1)
+  const world = getWorldOfUnit(unitId);
+  if (!world) return false;
+  if (world.chapter !== 1) return isChapterOpen(state, world.chapter) && (
+    unitId === world.units[0] || state.completedUnits.includes(unitId) || state.completedUnits.includes(unitId - 1)
   );
   return WORLD1_UNITS.some(id => id === unitId) && (
     unitId === 1 || state.completedUnits.includes(unitId) ||
@@ -48,14 +71,14 @@ export function getUnitStatus(state: UserProgressState, unitId: number, topics: 
 }
 
 export function isReviewGateAvailable(state: UserProgressState, chapter: ChapterId = 1): boolean {
-  if (chapter === 2) return state.bossDefeated && WORLD2_UNITS.every(id => state.completedUnits.includes(id));
+  if (chapter !== 1) return isChapterOpen(state, chapter) && getWorld(chapter).units.every(id => state.completedUnits.includes(id));
   return WORLD1_UNITS.every(id => state.completedUnits.includes(id));
 }
 
 export function getReviewGateStatus(state: UserProgressState, chapter: ChapterId = 1): NodeStatus {
-  if (chapter === 2) {
-    if (!isReviewGateAvailable(state, 2)) return 'LOCKED';
-    const progress = state.chapter2;
+  if (chapter !== 1) {
+    if (!isReviewGateAvailable(state, chapter)) return 'LOCKED';
+    const progress = getChapterProgress(state, chapter);
     return progress?.reviewGateCompleted ? progress.reviewGateAttempts >= 2 && progress.reviewGateBestAccuracy >= 80 ? 'MASTERED' : 'COMPLETED' : progress?.reviewGateAttempts ? 'IN PROGRESS' : 'AVAILABLE';
   }
   if (!isReviewGateAvailable(state)) return 'LOCKED';
@@ -66,7 +89,10 @@ export function getReviewGateStatus(state: UserProgressState, chapter: ChapterId
 }
 
 export function canEnterBoss(state: UserProgressState, chapter: ChapterId = 1): boolean {
-  if (chapter === 2) return state.bossDefeated && (!!state.chapter2?.bossDefeated || isReviewGateAvailable(state, 2) && !!state.chapter2?.reviewGateCompleted);
+  if (chapter !== 1) {
+    const progress = getChapterProgress(state, chapter);
+    return isChapterOpen(state, chapter) && (!!progress?.bossDefeated || isReviewGateAvailable(state, chapter) && !!progress?.reviewGateCompleted);
+  }
   return state.bossDefeated || (isReviewGateAvailable(state) && !!state.reviewGateCompleted);
 }
 
@@ -83,12 +109,12 @@ export function startLearningStage(state: UserProgressState, unitId: number, sta
 }
 
 export function finishReviewGate(state: UserProgressState, correct: number, total: number, chapter: ChapterId = 1): UserProgressState {
-  if (chapter === 2) {
-    if (!isReviewGateAvailable(state, 2) || total !== 8 || !Number.isInteger(correct) || correct < 0 || correct > total) return state;
-    const old = state.chapter2 ?? { reviewGateCompleted: false, reviewGateAttempts: 0, reviewGateBestAccuracy: 0, bossDefeated: false };
+  if (chapter !== 1) {
+    if (!isReviewGateAvailable(state, chapter) || total !== 8 || !Number.isInteger(correct) || correct < 0 || correct > total) return state;
+    const old = getChapterProgress(state, chapter) ?? EMPTY_CHAPTER_PROGRESS;
     const accuracy = Math.round(correct / total * 100);
-    return { ...state, chapter2: { ...old, reviewGateCompleted: old.reviewGateCompleted || accuracy >= REVIEW_GATE_PASS_PERCENT,
-      reviewGateAttempts: old.reviewGateAttempts + 1, reviewGateBestAccuracy: Math.max(old.reviewGateBestAccuracy, accuracy) } };
+    return withChapterProgress(state, chapter, { ...old, reviewGateCompleted: old.reviewGateCompleted || accuracy >= REVIEW_GATE_PASS_PERCENT,
+      reviewGateAttempts: old.reviewGateAttempts + 1, reviewGateBestAccuracy: Math.max(old.reviewGateBestAccuracy, accuracy) });
   }
   if (!isReviewGateAvailable(state) || total < 8 || correct < 0 || correct > total) return state;
   const accuracy = Math.round(correct / total * 100);

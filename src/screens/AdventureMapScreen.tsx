@@ -1,4 +1,5 @@
-import { Chapter2Map } from '../components/common/Chapter2Map';
+import { ChapterMap } from '../components/common/ChapterMap';
+import { WORLDS } from '../data/worlds';
 import React from 'react';
 import { PlayerAvatar } from '../components/avatar/PlayerAvatar';
 import { Star, CheckCircle2, Lock, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -258,7 +259,7 @@ export const AdventureMapScreen: React.FC = () => {
               <p className="mt-2 text-sm font-bold text-emerald-800">Grammar Castle is ready whenever you want to Fight Again.</p>
             </section>
           )}
-          <Chapter2Map />
+          {WORLDS.filter(world => world.chapter !== 1).map(world => <ChapterMap key={world.chapter} chapter={world.chapter} />)}
         </div>
       </div>
     </div>
