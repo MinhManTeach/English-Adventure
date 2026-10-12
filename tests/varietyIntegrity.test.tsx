@@ -12,7 +12,7 @@ import { PictureMatch } from '../src/games/PictureMatch';
 import { ErrorHunter } from '../src/games/ErrorHunter';
 import { TimeAttack } from '../src/games/TimeAttack';
 const seeded=(seed=24)=>()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
-for(const unit of [1,2,3,4,5,6]) test(`Unit ${unit}: fair curriculum quotas survive repeated sessions and saved histories`,()=>{
+for(const unit of [1,2,3,4,5,6]) test(`Unit ${unit}: fair curriculum quotas survive repeated sessions and saved histories`,{timeout:30000},()=>{ // 20 sessions x 3 stages; needs more than the 5s default on slower machines
   for(const stage of ['practice','minigame','challenge'] as const) {
     let state=createDefaultState();const rng=seeded(unit),concepts=[...new Set(getDynamicPool(unit,stage).map(q=>q.conceptId!))];
     const absences=new Map(concepts.map(c=>[c,0]));
