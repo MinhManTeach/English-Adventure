@@ -288,6 +288,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight the Wardrobe Witch!', gateGoal: 'Prepare for the Thief of Things', gatePass: 'PASS — the Wardrobe Witch is unlocked!',
     },
   },
+  {
+    chapter: 12, units: [34, 35, 36], title: 'Career City', titleVi: 'Thành Phố Nghề Nghiệp', emojis: '🌉 🎲 💼 🎩',
+    intro: 'Explain who does what, imagine what will happen if… and find your dream job!',
+    lockedHint: 'Complete Chapter 11 by defeating the Wardrobe Witch to begin this adventure.',
+    completeMessage: 'You mastered relative clauses, the first conditional and words for jobs!',
+    reviewTitle: 'Career City Review',
+    reviewQuota: [[34, 3], [35, 3], [36, 2]], bossQuota: [[34, 3], [35, 4], [36, 3]],
+    bossStageKey: 'boss12', firstClear: { xp: 750, coins: 375 }, achievementId: 'career_captain',
+    badge: { title: 'CAREER CAPTAIN', titleVi: 'Thuyền trưởng nghề nghiệp', icon: '💼' }, bossColor: '#14b8a6',
+    boss: {
+      name: 'Mister Maybe', fullName: 'Mister Maybe · Master of If', emoji: '🎩 🎲', arena: 'CITY HALL ROOFTOP', leaveLabel: 'Leave the City',
+      awaits: 'Mister Maybe Awaits!', intro: 'Mister Maybe has made everyone forget their jobs! Cast 10 accurate spells about who, which, where, if and jobs to put the city back to work.',
+      strikeLabel: '🎲 Dice of Doubt!', defeatedTitle: 'MISTER MAYBE DEFEATED!', defeatedSubtitle: 'THE CITY IS BACK AT WORK!',
+      defeatedMessage: 'You mastered relative clauses, if-sentences and jobs. Chapter 12 is complete!',
+      survivedTitle: 'MISTER MAYBE VANISHED!',
+      defeatMessage: 'Mister Maybe is still spreading doubt. Review your mistakes and try again!',
+      levelTitle: 'Career Captain', achievementTitle: 'CAREER CAPTAIN!',
+      unlockHint: 'Defeat Mister Maybe in Chapter 12 to unlock.',
+      mapBlurb: 'Define, predict and name every job to outsmart the Master of If.',
+      fightLabel: 'Fight Mister Maybe!', gateGoal: 'Prepare for the Master of If', gatePass: 'PASS — Mister Maybe is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;

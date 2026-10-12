@@ -40,7 +40,7 @@ export function addTemplates({ register, frame, withContext, registerWordUnit }:
     register(32, 'pronouns', form, frames);
   }
   register(32, 'pronouns', 'its', ITS_ITEMS.map(([gap, key], i) => {
-    const start = gap.startsWith('___'), answer = start ? 'Its' : 'its', choices = start ? ["It's", 'Its\'', 'It'] : ["it's", "its'", 'it'];
+    const start = gap.startsWith('___') || gap.includes('. ___'), answer = start ? 'Its' : 'its', choices = start ? ["It's", 'Its\'', 'It'] : ["it's", "its'", 'it'];
     const correct = gap.replace('___', answer);
     return withContext(frame(`its-${i}`, correct, choices.map(x => gap.replace('___', x)), gap, answer, choices, `It belongs to the ${key}: ${gap}`,
       `its = belonging to it (no apostrophe). it's = it is. ${correct}`, "its = của nó (không có dấu nháy). it's = it is (nó là)."), `its:${key}`);

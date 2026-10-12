@@ -1,0 +1,128 @@
+import type { VocabWord } from '../shared';
+
+/** Unit 34: relative clauses with exactly one fitting relative pronoun from who / which / where / whose. [sentence with ___, answer, key] */
+export const WHO_ITEMS = [
+  ['A dentist is a person ___ looks after your teeth.', 'dentist'], ['A chef is someone ___ cooks in a restaurant.', 'chef'],
+  ['The girl ___ sits next to me is from Hue.', 'girl'], ['I have a friend ___ can speak three languages.', 'friend'],
+  ['The man ___ lives next door is a pilot.', 'man'], ['Do you know the boy ___ won the race?', 'boy'],
+  ['A firefighter is someone ___ puts out fires.', 'firefighter'], ['The teacher ___ teaches us Art is very kind.', 'teacher'],
+  ['That\'s the woman ___ helped me find my dog.', 'woman'], ['The children ___ came to the party were very noisy.', 'children'],
+  ['A vet is a doctor ___ looks after animals.', 'vet'], ['I met a singer ___ was on TV last week.', 'singer'],
+] as const;
+export const WHICH_ITEMS = [
+  ['A fridge is a machine ___ keeps food cold.', 'fridge'], ['This is the book ___ I told you about.', 'book'],
+  ['The bus ___ goes to the zoo is number 32.', 'bus'], ['A camel is an animal ___ can live in the desert.', 'camel'],
+  ['I lost the watch ___ Grandpa gave me.', 'watch'], ['The film ___ we saw yesterday was scary.', 'film'],
+  ['A dictionary is a book ___ explains words.', 'dictionary'], ['The cake ___ Mum made was delicious.', 'cake'],
+  ['Do you like the T-shirt ___ I bought?', 'T-shirt'], ['A bat is an animal ___ sleeps in the day.', 'bat'],
+  ['The game ___ we played was really fun.', 'game'], ['A thermometer is a thing ___ measures temperature.', 'thermometer'],
+] as const;
+export const WHERE_ITEMS = [
+  ['This is the house ___ I was born.', 'house'], ['A library is a place ___ you can borrow books.', 'library'],
+  ['That\'s the café ___ we first met.', 'café'], ['A bakery is a shop ___ they make bread.', 'bakery'],
+  ['Hoi An is the town ___ my grandparents live.', 'town'], ['The park ___ we play football is near my school.', 'park'],
+  ['A hospital is a place ___ doctors work.', 'hospital'], ['Is this the beach ___ you found the shell?', 'beach'],
+] as const;
+export const WHOSE_ITEMS = [
+  ['That\'s the girl ___ brother is in my class.', 'girl'], ['I have a friend ___ dad is a pilot.', 'friend'],
+  ['He\'s the boy ___ bike was stolen.', 'boy'], ['The woman ___ dog bit me said sorry.', 'woman'],
+  ['Lan is the student ___ painting won the prize.', 'student'], ['Do you know the man ___ car is outside?', 'man'],
+  ['The family ___ house is next to ours has three cats.', 'family'], ['That\'s the singer ___ songs I love.', 'singer'],
+] as const;
+export const RELATIVES = ['who', 'which', 'where', 'whose'] as const;
+
+/** Unit 35: first conditional pairs. The result is a base-verb phrase after will. */
+export const CONDITIONS = [
+  { base: 'study', third: 'studies', past: 'studied', obj: 'hard', result: 'pass the test' },
+  { base: 'get', third: 'gets', past: 'got', obj: 'up late', result: 'miss the bus' },
+  { base: 'eat', third: 'eats', past: 'ate', obj: 'too many sweets', result: 'feel sick' },
+  { base: 'practise', third: 'practises', past: 'practised', obj: 'every day', result: 'win the competition' },
+  { base: 'go', third: 'goes', past: 'went', obj: 'to bed early', result: 'feel better tomorrow' },
+  { base: 'take', third: 'takes', past: 'took', obj: 'an umbrella', result: 'stay dry' },
+  { base: 'save', third: 'saves', past: 'saved', obj: 'money', result: 'buy a new bike' },
+  { base: 'run', third: 'runs', past: 'ran', obj: 'fast', result: 'catch the train' },
+  { base: 'read', third: 'reads', past: 'read', obj: 'the instructions', result: 'understand the game' },
+  { base: 'water', third: 'waters', past: 'watered', obj: 'the plants', result: 'have lovely flowers' },
+  { base: 'leave', third: 'leaves', past: 'left', obj: 'now', result: 'arrive on time' },
+  { base: 'wear', third: 'wears', past: 'wore', obj: 'a coat', result: 'feel warm' },
+] as const;
+
+/** Unit 36 Jobs. */
+export const JOB_WORDS: readonly VocabWord[] = [
+  // Helping jobs
+  { word: 'dentist', topic: 'helping-jobs', definition: 'a doctor who looks after your teeth', vi: 'nha sĩ', icon: '🦷',
+    example: 'I go to the dentist twice a year.', exampleVi: 'Tôi đi nha sĩ hai lần một năm.',
+    situations: ['My tooth hurts, so Mum takes me to this doctor.', 'She looks inside your mouth and checks your teeth.', 'He tells children to brush their teeth twice a day.'] },
+  { word: 'vet', topic: 'helping-jobs', definition: 'a doctor for animals', vi: 'bác sĩ thú y', icon: '🐶',
+    example: 'Our cat is sick. Let\'s take her to the vet.', exampleVi: 'Mèo nhà mình bị ốm. Đưa nó đến bác sĩ thú y thôi.',
+    situations: ['Our dog hurt its leg, so we took it to this doctor.', 'She helps sick cows, cats and rabbits.', 'He gives medicine to animals when they are ill.'] },
+  { word: 'nurse', topic: 'helping-jobs', definition: 'a person who looks after sick people in a hospital', vi: 'y tá', icon: '🩺',
+    example: 'The nurse gave me some medicine.', exampleVi: 'Cô y tá đưa tôi thuốc.',
+    situations: ['In the hospital, she checks on the patients and gives them medicine.', 'He works with doctors and looks after sick people at night.', 'She put a bandage on my arm at the school health room.'] },
+  { word: 'firefighter', topic: 'helping-jobs', definition: 'a person whose job is to stop fires', vi: 'lính cứu hỏa', icon: '🚒',
+    example: 'The firefighters arrived very quickly.', exampleVi: 'Lính cứu hỏa đến rất nhanh.',
+    situations: ['There is smoke coming from the building! Call these people!', 'He drives a big red truck and uses a long hose.', 'She climbed a ladder to save a cat from a burning house.'] },
+  { word: 'police officer', topic: 'helping-jobs', definition: 'a person who keeps people safe and catches criminals', vi: 'cảnh sát', icon: '👮',
+    example: 'The police officer helped the lost child.', exampleVi: 'Chú cảnh sát giúp đứa bé bị lạc.',
+    situations: ['Someone stole my bag! I need to tell this person.', 'She stands at the crossroads and helps the traffic move.', 'He caught the thief and took him to the station.'] },
+  { word: 'lifeguard', topic: 'helping-jobs', definition: 'a person who keeps swimmers safe', vi: 'nhân viên cứu hộ', icon: '🛟',
+    example: 'The lifeguard is watching the swimmers.', exampleVi: 'Nhân viên cứu hộ đang trông người bơi.',
+    situations: ['He sits in a tall chair at the beach and watches the swimmers.', 'A boy was in trouble in the pool, and she jumped in to save him.', 'At the swimming pool, she blows a whistle when children run.'] },
+  // Creative jobs
+  { word: 'artist', topic: 'creative-jobs', definition: 'a person who paints or draws pictures', vi: 'họa sĩ', icon: '🎨',
+    example: 'The artist painted a picture of the sea.', exampleVi: 'Họa sĩ vẽ một bức tranh về biển.',
+    situations: ['She paints beautiful pictures and sells them in a gallery.', 'He spends all day in his studio with brushes and colours.', 'Her paintings are in the museum.'] },
+  { word: 'musician', topic: 'creative-jobs', definition: 'a person who plays music', vi: 'nhạc sĩ, nhạc công', icon: '🎻',
+    example: 'My uncle is a musician. He plays the violin.', exampleVi: 'Chú tôi là nhạc công. Chú chơi đàn vi-ô-lông.',
+    situations: ['She plays the piano in a big orchestra.', 'He plays the guitar in a band every night.', 'They write songs and play them at concerts.'] },
+  { word: 'photographer', topic: 'creative-jobs', definition: 'a person who takes photos as a job', vi: 'nhiếp ảnh gia', icon: '📷',
+    example: 'The photographer took photos at the wedding.', exampleVi: 'Nhiếp ảnh gia chụp ảnh tại đám cưới.',
+    situations: ['At the wedding, he took hundreds of pictures with a big camera.', 'She takes pictures of wild animals for magazines.', '"Smile, everyone!" she says, and then: click!'] },
+  { word: 'designer', topic: 'creative-jobs', definition: 'a person who plans how clothes, rooms or things will look', vi: 'nhà thiết kế', icon: '✏️',
+    example: 'My sister wants to be a fashion designer.', exampleVi: 'Chị tôi muốn trở thành nhà thiết kế thời trang.',
+    situations: ['She draws new dresses and then makes them for fashion shows.', 'He plans how a new phone or chair will look.', 'She decides the colours and furniture for new rooms.'] },
+  { word: 'journalist', topic: 'creative-jobs', definition: 'a person who writes news for newspapers, TV or websites', vi: 'nhà báo', icon: '📰',
+    example: 'The journalist wrote a story about our school.', exampleVi: 'Nhà báo viết bài về trường chúng tôi.',
+    situations: ['She asks people questions and writes stories for the newspaper.', 'He reports the news on TV from different countries.', 'She wrote an article about the flood for a news website.'] },
+  { word: 'actor', topic: 'creative-jobs', definition: 'a person who plays characters in films or plays', vi: 'diễn viên', icon: '🎬',
+    example: 'He is a famous actor in Vietnamese films.', exampleVi: 'Anh ấy là diễn viên nổi tiếng trong phim Việt Nam.',
+    situations: ['He played a superhero in the new film.', 'She learns her lines and performs on stage at the theatre.', 'People see him in films and ask for his autograph.'] },
+  // Building and making
+  { word: 'engineer', topic: 'building-making', definition: 'a person who designs and builds machines, roads or bridges', vi: 'kỹ sư', icon: '👷',
+    example: 'My mum is an engineer. She builds bridges.', exampleVi: 'Mẹ tôi là kỹ sư. Mẹ xây cầu.',
+    situations: ['She designs bridges and checks that they are safe.', 'He plans new roads and machines using maths and science.', 'She works on the new metro line in Hanoi.'] },
+  { word: 'mechanic', topic: 'building-making', definition: 'a person who repairs cars and machines', vi: 'thợ sửa xe, thợ máy', icon: '🔧',
+    example: 'The mechanic fixed our car.', exampleVi: 'Thợ sửa xe đã sửa ô tô cho nhà tôi.',
+    situations: ['Our motorbike won\'t start. Let\'s take it to the garage.', 'His hands are often black with oil after work.', 'She repairs engines and changes car tyres.'] },
+  { word: 'builder', topic: 'building-making', definition: 'a person who builds houses and buildings', vi: 'thợ xây', icon: '🧱',
+    example: 'The builders are making a new school.', exampleVi: 'Những người thợ xây đang xây trường mới.',
+    situations: ['He puts bricks on top of each other to make walls.', 'They wear hard hats and work on the new houses.', 'She is building the walls of our new house.'] },
+  { word: 'chef', topic: 'building-making', definition: 'a cook in a restaurant', vi: 'đầu bếp', icon: '👨‍🍳',
+    example: 'The chef makes the best pho in town.', exampleVi: 'Đầu bếp nấu phở ngon nhất thị trấn.',
+    situations: ['He wears a tall white hat and cooks in a hotel kitchen.', 'She makes delicious dishes in a famous restaurant.', 'He tastes the soup and adds a little salt before he serves it.'] },
+  { word: 'farmer', topic: 'building-making', definition: 'a person who grows food or keeps animals', vi: 'nông dân', icon: '🧑‍🌾',
+    example: 'The farmer grows rice and vegetables.', exampleVi: 'Người nông dân trồng lúa và rau.',
+    situations: ['He works in the rice fields from early morning.', 'She keeps cows and chickens and sells eggs.', 'They grow vegetables and fruit for the market.'] },
+  { word: 'electrician', topic: 'building-making', definition: 'a person who fixes electric wires and lights', vi: 'thợ điện', icon: '💡',
+    example: 'We called an electrician because the lights didn\'t work.', exampleVi: 'Chúng tôi gọi thợ điện vì đèn không sáng.',
+    situations: ['All the lights in our house went off. We need this person.', 'He fixes wires and puts in new lamps and sockets.', 'She is putting new wires in the walls of the school.'] },
+  // Work words
+  { word: 'salary', topic: 'work-words', definition: 'the money you get every month for your job', vi: 'tiền lương', icon: '💰',
+    example: 'A pilot has a high salary.', exampleVi: 'Phi công có mức lương cao.',
+    situations: ['At the end of every month, the company pays Dad money for his work.', 'Her new job pays more money every month.', 'How much money does a teacher get every month?'] },
+  { word: 'boss', topic: 'work-words', definition: 'the person in charge of you at work', vi: 'sếp, ông chủ', icon: '🧑‍💼',
+    example: 'My mum\'s boss is very kind.', exampleVi: 'Sếp của mẹ tôi rất tốt bụng.',
+    situations: ['She is in charge of everyone in the office and tells them what to do.', 'Dad asked the person in charge of him for a day off.', 'He started the company and gives jobs to fifty people.'] },
+  { word: 'office', topic: 'work-words', definition: 'a room or building where people work at desks', vi: 'văn phòng', icon: '🏢',
+    example: 'My dad works in an office in the city.', exampleVi: 'Bố tôi làm việc ở một văn phòng trong thành phố.',
+    situations: ['Mum works at a desk with a computer on the tenth floor.', 'There are lots of desks, phones and computers in this room.', 'He takes the lift up to the room where he works every day.'] },
+  { word: 'interview', topic: 'work-words', definition: 'a meeting where someone asks you questions for a job', vi: 'buổi phỏng vấn', icon: '🎤',
+    example: 'My sister has a job interview tomorrow.', exampleVi: 'Chị tôi có buổi phỏng vấn xin việc vào ngày mai.',
+    situations: ['Before you get the job, the boss meets you and asks you questions.', 'She wore her best clothes and answered questions about her skills.', 'He was nervous before the meeting for the new job.'] },
+  { word: 'part-time', topic: 'work-words', definition: 'working only some hours of the day or week', vi: 'bán thời gian', icon: '⏰',
+    example: 'My brother has a part-time job in a café.', exampleVi: 'Anh tôi làm thêm bán thời gian ở một quán cà phê.',
+    situations: ['She is a student, so she works only on Saturday and Sunday.', 'He works four hours a day, not the full day.', 'My cousin works in the shop only in the evenings.'] },
+  { word: 'retire', topic: 'work-words', definition: 'stop working because you are old', vi: 'nghỉ hưu', icon: '👴',
+    example: 'Grandpa retired when he was sixty.', exampleVi: 'Ông tôi nghỉ hưu năm sáu mươi tuổi.',
+    situations: ['Grandma stopped working at sixty and now she has time for gardening.', 'After forty years as a teacher, he stopped working.', 'When you are old, you can stop working and relax.'] },
+];
