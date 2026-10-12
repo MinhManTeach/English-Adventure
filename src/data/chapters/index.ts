@@ -3,6 +3,7 @@ import type { Question } from '../../types';
 import type { LearnCard } from '../learnContent';
 import type { TemplateApi } from '../templates/questionTemplates';
 import * as chapter5 from './chapter5';
+import * as chapter6 from './chapter6';
 
 interface ChapterContent {
   questions: Question[];
@@ -12,6 +13,7 @@ interface ChapterContent {
 
 export const LATER_CHAPTERS: Record<number, ChapterContent> = {
   5: chapter5,
+  6: chapter6,
 };
 
 export const LATER_CHAPTER_QUESTIONS: Question[] = Object.values(LATER_CHAPTERS).flatMap(chapter => chapter.questions);

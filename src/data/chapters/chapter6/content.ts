@@ -1,0 +1,118 @@
+import type { VocabWord } from '../shared';
+
+/** Unit 16: finished past times (Past Simple) and present perfect markers. */
+export const FINISHED_TIMES = ['yesterday', 'last week', 'two days ago', 'in 2022', 'on Monday', 'last summer'] as const;
+export const PERFECT_MARKERS = ['yet', 'ever', 'since'] as const;
+
+/** Unit 17: plans and predictions with neutral objects (no possessives that clash with the subject). */
+export const PLANS = [
+  { base: 'visit', third: 'visits', object: 'Grandma' },
+  { base: 'learn', third: 'learns', object: 'to swim' },
+  { base: 'buy', third: 'buys', object: 'a new bike' },
+  { base: 'watch', third: 'watches', object: 'the football final' },
+  { base: 'paint', third: 'paints', object: 'the fence' },
+  { base: 'join', third: 'joins', object: 'the chess club' },
+  { base: 'study', third: 'studies', object: 'Japanese' },
+  { base: 'go', third: 'goes', object: 'camping' },
+  { base: 'cook', third: 'cooks', object: 'dinner' },
+  { base: 'play', third: 'plays', object: 'in the final' },
+  { base: 'take', third: 'takes', object: 'the early bus' },
+  { base: 'enter', third: 'enters', object: 'the race' },
+  { base: 'build', third: 'builds', object: 'a treehouse' },
+  { base: 'clean', third: 'cleans', object: 'the beach' },
+] as const;
+export const FUTURE_TIMES = ['tomorrow', 'next weekend', 'this summer', 'next year'] as const;
+
+/** Unit 17: predictions we can see coming, for be going to. subject is always he/she/it-like or plural as marked. */
+export const EVIDENCE = [
+  { clue: 'Look at those dark clouds!', subject: 'It', be: 'is', verb: 'rain' },
+  { clue: 'Be careful on that ladder!', subject: 'You', be: 'are', verb: 'fall' },
+  { clue: 'The score is 5–0 with one minute left.', subject: 'Our team', be: 'is', verb: 'win' },
+  { clue: 'The bus is leaving and Nam is still at home.', subject: 'He', be: 'is', verb: 'miss the bus' },
+  { clue: 'The glass is at the edge of the table.', subject: 'It', be: 'is', verb: 'fall' },
+  { clue: 'Lan has studied every evening for a month.', subject: 'She', be: 'is', verb: 'pass the test' },
+  { clue: 'The sky is clear and the sun is shining.', subject: 'It', be: 'is', verb: 'be a hot day' },
+  { clue: 'The baby is rubbing her eyes.', subject: 'She', be: 'is', verb: 'fall asleep' },
+  { clue: 'The runners are a metre from the line.', subject: 'They', be: 'are', verb: 'finish the race' },
+  { clue: 'My phone battery is at 1%.', subject: 'It', be: 'is', verb: 'die' },
+] as const;
+
+/** Unit 18 Sports and healthy lifestyle. */
+export const SPORT_WORDS: readonly VocabWord[] = [
+  // Sport words
+  { word: 'athlete', topic: 'sport-words', definition: 'a person who is very good at sport and trains a lot', vi: 'vận động viên', icon: '🏃',
+    example: 'The athlete trains six days a week.', exampleVi: 'Vận động viên tập luyện sáu ngày một tuần.',
+    situations: ['She runs, jumps and trains every day for the Olympic Games.', 'He won three gold medals in running and jumping.', 'This sportswoman trains with a coach every morning at 5 am.'] },
+  { word: 'team', topic: 'sport-words', definition: 'a group of people who play a sport together', vi: 'đội', icon: '👕',
+    example: 'Our team has eleven players.', exampleVi: 'Đội của chúng tôi có mười một cầu thủ.',
+    situations: ['Eleven players wear the same red shirts and play together.', 'Nam, Minh and four friends play volleyball together every week.', 'We all pass the ball to each other and try to win together.'] },
+  { word: 'stadium', topic: 'sport-words', definition: 'a very big place with seats around a sports field', vi: 'sân vận động', icon: '🏟️',
+    example: 'The stadium has 40,000 seats.', exampleVi: 'Sân vận động có 40.000 chỗ ngồi.',
+    situations: ['Thousands of fans sit around the football field and sing.', 'The national team plays here, and it has seats all around.', 'We bought tickets to watch the match in the huge sports ground.'] },
+  { word: 'gym', topic: 'sport-words', definition: 'a room or building with machines for exercise', vi: 'phòng tập thể dục', icon: '🏋️',
+    example: 'My dad goes to the gym after work.', exampleVi: 'Bố tôi đi tập gym sau giờ làm.',
+    situations: ['People lift weights and run on machines in this building.', 'Mum pays every month to use the exercise bikes there.', 'We do PE indoors in a big room with mats and ropes.'] },
+  { word: 'race', topic: 'sport-words', definition: 'a competition to see who is the fastest', vi: 'cuộc đua', icon: '🏁',
+    example: 'Hoa won the 100-metre race.', exampleVi: 'Hoa đã thắng cuộc đua 100 mét.',
+    situations: ['Six runners start together and the fastest one wins.', 'The cars go round the track ten times to see who finishes first.', 'We swim from one end of the pool to the other as fast as we can to win.'] },
+  { word: 'goal', topic: 'sport-words', definition: 'when the ball goes into the net and a team gets a point', vi: 'bàn thắng', icon: '🥅',
+    example: 'Minh scored a great goal!', exampleVi: 'Minh đã ghi một bàn thắng tuyệt đẹp!',
+    situations: ['The ball flies past the goalkeeper into the net!', 'Our team is now winning 1–0 because the ball went in.', 'The fans shout and jump because the striker kicked the ball into the net.'] },
+  // Activities
+  { word: 'athletics', topic: 'sport-activities', definition: 'sports like running, jumping and throwing', vi: 'điền kinh', icon: '🥇',
+    example: 'I love athletics, especially the long jump.', exampleVi: 'Tôi thích điền kinh, nhất là nhảy xa.',
+    situations: ['At sports day we run 100 metres and do the high jump.', 'Lan runs, jumps over bars and throws a ball as far as she can.', 'The sports include running races, long jump and throwing.'] },
+  { word: 'gymnastics', topic: 'sport-activities', definition: 'a sport where you jump, turn and balance your body', vi: 'thể dục dụng cụ', icon: '🤸',
+    example: 'She does gymnastics after school.', exampleVi: 'Bạn ấy tập thể dục dụng cụ sau giờ học.',
+    situations: ['Mai does cartwheels and balances on a narrow beam.', 'He turns over in the air and lands on a soft mat.', 'The girls jump, roll and do the splits on the floor.'] },
+  { word: 'karate', topic: 'sport-activities', definition: 'a Japanese fighting sport using hands and feet', vi: 'võ karate', icon: '🥋',
+    example: 'My brother has a black belt in karate.', exampleVi: 'Anh tôi có đai đen karate.',
+    situations: ['Nam wears a white uniform and kicks and punches with care.', 'In this Japanese sport, you get a new colour belt when you improve.', 'They bow to the teacher and then practise kicks.'] },
+  { word: 'yoga', topic: 'sport-activities', definition: 'slow exercises for the body and breathing', vi: 'yoga', icon: '🧘',
+    example: 'Mum does yoga every morning.', exampleVi: 'Mẹ tập yoga mỗi sáng.',
+    situations: ['Grandma sits on a mat, breathes slowly and stretches.', 'We hold our bodies still in different positions and feel calm.', 'The class is very quiet and everyone stretches slowly.'] },
+  { word: 'skiing', topic: 'sport-activities', definition: 'moving over snow on two long, narrow boards', vi: 'trượt tuyết', icon: '⛷️',
+    example: 'We went skiing in Japan last winter.', exampleVi: 'Mùa đông năm ngoái chúng tôi đi trượt tuyết ở Nhật.',
+    situations: ['We go down the snowy mountain on two long boards.', 'In winter, my cousin goes fast down the white hills with poles in his hands.', 'You need warm clothes, snow and two long boards for this sport.'] },
+  { word: 'surfing', topic: 'sport-activities', definition: 'riding on waves on a board', vi: 'lướt sóng', icon: '🏄',
+    example: 'Surfing is popular in Da Nang.', exampleVi: 'Lướt sóng rất phổ biến ở Đà Nẵng.',
+    situations: ['He stands on a board and rides the big waves.', 'At the beach in Mui Ne, people wait for a good wave with their boards.', 'She paddles out to sea and then stands up on her board.'] },
+  // Healthy life
+  { word: 'keep fit', topic: 'healthy-life', definition: 'stay healthy and strong by doing exercise', vi: 'giữ dáng, giữ sức khỏe', icon: '💪',
+    example: 'I cycle to school to keep fit.', exampleVi: 'Tôi đạp xe đến trường để giữ sức khỏe.',
+    situations: ['Grandpa walks for an hour every day to stay healthy.', 'Mum runs three times a week so her body stays strong.', 'We exercise often because we want to stay healthy.'] },
+  { word: 'junk food', topic: 'healthy-life', definition: 'food that is fast and tasty but not good for you', vi: 'đồ ăn vặt không lành mạnh', icon: '🍟',
+    example: 'Don\'t eat too much junk food.', exampleVi: 'Đừng ăn quá nhiều đồ ăn vặt.',
+    situations: ['Chips, sweets and fizzy drinks taste good but are bad for you.', 'Nam eats burgers and crisps every day and feels tired.', 'The doctor says to stop eating fried snacks and sugary drinks.'] },
+  { word: 'healthy food', topic: 'healthy-life', definition: 'food that is good for your body', vi: 'thức ăn lành mạnh', icon: '🥗',
+    example: 'Fruit and vegetables are healthy food.', exampleVi: 'Trái cây và rau là thức ăn lành mạnh.',
+    situations: ['Lan eats fish, rice, vegetables and fruit every day.', 'Our school lunch has salad, soup and an apple.', 'These meals give your body vitamins and keep you strong.'] },
+  { word: 'go for a jog', topic: 'healthy-life', definition: 'run slowly for exercise', vi: 'chạy bộ', icon: '👟',
+    example: 'Let\'s go for a jog in the park.', exampleVi: 'Chúng ta đi chạy bộ trong công viên đi.',
+    situations: ['Dad puts on his trainers and runs slowly around the lake.', 'Every morning we run slowly together for twenty minutes.', 'Before school, Hoa runs gently around the park.'] },
+  { word: 'take up', topic: 'healthy-life', definition: 'start a new sport or hobby', vi: 'bắt đầu (môn mới)', icon: '🆕',
+    example: 'I want to take up tennis this year.', exampleVi: 'Năm nay tôi muốn bắt đầu chơi quần vợt.',
+    situations: ['Minh has never played badminton, but he wants to start this month.', 'My aunt started a new sport, swimming, last month.', 'I am bored with football. I want to begin a new sport.'] },
+  { word: 'warm up', topic: 'healthy-life', definition: 'do gentle exercise before sport', vi: 'khởi động', icon: '🔥',
+    example: 'Always warm up before you run.', exampleVi: 'Luôn khởi động trước khi chạy.',
+    situations: ['Before the match, the players stretch and jog slowly for ten minutes.', 'The PE teacher says, "Move your arms and legs gently before we start."', 'We do easy exercises first so we don\'t hurt our muscles.'] },
+  // Adjectives
+  { word: 'fit', topic: 'sport-adjectives', definition: 'healthy and strong because you exercise', vi: 'cân đối, khỏe mạnh', icon: '🏃‍♀️',
+    example: 'My grandma is seventy but she is very fit.', exampleVi: 'Bà tôi bảy mươi tuổi nhưng rất khỏe.',
+    situations: ['Mai can run five kilometres and still feel great.', 'Grandpa exercises every day and his body is in good shape.', 'After three months of training, Nam can play football for an hour without stopping.'] },
+  { word: 'strong', topic: 'sport-adjectives', definition: 'able to lift or carry heavy things', vi: 'mạnh mẽ, khỏe', icon: '🏋️‍♂️',
+    example: 'He is strong enough to lift the table.', exampleVi: 'Anh ấy đủ khỏe để nâng cái bàn.',
+    situations: ['My uncle can carry two heavy boxes at the same time.', 'She lifts very heavy weights at the gym.', 'Minh can open the very tight jar that nobody else can open.'] },
+  { word: 'extreme', topic: 'sport-adjectives', definition: 'very dangerous and exciting', vi: 'mạo hiểm', icon: '🪂',
+    example: 'Skydiving is an extreme sport.', exampleVi: 'Nhảy dù là môn thể thao mạo hiểm.',
+    situations: ['People jump out of planes and fall a long way before they open a parachute.', 'He rides a bike down a very steep mountain at high speed.', 'You climb a huge cliff with no help. It is really dangerous.'] },
+  { word: 'indoor', topic: 'sport-adjectives', definition: 'done inside a building', vi: 'trong nhà', icon: '🏠',
+    example: 'Badminton is a popular indoor sport.', exampleVi: 'Cầu lông là môn thể thao trong nhà phổ biến.',
+    situations: ['We play table tennis in the sports hall, not outside.', 'The swimming pool has a roof, so we can swim when it rains.', 'This game is played inside a building with walls and a ceiling.'] },
+  { word: 'outdoor', topic: 'sport-adjectives', definition: 'done outside, not in a building', vi: 'ngoài trời', icon: '🌳',
+    example: 'Football is an outdoor game.', exampleVi: 'Bóng đá là môn chơi ngoài trời.',
+    situations: ['We play in the park under the sky.', 'Hiking and camping happen outside in nature.', 'We can\'t play today because it is raining outside and the field is wet.'] },
+  { word: 'lazy', topic: 'sport-adjectives', definition: 'not wanting to work or move', vi: 'lười biếng', icon: '🛋️',
+    example: 'Don\'t be lazy. Let\'s go for a walk!', exampleVi: 'Đừng lười thế. Đi dạo đi!',
+    situations: ['My brother lies on the sofa all day and never wants to move.', 'He doesn\'t want to do his homework or any exercise. He just sleeps.', 'The cat sleeps all day and never plays.'] },
+];

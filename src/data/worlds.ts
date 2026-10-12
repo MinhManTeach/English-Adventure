@@ -156,6 +156,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight Sir Jetlag!', gateGoal: 'Prepare for the Lord of Lost Luggage', gatePass: 'PASS — Sir Jetlag is unlocked!',
     },
   },
+  {
+    chapter: 6, units: [16, 17, 18], title: 'Future Stadium', titleVi: 'Sân Vận Động Tương Lai', emojis: '🌉 🗓️ 🏟️ 🔮',
+    intro: 'Tell then from now, make plans for the future and train like a champion!',
+    lockedHint: 'Complete Chapter 5 by defeating Sir Jetlag to begin this adventure.',
+    completeMessage: 'You mastered present perfect or past simple, will and going to, and sports words!',
+    reviewTitle: 'Future Stadium Review',
+    reviewQuota: [[16, 3], [17, 3], [18, 2]], bossQuota: [[16, 3], [17, 4], [18, 3]],
+    bossStageKey: 'boss6', firstClear: { xp: 450, coins: 225 }, achievementId: 'future_champion',
+    badge: { title: 'FUTURE CHAMPION', titleVi: 'Nhà vô địch tương lai', icon: '🏆' }, bossColor: '#a855f7',
+    boss: {
+      name: 'Madame Crystal', fullName: 'Madame Crystal · Fortune Teller', emoji: '🔮 ✨', arena: 'CRYSTAL ARENA', leaveLabel: 'Leave the Arena',
+      awaits: 'Madame Crystal Awaits!', intro: 'Madame Crystal says she knows your future! Cast 10 accurate spells about the past, the future and sport to prove her wrong.',
+      strikeLabel: '🔮 Prophecy Blast!', defeatedTitle: 'MADAME CRYSTAL DEFEATED!', defeatedSubtitle: 'THE FORTUNE TELLER DID NOT SEE THAT COMING!',
+      defeatedMessage: 'You mastered past, present perfect and future forms, and sports words. Chapter 6 is complete!',
+      survivedTitle: 'THE CRYSTAL BALL STILL GLOWS!',
+      defeatMessage: 'Madame Crystal still rules the arena. Review your mistakes and try again!',
+      levelTitle: 'Future Champion', achievementTitle: 'FUTURE CHAMPION!',
+      unlockHint: 'Defeat Madame Crystal in Chapter 6 to unlock.',
+      mapBlurb: 'Choose between then and now, plan the future and talk about sport to break the crystal ball.',
+      fightLabel: 'Fight Madame Crystal!', gateGoal: 'Prepare for the Fortune Teller', gatePass: 'PASS — Madame Crystal is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
