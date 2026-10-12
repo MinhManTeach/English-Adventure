@@ -27,7 +27,7 @@ for (const unit of ALL_WORLD_UNIT_IDS) {
       assert.equal(new Set(session.questions.map(q => q.contextKey)).size, 6);
       const concepts = new Set(getDynamicPool(unit, stage).map(q => q.conceptId));
       assert.equal(new Set(session.questions.map(q => q.conceptId)).size, Math.min(6, concepts.size));
-      if ([2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17].includes(unit)) assert.ok(new Set(session.questions.map(q => q.subjectKey)).size >= 4);
+      if ([2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20].includes(unit)) assert.ok(new Set(session.questions.map(q => q.subjectKey)).size >= 4);
     }
   });
   test(`Unit ${unit}: consecutive sessions use all available new contexts before necessary recycling`, { timeout: 30000 }, () => {

@@ -178,6 +178,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight Madame Crystal!', gateGoal: 'Prepare for the Fortune Teller', gatePass: 'PASS — Madame Crystal is unlocked!',
     },
   },
+  {
+    chapter: 7, units: [19, 20, 21], title: 'Rule Castle', titleVi: 'Lâu Đài Luật Lệ', emojis: '🧗 ⛰️ 🚦 🤖',
+    intro: 'Show what you can do, learn what you must do and keep the city safe!',
+    lockedHint: 'Complete Chapter 6 by defeating Madame Crystal to begin this adventure.',
+    completeMessage: 'You mastered can, could, may, must, have to and rules words!',
+    reviewTitle: 'Rule Castle Review',
+    reviewQuota: [[19, 3], [20, 3], [21, 2]], bossQuota: [[19, 3], [20, 4], [21, 3]],
+    bossStageKey: 'boss7', firstClear: { xp: 500, coins: 250 }, achievementId: 'rule_master',
+    badge: { title: 'RULE MASTER', titleVi: 'Bậc thầy luật lệ', icon: '🛡️' }, bossColor: '#ef4444',
+    boss: {
+      name: 'Robo-Ranger', fullName: 'Robo-Ranger · Rule Robot', emoji: '🤖 🚨', arena: 'CASTLE COURTYARD', leaveLabel: 'Leave the Courtyard',
+      awaits: 'Robo-Ranger Awaits!', intro: 'Robo-Ranger has made silly new rules for everyone! Cast 10 accurate spells about can, must, have to and rules to reset it.',
+      strikeLabel: '🚨 Rule Alarm!', defeatedTitle: 'ROBO-RANGER DEFEATED!', defeatedSubtitle: 'THE RULE ROBOT HAS BEEN RESET!',
+      defeatedMessage: 'You mastered modal verbs and rules words. Chapter 7 is complete!',
+      survivedTitle: 'ROBO-RANGER IS STILL BEEPING!',
+      defeatMessage: 'Robo-Ranger still guards the castle. Review your mistakes and try again!',
+      levelTitle: 'Rule Master', achievementTitle: 'RULE MASTER!',
+      unlockHint: 'Defeat Robo-Ranger in Chapter 7 to unlock.',
+      mapBlurb: 'Say what people can, may, must and don\'t have to do to reset the Rule Robot.',
+      fightLabel: 'Fight Robo-Ranger!', gateGoal: 'Prepare for the Rule Robot', gatePass: 'PASS — Robo-Ranger is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
