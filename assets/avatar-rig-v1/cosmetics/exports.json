@@ -4,162 +4,8 @@
     768,
     1280
   ],
-  "workflow": "Native SVG masters; lossless sharp export; visual approval required separately",
+  "workflow": "SVG masters drawn by scripts/avatars/build.py; Chromium render; lossless Pillow WebP export",
   "entries": [
-    {
-      "id": "top.sunshine-tee",
-      "gender": "shared",
-      "plane": "top",
-      "url": "/avatars/v1/items/top.sunshine-tee/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/top.sunshine-tee/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "de6c2d62f2fbf668e28cf3c8a34347d646c3a14de38061dcff75a9d2b30c4ebd",
-      "bytes": 11470
-    },
-    {
-      "id": "top.coral-stripes",
-      "gender": "shared",
-      "plane": "top",
-      "url": "/avatars/v1/items/top.coral-stripes/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/top.coral-stripes/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "225cb10395fb42b81bd8e7b17f8fb730b937342d7bfd29de55378aee22249002",
-      "bytes": 10796
-    },
-    {
-      "id": "top.sky-hoodie",
-      "gender": "shared",
-      "plane": "top",
-      "url": "/avatars/v1/items/top.sky-hoodie/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/top.sky-hoodie/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "b9c68f32825b49eae11e24aadde645a8e85a650912ffb38457180d5f66afd63c",
-      "bytes": 13150
-    },
-    {
-      "id": "top.library-shirt",
-      "gender": "shared",
-      "plane": "top",
-      "url": "/avatars/v1/items/top.library-shirt/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/top.library-shirt/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "29ffcbf4b8a24c489c702601f39ae7167ab08472ad44bdebbf7e299e50610342",
-      "bytes": 13398
-    },
-    {
-      "id": "top.space-sweater",
-      "gender": "shared",
-      "plane": "top",
-      "url": "/avatars/v1/items/top.space-sweater/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/top.space-sweater/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "b6bea29fbaf3950c1e1554a8d3210bb2655648020f1b219b896f6159b835df64",
-      "bytes": 14106
-    },
-    {
-      "id": "top.castle-jacket",
-      "gender": "shared",
-      "plane": "top",
-      "url": "/avatars/v1/items/top.castle-jacket/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/top.castle-jacket/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "0b3adc4668054836926478dbb6a38f92c3e6fcfdb544f1a3220406053878af61",
-      "bytes": 13970
-    },
-    {
-      "id": "bottom.sand-shorts",
-      "gender": "shared",
-      "plane": "bottom",
-      "url": "/avatars/v1/items/bottom.sand-shorts/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/bottom.sand-shorts/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "5bb8b45192035b6a4a6f6533dc3f6dba46592c0ffc5687514e20e51f504eaa6d",
-      "bytes": 9360
-    },
-    {
-      "id": "bottom.navy-joggers",
-      "gender": "shared",
-      "plane": "bottom",
-      "url": "/avatars/v1/items/bottom.navy-joggers/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/bottom.navy-joggers/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "73f869cfd1064a278383fddc2e641d1ea780a3e36a0141a7850c589b1371ee61",
-      "bytes": 12486
-    },
-    {
-      "id": "bottom.denim-jeans",
-      "gender": "shared",
-      "plane": "bottom",
-      "url": "/avatars/v1/items/bottom.denim-jeans/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/bottom.denim-jeans/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "1b40c184bf81715f5d09de8ad366fcd65eeb74142087b499ed795ee963660454",
-      "bytes": 14702
-    },
-    {
-      "id": "bottom.plum-skirt",
-      "gender": "girl",
-      "plane": "bottom",
-      "url": "/avatars/v1/items/bottom.plum-skirt/girl/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/bottom.plum-skirt/girl/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "92dfa96030117093376e3783476d32d9dc0c4c574819e6ccc65a45f5f72af6a9",
-      "bytes": 8446
-    },
-    {
-      "id": "shoes.red-sneakers",
-      "gender": "shared",
-      "plane": "shoes",
-      "url": "/avatars/v1/items/shoes.red-sneakers/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/shoes.red-sneakers/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "82d117c5de39eb6776e64749148085cfef5745c8cfa78c2a52d5be7cbdcce338",
-      "bytes": 3084
-    },
-    {
-      "id": "shoes.mint-trainers",
-      "gender": "shared",
-      "plane": "shoes",
-      "url": "/avatars/v1/items/shoes.mint-trainers/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/shoes.mint-trainers/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "ef47caa44358b4d981b4153db5a58ea68025ac83eb8284be9eed5b3f98da9de1",
-      "bytes": 3154
-    },
-    {
-      "id": "shoes.sky-high-tops",
-      "gender": "shared",
-      "plane": "shoes",
-      "url": "/avatars/v1/items/shoes.sky-high-tops/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/shoes.sky-high-tops/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "66c02a2f4f93630f408781f2ee13c5c1aaac84fcbc1b1cbcd518cc60cfefa9f7",
-      "bytes": 3548
-    },
-    {
-      "id": "shoes.castle-boots",
-      "gender": "shared",
-      "plane": "shoes",
-      "url": "/avatars/v1/items/shoes.castle-boots/shared/front.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/shoes.castle-boots/shared/front.svg",
-      "width": 768,
-      "height": 1280,
-      "sha256": "3b6684a87543616226da728c591a8df9f10f903b0ec817dfe5dbe70ca0b77401",
-      "bytes": 3472
-    },
     {
       "id": "hair.soft-crop",
       "gender": "shared",
@@ -168,8 +14,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.soft-crop/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "9285d7f915a0f4abceaca63f66d26aecf265a17dbdebe87e292383a212baaf06",
-      "bytes": 5756
+      "sha256": "7d6c118c2cdf4b0e97fe8e165900b1c6e2dd595de57d8f31ff9d0ab503966392",
+      "bytes": 7034
     },
     {
       "id": "hair.short-curls",
@@ -179,8 +25,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.short-curls/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "d3a2f71363f915a3988e60019acb08abcf2d28e64e30148162a4b088ee794491",
-      "bytes": 6080
+      "sha256": "fd4309881be20802300083081915ae15f2ca6d5bd37b9732d1bc24ccd1ac0313",
+      "bytes": 8618
     },
     {
       "id": "hair.side-sweep",
@@ -190,8 +36,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.side-sweep/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "26663a95ed9c6e20048e2098772dfefad7f1b3988e43d8936370ab1dcb2be7e1",
-      "bytes": 6260
+      "sha256": "48ca5f25956e4e3d9c7e3fd2b5674598886f971b4e86bd242a46ed97af0b5f34",
+      "bytes": 9994
     },
     {
       "id": "hair.wavy-short",
@@ -201,8 +47,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.wavy-short/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "c4fa528fc17c3faed8227d0cc22d3a08aa6c55c27b81e6ca8eaeec58d28887dc",
-      "bytes": 6042
+      "sha256": "42fbe753c43e9ebad8249a6e213a5b09450a7958e8ab0939972b11b57b329226",
+      "bytes": 8822
     },
     {
       "id": "hair.tidy-spikes",
@@ -212,19 +58,30 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.tidy-spikes/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "1d045df3b09cfd4eb2ebac9e71e6b5ad019d45ec77835e61ab4404db6aac4fc1",
-      "bytes": 7160
+      "sha256": "88c30985af327b8018aea6fdaca501172df744cbc3c8c5001ae74781ae70fcf1",
+      "bytes": 9972
     },
     {
-      "id": "hair.pony-tail",
-      "gender": "girl",
-      "plane": "behind-body",
-      "url": "/avatars/v1/items/hair.pony-tail/girl/back.webp",
-      "source": "assets/avatar-rig-v1/cosmetics/hair.pony-tail/girl/back.svg",
+      "id": "hair.korean-fringe",
+      "gender": "boy",
+      "plane": "hair",
+      "url": "/avatars/v1/items/hair.korean-fringe/boy/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/hair.korean-fringe/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "8ebc95ba8fea6cc02feda767a31a2bf7101b116a152531141dc919b11e0ebf3f",
-      "bytes": 5590
+      "sha256": "a0ba7b66dc068a82a25b1d8a073391e25013f7b9b7d4db472a221e7197eaa4f3",
+      "bytes": 7836
+    },
+    {
+      "id": "hair.textured-quiff",
+      "gender": "boy",
+      "plane": "hair",
+      "url": "/avatars/v1/items/hair.textured-quiff/boy/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/hair.textured-quiff/boy/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "957eef7d26d3cfb11bf3f997971dbc0ceae8089b7c84274c400807c89829a4a6",
+      "bytes": 10926
     },
     {
       "id": "hair.pony-tail",
@@ -234,8 +91,19 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.pony-tail/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "963a5a13824fa8f0836bbfd87b6a4730653da900e3918a37e17561d10a7fc16a",
-      "bytes": 6486
+      "sha256": "3ae7e91bf071fe97c13736b2807582c6501900a0391b0adf7dbce8aa017ef64c",
+      "bytes": 7430
+    },
+    {
+      "id": "hair.pony-tail",
+      "gender": "girl",
+      "plane": "behind-body",
+      "url": "/avatars/v1/items/hair.pony-tail/girl/back.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/hair.pony-tail/girl/back.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "b4b2b740abd7335e07d1f198633e6fe090d913d0e394ff2cb6eb594a9904dc0e",
+      "bytes": 6082
     },
     {
       "id": "hair.twist-braids",
@@ -245,8 +113,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.twist-braids/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "1275de512757c0a8b97de505ea0c82c915e2bba34b129b61a9936644f05676b3",
-      "bytes": 9788
+      "sha256": "796ec9394c11bb2b60edbc099f76972bc960bfbb19aaeb006d8753c8559bb4c0",
+      "bytes": 11340
     },
     {
       "id": "hair.wavy-bob",
@@ -256,8 +124,349 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.wavy-bob/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "df0c711b5485c55e7c03a0c55dc3a011572327c35c6e024b1a800e3f6a4b6f13",
-      "bytes": 11480
+      "sha256": "3bed2c79b35fd74c16ef000585417505ab7a96b29fcff8a622f5b61f6a0e891b",
+      "bytes": 9728
+    },
+    {
+      "id": "hair.wavy-bob",
+      "gender": "girl",
+      "plane": "behind-body",
+      "url": "/avatars/v1/items/hair.wavy-bob/girl/back.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/hair.wavy-bob/girl/back.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "13ca39b54e083ae498a5901a04ff4be2ab905433b8081ba74c62a618a4a2cd57",
+      "bytes": 7288
+    },
+    {
+      "id": "hair.long-waves",
+      "gender": "girl",
+      "plane": "hair",
+      "url": "/avatars/v1/items/hair.long-waves/girl/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/hair.long-waves/girl/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "58218a1ce04fb01d481b97948afe5474af56cf3a0ce5c2c662a3e245770ff6ff",
+      "bytes": 9080
+    },
+    {
+      "id": "hair.long-waves",
+      "gender": "girl",
+      "plane": "behind-body",
+      "url": "/avatars/v1/items/hair.long-waves/girl/back.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/hair.long-waves/girl/back.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "ded12ef3b1b17e0d57d664c6282f3414e81c994958ed67e99fb3b901f1bd16d4",
+      "bytes": 10266
+    },
+    {
+      "id": "hair.space-buns",
+      "gender": "girl",
+      "plane": "hair",
+      "url": "/avatars/v1/items/hair.space-buns/girl/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/hair.space-buns/girl/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "b829d5fcebbc9bcb31e1a060ba1d924a8b5b683409f2eed80b93adda3fdfd164",
+      "bytes": 11928
+    },
+    {
+      "id": "top.sunshine-tee",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.sunshine-tee/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.sunshine-tee/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "86e5704382e596dcb951936acd196eec97fec29dc7c2511565b361f11eabbe95",
+      "bytes": 14224
+    },
+    {
+      "id": "top.coral-stripes",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.coral-stripes/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.coral-stripes/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "051ddb47b12e8a8c9d6f1b406be5476815d361143f0419c81358bdbfbbc48108",
+      "bytes": 8032
+    },
+    {
+      "id": "top.sky-hoodie",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.sky-hoodie/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.sky-hoodie/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "79f342f6128a1f3cdc98b6fb59ad05291381e7006a655fbcbf9329347e84bf6a",
+      "bytes": 14938
+    },
+    {
+      "id": "top.library-shirt",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.library-shirt/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.library-shirt/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "4b39b030519f3495c0075c83c52ce8c55426bb18e415e24e4a7850d5728206e9",
+      "bytes": 13196
+    },
+    {
+      "id": "top.space-sweater",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.space-sweater/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.space-sweater/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "ae63d0e5d370fb85f211b9371181ee220e55309f10b7173eb5f00eb8a75c229c",
+      "bytes": 15700
+    },
+    {
+      "id": "top.castle-jacket",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.castle-jacket/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.castle-jacket/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "229f5ebba19b83494c71ec60f7ae1ceaf80317a16187a5659c463c17cadce2da",
+      "bytes": 19216
+    },
+    {
+      "id": "top.lavender-cardigan",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.lavender-cardigan/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.lavender-cardigan/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "b45626c3208461985fedd08941eef019ab675ef74c0f04694c4a215cf62e0ffe",
+      "bytes": 15482
+    },
+    {
+      "id": "top.varsity-jacket",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.varsity-jacket/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.varsity-jacket/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "28d1c0c9214413a5098f360138f3c6360569312ac62743db6c8cb6f6e0bf5d1b",
+      "bytes": 12626
+    },
+    {
+      "id": "top.sage-overshirt",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.sage-overshirt/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.sage-overshirt/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "28b224f58f2a1444eb7996734cdbcf2ade8fc9d5dbffc3d9acbf6cc11dbabec0",
+      "bytes": 14206
+    },
+    {
+      "id": "top.soccer-jersey",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.soccer-jersey/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.soccer-jersey/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "5130a1c9140bd4e1630d44c15f111a639394333f72622bd66e700889073aa3f2",
+      "bytes": 13878
+    },
+    {
+      "id": "top.ao-dai",
+      "gender": "shared",
+      "plane": "top",
+      "url": "/avatars/v1/items/top.ao-dai/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/top.ao-dai/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "a0cd2301663dd50fa75a35f76e9f318959a7e33a58f20c92e9b13e8276ca1b6a",
+      "bytes": 16184
+    },
+    {
+      "id": "bottom.sand-shorts",
+      "gender": "shared",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.sand-shorts/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.sand-shorts/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "db8e9d7f1c2f991974edfd32a985cb648516dc2f709267ada948275e1afcfc24",
+      "bytes": 3032
+    },
+    {
+      "id": "bottom.navy-joggers",
+      "gender": "shared",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.navy-joggers/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.navy-joggers/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "3406e0158ac26e561b7f5a8f073af7b966bbc7ce0729f8401f0ca2844d91f9aa",
+      "bytes": 8124
+    },
+    {
+      "id": "bottom.denim-jeans",
+      "gender": "shared",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.denim-jeans/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.denim-jeans/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "efe149a355e67e96b6996ff13bde4bc8904d329487cac0e1c3f6236a90d5b15a",
+      "bytes": 5706
+    },
+    {
+      "id": "bottom.plum-skirt",
+      "gender": "girl",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.plum-skirt/girl/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.plum-skirt/girl/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "c448b4ecb0c968a1361fb0161eb2651c2386342c84aa90b99cd1ad9508853ade",
+      "bytes": 6548
+    },
+    {
+      "id": "bottom.pink-pleated-skirt",
+      "gender": "girl",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.pink-pleated-skirt/girl/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.pink-pleated-skirt/girl/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "ee52c8d9ce61c9ed302b0344b0fe76e547ba97343702bfad75ea4e36d84fb502",
+      "bytes": 7710
+    },
+    {
+      "id": "bottom.cargo-pants",
+      "gender": "shared",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.cargo-pants/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.cargo-pants/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "fd1da837f800a708e44ee1a262cedbfa1ad74a4594be1ca97dc9d35adc75652e",
+      "bytes": 5128
+    },
+    {
+      "id": "bottom.camel-chinos",
+      "gender": "shared",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.camel-chinos/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.camel-chinos/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "fde8cfd2b5272382b321e403ad424053e43296a679f23c1c371513e088e85823",
+      "bytes": 6832
+    },
+    {
+      "id": "bottom.track-pants",
+      "gender": "shared",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.track-pants/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.track-pants/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "2c9e91bab9d08a6b23d722c4978d3e3a2a4fea8dfa4e4a8df9ce48469e14f9c8",
+      "bytes": 8224
+    },
+    {
+      "id": "bottom.silk-pants",
+      "gender": "shared",
+      "plane": "bottom",
+      "url": "/avatars/v1/items/bottom.silk-pants/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/bottom.silk-pants/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "52cfef6bfd2c8957c035b46cae83f8f06eef3abe3046444e6ab5217e738f2cd2",
+      "bytes": 4558
+    },
+    {
+      "id": "shoes.red-sneakers",
+      "gender": "shared",
+      "plane": "shoes",
+      "url": "/avatars/v1/items/shoes.red-sneakers/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/shoes.red-sneakers/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "0804233948762e3df2e18629b012b9b1df44544b673e2a689cc803c15d329b75",
+      "bytes": 3948
+    },
+    {
+      "id": "shoes.mint-trainers",
+      "gender": "shared",
+      "plane": "shoes",
+      "url": "/avatars/v1/items/shoes.mint-trainers/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/shoes.mint-trainers/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "33a479e68d891b8486b4e87feca62e1d52db9ddb84ffda26f4565b4d2d3f0879",
+      "bytes": 4122
+    },
+    {
+      "id": "shoes.sky-high-tops",
+      "gender": "shared",
+      "plane": "shoes",
+      "url": "/avatars/v1/items/shoes.sky-high-tops/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/shoes.sky-high-tops/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "f088a2448d095baf8587f2d86f87d154ffa027b0a3f37ff751187b27d57c0d60",
+      "bytes": 6294
+    },
+    {
+      "id": "shoes.castle-boots",
+      "gender": "shared",
+      "plane": "shoes",
+      "url": "/avatars/v1/items/shoes.castle-boots/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/shoes.castle-boots/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "1c83739a418867164f783c115cc5140942f0db5c8a5be0ad0b822cb82e394b01",
+      "bytes": 3812
+    },
+    {
+      "id": "shoes.chunky-sneakers",
+      "gender": "shared",
+      "plane": "shoes",
+      "url": "/avatars/v1/items/shoes.chunky-sneakers/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/shoes.chunky-sneakers/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "28daa94d2a34aa52cfbc0df6ac2b93dc2b21f9aa349077d5d0d227134ca1a022",
+      "bytes": 3474
+    },
+    {
+      "id": "shoes.mary-janes",
+      "gender": "girl",
+      "plane": "shoes",
+      "url": "/avatars/v1/items/shoes.mary-janes/girl/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/shoes.mary-janes/girl/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "cc654022de93665b4ebe8147e2ef38e7868a018e6ac1246eb50833ca9e4be4fa",
+      "bytes": 4338
+    },
+    {
+      "id": "shoes.brown-loafers",
+      "gender": "shared",
+      "plane": "shoes",
+      "url": "/avatars/v1/items/shoes.brown-loafers/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/shoes.brown-loafers/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "dd913d7c47fc9267272e43e337af9ca68feafbef6ef91d320b384b44bf8419b2",
+      "bytes": 3964
     },
     {
       "id": "accessory.round-glasses",
@@ -267,8 +476,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.round-glasses/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "7cb5be5ac7d5cfee46c44212b06d0f9621df3d5b6b4149e68d4beb6e2a873f01",
-      "bytes": 2242
+      "sha256": "18b493942ea3300a3e2ee298cc91db5f3fa0c3f580d193c0ab8da3f4219d7be8",
+      "bytes": 3654
     },
     {
       "id": "accessory.sun-cap",
@@ -278,8 +487,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.sun-cap/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "f3a1bff4013b5e946a1b5994b6036022d618744fd2baf32db5e772f2a8444880",
-      "bytes": 5832
+      "sha256": "2cadd5475cd93282a5c1f99988469cc41f8221a7b5707863a7da8464725964f9",
+      "bytes": 8884
     },
     {
       "id": "accessory.star-headband",
@@ -289,8 +498,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.star-headband/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "b7f846249e86356fa0e4b81ee3ab5b630eb015ece5eca8659f32b35eb35a710d",
-      "bytes": 5436
+      "sha256": "a01df2f9a58a107c02a05d88bc8f9e77b13e9c88c99899acdd1fd8ba1d64a439",
+      "bytes": 8168
     },
     {
       "id": "accessory.music-headphones",
@@ -300,8 +509,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.music-headphones/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "effad88b6b87ca7249bc4f167b7d10789870909d5e5446deb00645304834d28d",
-      "bytes": 5350
+      "sha256": "7077633dfb8659d8539bd8016e75d4e937ecd13d6a47f68b3198dbcb8e9778e6",
+      "bytes": 8990
     },
     {
       "id": "accessory.school-backpack",
@@ -311,8 +520,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.school-backpack/shared/back.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "84eaba78b47dd9e6ca83db63cf6dfc46958bb65a63a5b35fd4f6a90d629d339e",
-      "bytes": 3258
+      "sha256": "cc56fb43bd8a434178a14a2eaa8d552920c0eca4d311d52db73cbb15f23d7daf",
+      "bytes": 5924
     },
     {
       "id": "accessory.school-backpack",
@@ -322,8 +531,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.school-backpack/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "1d56d5f4184472117b6c0926452f0b25a839b4f73795cf1524fefb2c0609fe23",
-      "bytes": 5790
+      "sha256": "1b0f6e73ad90114971c03ddcd4630445b71f5a69b94de2680adb48dec1a55e5e",
+      "bytes": 5362
     },
     {
       "id": "accessory.library-badge",
@@ -333,8 +542,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.library-badge/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "e69581f3211cbc3f4f3361d502f339406bdb14ed85f6dfa2b35ef2536ba57f1a",
-      "bytes": 1706
+      "sha256": "a74fa9f82679926e50c5a96087051fa4c1bf2bb7f752803b2f00a945e5103671",
+      "bytes": 3816
     },
     {
       "id": "accessory.castle-crown",
@@ -344,8 +553,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.castle-crown/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "a80fd19ba3d7b47dba6219ff5e8a2b031b17331511ef32aabc95d93b7f598489",
-      "bytes": 6094
+      "sha256": "a8654560ff2dff3a49fd7bf37a85c601f9da1a072b53e818e87b2e56a4d4f98b",
+      "bytes": 7134
     },
     {
       "id": "accessory.time-watch",
@@ -355,8 +564,52 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.time-watch/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "74c04d4fb8aa9953b288d255b813f4a3b7d29f96df0fadf3f23fd7fc599c293c",
-      "bytes": 1966
+      "sha256": "dc8bd9ceba8391e009b45024a5e22dc2f85490462826fd0daa31eeec47d53ca9",
+      "bytes": 2826
+    },
+    {
+      "id": "accessory.bucket-hat",
+      "gender": "shared",
+      "plane": "accessory-front",
+      "url": "/avatars/v1/items/accessory.bucket-hat/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/accessory.bucket-hat/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "a2fbff55a57e706fe73b1d9e8d342ac5e0a59949f717ce251e936070034a8607",
+      "bytes": 7910
+    },
+    {
+      "id": "accessory.bow-clip",
+      "gender": "girl",
+      "plane": "accessory-front",
+      "url": "/avatars/v1/items/accessory.bow-clip/girl/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/accessory.bow-clip/girl/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "0a3387593e6d96b201bac1fa225388a71c434ea17ed210c278fe11e819f36fa8",
+      "bytes": 4554
+    },
+    {
+      "id": "accessory.beret",
+      "gender": "shared",
+      "plane": "accessory-front",
+      "url": "/avatars/v1/items/accessory.beret/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/accessory.beret/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "895a8d4746bb50e4d463f7f4ca7039fca1028a465d76a09074c5bf3e7c035871",
+      "bytes": 7264
+    },
+    {
+      "id": "accessory.cat-ears",
+      "gender": "shared",
+      "plane": "accessory-front",
+      "url": "/avatars/v1/items/accessory.cat-ears/shared/front.webp",
+      "source": "assets/avatar-rig-v1/cosmetics/accessory.cat-ears/shared/front.svg",
+      "width": 768,
+      "height": 1280,
+      "sha256": "aaa9c9b48ef1e3d2181bcf027221b95ab5aee46d39c4898e9b9c01a542147932",
+      "bytes": 8720
     }
   ]
 }

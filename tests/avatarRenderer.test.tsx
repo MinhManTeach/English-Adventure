@@ -60,9 +60,9 @@ for (const size of Object.keys(AVATAR_SIZES) as (keyof typeof AVATAR_SIZES)[]) t
   assert.ok(html.includes(`width:${AVATAR_SIZES[size]}px`)); assert.ok(html.includes('max-width:100%'));
   assert.equal((html.match(/alt=""/g) ?? []).length, 5); assert.ok(html.includes('aspect-ratio:3 / 5'));
 });
-test('all 38 verified items are ready without changing the eight free starters', () => {
+test('all 59 verified items are ready without changing the eight free starters', () => {
   assert.deepEqual(validateCosmeticCatalog(COSMETIC_CATALOG), []);
-  const ready = COSMETIC_CATALOG.filter(item => item.assetStatus === 'ready'); assert.equal(ready.length, 38);
+  const ready = COSMETIC_CATALOG.filter(item => item.assetStatus === 'ready'); assert.equal(ready.length, 59);
   for (const item of ready) {
     if (item.starter) assert.equal(item.price, 0);
     assert.ok(existsSync(`public${item.preview.thumbnailSrc}`));

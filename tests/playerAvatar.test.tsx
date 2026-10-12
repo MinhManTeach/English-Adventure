@@ -64,11 +64,11 @@ test('invalid or missing equipment remains a complete visual fallback without mu
   const absent = { ...state, cosmetics: { ...state.cosmetics!, avatar: undefined } } as unknown as UserProgressState;
   assert.doesNotThrow(() => render(absent));
 });
-test('compact shared identity fits a fixed 48px frame and hides decorative identity from screen readers', () => {
+test('compact shared identity is a round head-and-shoulders portrait in a fixed 48px frame, hidden from screen readers', () => {
   const state = configured();
   const html = renderToStaticMarkup(<PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" variant="compact" decorative />);
   assert.match(html, /width:48px/); assert.match(html, /aspect-ratio:1/); assert.match(html, /aria-hidden="true"/);
-  assert.doesNotMatch(html, /overflow:hidden/);
+  assert.doesNotMatch(html, /overflow:hidden/); assert.match(html, /data-avatar-portrait/); assert.match(html, /clip-path:circle\(50%\)/);
 });
 test('Navbar, Home and map keep accessible navigation and use the shared identity', () => {
   const html = renderToStaticMarkup(<GameProvider><Navbar /><HomeScreen /><AdventureMapScreen /></GameProvider>);

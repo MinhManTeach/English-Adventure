@@ -24,8 +24,15 @@ export const PlayerAvatar = memo(function PlayerAvatar({ profile, cosmetics, siz
     data-player-avatar={configured ? 'layered' : 'legacy'} className={className}
     style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width, maxWidth: '100%',
       aspectRatio: variant === 'compact' ? '1' : '3 / 5', flexShrink: 0, verticalAlign: 'middle' }}>
-    {configured ? <span aria-hidden="true" style={{ display: 'block', width: variant === 'compact' ? '60%' : '100%' }}>
-      <AvatarRenderer avatar={cosmetics.avatar} size={size} />
-    </span> : <span aria-hidden="true" style={{ fontSize: width * (variant === 'compact' ? 0.55 : 0.6), lineHeight: 1 }}>{preset.icon}</span>}
+    {configured ? variant === 'compact'
+      // Compact frames show a head-and-shoulders portrait, so the face stays readable at 48px.
+      ? <span aria-hidden="true" data-avatar-portrait="" style={{ position: 'relative', display: 'block', width: '100%', aspectRatio: '1', clipPath: 'circle(50%)' }}>
+        <span style={{ position: 'absolute', display: 'block', width: '200%', left: '-50%', top: '-22%' }}>
+          <AvatarRenderer avatar={cosmetics.avatar} size="medium" />
+        </span>
+      </span>
+      : <span aria-hidden="true" style={{ display: 'block', width: '100%' }}>
+        <AvatarRenderer avatar={cosmetics.avatar} size={size} />
+      </span> : <span aria-hidden="true" style={{ fontSize: width * (variant === 'compact' ? 0.55 : 0.6), lineHeight: 1 }}>{preset.icon}</span>}
   </span>;
 });

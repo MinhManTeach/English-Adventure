@@ -7,7 +7,7 @@ import { createDefaultState } from '../src/services/storage';
 import { purchaseItem, equipItem, changeAvatarGender } from '../src/engine/avatarCosmetics';
 import { ownedClosetItems } from '../src/engine/avatarCloset';
 import { persistBeforePublish, runCosmeticAction } from '../src/services/durableState';
-import { storeItems, storeItemStatus, previewStoreItem, unlockDescription, STORE_CATEGORIES } from '../src/engine/cosmeticStore';
+import { storeItems, storeItemStatus, previewStoreItem, unlockDescription, STORE_CATEGORIES, STORE_COLLECTIONS } from '../src/engine/cosmeticStore';
 import { Storefront } from '../src/components/store/Storefront';
 import type { UserProgressState } from '../src/types';
 
@@ -15,8 +15,8 @@ const player = (): UserProgressState => ({ ...createDefaultState(), coins: 100,
   cosmetics: { ...createDefaultState().cosmetics!, setupCompleted: true } });
 const tee = COSMETIC_CATALOG.find(x => x.id === 'top.sunshine-tee')!;
 
-test('Store uses 38 authoritative ready items; all six filters respect gender and slot', () => {
-  assert.equal(COSMETIC_CATALOG.length, 38);
+test('Store uses 59 authoritative ready items; all six filters respect gender and slot', () => {
+  assert.equal(COSMETIC_CATALOG.length, 59);
   assert.equal(STORE_CATEGORIES.length, 6);
   for (const gender of ['boy', 'girl'] as const) for (const { slot } of STORE_CATEGORIES) {
     const result = storeItems(gender, slot);
@@ -98,7 +98,7 @@ test('Store markup has balance, six semantic filters, real thumbnails, explicit 
   const html = renderToStaticMarkup(<Storefront state={player()} blockedReason={null}
     onPurchase={() => ({ status: 'success' })} onEquip={() => ({ status: 'success' })} onOpenAvatar={() => {}} />);
   assert.match(html, /Avatar Store/); assert.match(html, /Learning coins: 100/);
-  assert.equal((html.match(/aria-pressed=/g) ?? []).length, 6 + storeItems('boy', 'all').length);
+  assert.equal((html.match(/aria-pressed=/g) ?? []).length, 6 + 1 + STORE_COLLECTIONS.length + storeItems('boy', 'all').length);
   assert.match(html, /Preview Sunshine Tee/); assert.match(html, /Owned · Equipped/);
   assert.match(html, /\/avatars\/v1\//); assert.match(html, /Locked/);
   assert.doesNotMatch(html, /Buy Starter/);
@@ -128,4 +128,15 @@ test('owned gender-specific purchases survive switching and disappear only from 
   assert.ok(!storeItems('girl', 'hair').some(x => x.id === item.id));
   assert.equal(storeItemStatus(state, item), 'incompatible');
   assert.equal(state.coins, 100 - item.price);
+});
+
+test('every item belongs to a fashion collection and each collection has looks for both heroes', () => {
+  const ids = new Set(STORE_COLLECTIONS.map(c => c.id));
+  assert.ok(COSMETIC_CATALOG.every(item => ids.has(item.collection ?? 'classic')));
+  for (const gender of ['boy', 'girl'] as const) for (const { id } of STORE_COLLECTIONS) {
+    const looks = storeItems(gender, 'all', id);
+    assert.ok(looks.length > 0, `${id} for ${gender}`);
+    assert.ok(looks.every(item => (item.collection ?? 'classic') === id && item.compatibleWith.includes(gender)));
+  }
+  assert.equal(storeItems('girl', 'all', 'all').length, storeItems('girl', 'all').length);
 });
