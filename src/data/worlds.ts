@@ -332,6 +332,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight King Boastalot!', gateGoal: 'Prepare for the Biggest Show-off', gatePass: 'PASS — King Boastalot is unlocked!',
     },
   },
+  {
+    chapter: 14, units: [40, 41, 42], title: 'Signal Station', titleVi: 'Trạm Tín Hiệu', emojis: '📢 🧭 💻 👾',
+    intro: 'Give clear instructions, find your way and reconnect the whole world in the final adventure of A1!',
+    lockedHint: 'Complete Chapter 13 by defeating King Boastalot to begin this adventure.',
+    completeMessage: 'You mastered instructions, verb patterns, prepositions and technology words. You have finished A1!',
+    reviewTitle: 'Signal Station Review',
+    reviewQuota: [[40, 3], [41, 3], [42, 2]], bossQuota: [[40, 3], [41, 4], [42, 3]],
+    bossStageKey: 'boss14', firstClear: { xp: 900, coins: 450 }, achievementId: 'a1_champion',
+    badge: { title: 'A1 CHAMPION', titleVi: 'Nhà vô địch A1', icon: '🎓' }, bossColor: '#6366f1',
+    boss: {
+      name: 'The Glitch King', fullName: 'The Glitch King · Lord of Lost Signals', emoji: '👾 📡', arena: 'SIGNAL TOWER', leaveLabel: 'Leave the Station',
+      awaits: 'The Glitch King Awaits!', intro: 'The Glitch King has cut every signal in the world! Cast 10 accurate spells about instructions, prepositions and technology to switch them back on.',
+      strikeLabel: '👾 Glitch Wave!', defeatedTitle: 'GLITCH KING DEFEATED!', defeatedSubtitle: 'THE WORLD IS ONLINE AGAIN!',
+      defeatedMessage: 'You defeated the final A1 boss. Chapter 14 is complete and you are an A1 Champion!',
+      survivedTitle: 'THE GLITCH KING IS STILL JAMMING!',
+      defeatMessage: 'The Glitch King is still blocking the signals. Review your mistakes and try again!',
+      levelTitle: 'A1 Champion', achievementTitle: 'A1 CHAMPION!',
+      unlockHint: 'Defeat the Glitch King in Chapter 14 to unlock.',
+      mapBlurb: 'Give instructions, find the way and fix the tech to beat the final boss of A1.',
+      fightLabel: 'Fight the Glitch King!', gateGoal: 'Prepare for the Lord of Lost Signals', gatePass: 'PASS — the Glitch King is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
