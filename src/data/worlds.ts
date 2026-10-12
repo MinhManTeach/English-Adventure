@@ -244,6 +244,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight the Masked Mimic!', gateGoal: 'Prepare for the Face Stealer', gatePass: 'PASS — the Masked Mimic is unlocked!',
     },
   },
+  {
+    chapter: 10, units: [28, 29, 30], title: 'Wild Weather Valley', titleVi: 'Thung Lũng Thời Tiết', emojis: '🔤 🔢 🌦️ 🌪️',
+    intro: 'Read the signs, count the stars and survive the wild weather of the valley!',
+    lockedHint: 'Complete Chapter 9 by defeating the Masked Mimic to begin this adventure.',
+    completeMessage: 'You mastered articles, numbers, dates and words for weather and nature!',
+    reviewTitle: 'Wild Weather Valley Review',
+    reviewQuota: [[28, 3], [29, 3], [30, 2]], bossQuota: [[28, 3], [29, 4], [30, 3]],
+    bossStageKey: 'boss10', firstClear: { xp: 650, coins: 325 }, achievementId: 'nature_guardian',
+    badge: { title: 'NATURE GUARDIAN', titleVi: 'Người bảo vệ thiên nhiên', icon: '🌍' }, bossColor: '#0ea5e9',
+    boss: {
+      name: 'Storm Queen Tempesta', fullName: 'Storm Queen Tempesta · Ruler of Thunder', emoji: '🌪️ ⚡', arena: 'EYE OF THE STORM', leaveLabel: 'Leave the Valley',
+      awaits: 'Storm Queen Tempesta Awaits!', intro: 'Storm Queen Tempesta is blowing the valley away! Cast 10 accurate spells about articles, numbers and nature to calm the storm.',
+      strikeLabel: '⚡ Lightning Strike!', defeatedTitle: 'TEMPESTA DEFEATED!', defeatedSubtitle: 'THE SUN IS SHINING AGAIN!',
+      defeatedMessage: 'You mastered articles, numbers and nature words. Chapter 10 is complete!',
+      survivedTitle: 'THE STORM IS STILL RAGING!',
+      defeatMessage: 'Storm Queen Tempesta is still blowing. Review your mistakes and try again!',
+      levelTitle: 'Nature Guardian', achievementTitle: 'NATURE GUARDIAN!',
+      unlockHint: 'Defeat Storm Queen Tempesta in Chapter 10 to unlock.',
+      mapBlurb: 'Use a, an and the, count high and name the weather to calm the storm.',
+      fightLabel: 'Fight Storm Queen Tempesta!', gateGoal: 'Prepare for the Ruler of Thunder', gatePass: 'PASS — Storm Queen Tempesta is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
