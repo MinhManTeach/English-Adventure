@@ -1,4 +1,5 @@
-import { GameQuestionType, Question } from '../../types';
+import { Question } from '../../types';
+import { createBankBuilder, buildWordBank } from './authoredBank';
 import { SCHOOL_WORDS } from '../templates/schoolLife';
 
 /** Short teaching notes shared by several authored questions. */
@@ -22,32 +23,7 @@ const RULES = {
   shortAnswer: { en: "Answer Did questions with Yes, … did. / No, … didn't.", vi: "Trả lời câu hỏi Did: Yes, … did. / No, … didn't." },
   pastWords: { en: 'Yesterday, last … and … ago show finished past time.', vi: 'yesterday, last …, … ago chỉ thời gian đã qua.' },
 } as const;
-type RuleKey = keyof typeof RULES;
-
-/** [question with ___, answer, three wrong options, rule, topic, difficulty] */
-type GapItem = readonly [string, string, readonly [string, string, string], RuleKey, string, 1 | 2 | 3];
-/** [wrong sentence, correct sentence, two more wrong sentences, rule, topic] */
-type RepairItem = readonly [string, string, readonly [string, string], RuleKey, string];
-/** [sentence to build, rule, topic] */
-type BuildItem = readonly [string, RuleKey, string];
-
-function buildBank(unit: number, gaps: readonly GapItem[], repairs: readonly RepairItem[], builders: readonly BuildItem[]): Question[] {
-  const id = (n: number) => `A1-U${String(unit).padStart(2, '0')}-C3-${String(n).padStart(3, '0')}`;
-  const questions: Question[] = [];
-  const add = (type: GameQuestionType, fields: Omit<Question, 'id' | 'level' | 'unit' | 'skill' | 'type' | 'xp'>) =>
-    questions.push({ id: id(questions.length + 1), level: 'A1', unit, skill: 'grammar', type, xp: 10, ...fields });
-  gaps.forEach(([question, answer, wrong, rule, topic, difficulty], index) => {
-    const sentence = question.replace('___', answer);
-    add(index % 2 === 0 ? 'fill-gap' : 'multiple-choice', { topic, question, options: [answer, ...wrong], answer, difficulty,
-      explanation: { en: `${RULES[rule].en} ${sentence}`, vi: RULES[rule].vi }, audioText: sentence });
-  });
-  repairs.forEach(([wrongSentence, correct, others, rule, topic]) => add('error-hunter', { topic, question: wrongSentence,
-    subPrompt: 'Find the mistake and choose the correct sentence.', options: [correct, wrongSentence, ...others], answer: correct,
-    correctSentence: correct, difficulty: 2, explanation: { en: `${RULES[rule].en} ${correct}`, vi: RULES[rule].vi }, audioText: correct }));
-  builders.forEach(([sentence, rule, topic]) => add('sentence-builder', { topic, question: 'Build the sentence.', words: sentence.split(' '),
-    answer: sentence, difficulty: 3, explanation: { en: `${RULES[rule].en} ${sentence}`, vi: RULES[rule].vi }, audioText: sentence }));
-  return questions;
-}
+const buildBank = createBankBuilder(RULES, 3);
 
 const PSC = 'present-simple-vs-continuous', STATE = 'stative-verbs', PAST = 'past-simple';
 
@@ -130,17 +106,6 @@ export const UNIT_08_QUESTIONS: Question[] = buildBank(8, [
 ]);
 
 /** Unit 9: meaning and translation checks for every taught school word. */
-export const UNIT_09_QUESTIONS: Question[] = SCHOOL_WORDS.flatMap((word, index) => {
-  const sameTopic = SCHOOL_WORDS.filter(other => other.topic === word.topic && other !== word);
-  const pick = (start: number) => [0, 2, 4].map(step => sameTopic[(index + start + step) % sameTopic.length].word);
-  const base = { level: 'A1' as const, unit: 9, skill: 'vocabulary' as const, topic: word.topic, xp: 10, imageIcon: word.icon,
-    answer: word.word, explanation: { en: `${word.word}: ${word.definition}. ${word.example}`, vi: `${word.word}: ${word.vi}. ${word.exampleVi}` }, audioText: word.word };
-  return [
-    { ...base, id: `A1-U09-C3-${String(index * 2 + 1).padStart(3, '0')}`, type: 'matching' as const, difficulty: 1 as const,
-      question: `Which word or phrase means "${word.definition}"?`, options: [word.word, ...pick(0)] },
-    { ...base, id: `A1-U09-C3-${String(index * 2 + 2).padStart(3, '0')}`, type: 'multiple-choice' as const, difficulty: 2 as const,
-      question: `How do you say "${word.vi}" in English?`, options: [word.word, ...pick(1)] },
-  ];
-});
+export const UNIT_09_QUESTIONS: Question[] = buildWordBank(9, 3, SCHOOL_WORDS);
 
 export const CHAPTER3_QUESTIONS: Question[] = [...UNIT_07_QUESTIONS, ...UNIT_08_QUESTIONS, ...UNIT_09_QUESTIONS];

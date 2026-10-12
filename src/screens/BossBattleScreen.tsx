@@ -1,5 +1,6 @@
 import { Chronos } from '../components/boss/Chronos';
 import { ProfessorHoot } from '../components/boss/ProfessorHoot';
+import { CaptainFogbeard } from '../components/boss/CaptainFogbeard';
 import { getWorld } from '../data/worlds';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import confetti from 'canvas-confetti';
@@ -27,7 +28,7 @@ import { BossQuestionPanel } from '../components/boss/BossQuestionPanel';
 import { soundService } from '../services/sound';
 import { getBossPhase, createBossBattle, transitionBossBattle, canClaimBossVictory } from '../engine/bossLogic';
 
-const BOSS_VISUALS = { 1: GrammarDragon, 2: Chronos, 3: ProfessorHoot } as const;
+const BOSS_VISUALS = { 1: GrammarDragon, 2: Chronos, 3: ProfessorHoot, 4: CaptainFogbeard } as const;
 
 export const BossBattleScreen: React.FC = () => {
   const {

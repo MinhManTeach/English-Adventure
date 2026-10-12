@@ -16,7 +16,7 @@ test('Semantic clusters ignore subject, polarity, task mode and cosmetic time di
   assert.ok(routines.some(q => q.audioText?.includes('after school')));
   assert.equal(new Set(routines.map(q => q.contextKey)).size, 1);
 });
-for (const unit of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+for (const unit of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
   // Twelve seeds x three stages build many sessions; slower machines need more than the 5s default.
   test(`Unit ${unit}: six questions diversify contexts without dropping eligible concepts`, { timeout: 30000 }, () => {
     for (const stage of ['practice', 'minigame', 'challenge'] as const) for (let seed = 1; seed <= 12; seed++) {
@@ -26,7 +26,7 @@ for (const unit of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
       assert.equal(new Set(session.questions.map(q => q.contextKey)).size, 6);
       const concepts = new Set(getDynamicPool(unit, stage).map(q => q.conceptId));
       assert.equal(new Set(session.questions.map(q => q.conceptId)).size, Math.min(6, concepts.size));
-      if ([2, 4, 5, 7, 8].includes(unit)) assert.ok(new Set(session.questions.map(q => q.subjectKey)).size >= 4);
+      if ([2, 4, 5, 7, 8, 10, 11].includes(unit)) assert.ok(new Set(session.questions.map(q => q.subjectKey)).size >= 4);
     }
   });
   test(`Unit ${unit}: consecutive sessions use all available new contexts before necessary recycling`, { timeout: 30000 }, () => {
@@ -106,7 +106,7 @@ test('Context migration adds bounded defaults, retains previous session and pres
   assert.deepEqual(migrateState(bounded), bounded);
 });
 test('Composite review and Boss histories retain each unit’s complete last-session context set', () => {
-  for (const build of [buildDynamicReview, buildDynamicBoss]) for (const chapter of [1, 2, 3] as const) {
+  for (const build of [buildDynamicReview, buildDynamicBoss]) for (const chapter of [1, 2, 3, 4] as const) {
     const session = build(createDefaultState(), chapter, seeded());
     for (const unit of new Set(session.questions.map(q => q.unit))) assert.deepEqual(new Set(session.history[unit].lastSessionContextKeys), new Set(session.questions.filter(q => q.unit === unit).map(q => q.contextKey)));
   }

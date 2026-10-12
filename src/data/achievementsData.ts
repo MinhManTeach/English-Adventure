@@ -7,6 +7,9 @@ export const INITIAL_ACHIEVEMENTS: Record<string, Achievement> = {
   top_of_the_class: { id: 'top_of_the_class', title: 'TOP OF THE CLASS', titleVi: 'Học sinh xuất sắc',
     description: 'Defeat Professor Hoot in School of Yesterday.', icon: '🦉', category: 'special', unlockedAt: null,
     xpReward: 0, coinReward: 0, maxProgress: 1, currentProgress: 0 },
+  memory_keeper: { id: 'memory_keeper', title: 'MEMORY KEEPER', titleVi: 'Người giữ ký ức',
+    description: 'Defeat Captain Fogbeard on Memory Island.', icon: '🧭', category: 'special', unlockedAt: null,
+    xpReward: 0, coinReward: 0, maxProgress: 1, currentProgress: 0 },
   first_step: {
     id: 'first_step',
     title: 'First Step',

@@ -109,6 +109,27 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight Professor Hoot!', gateGoal: 'Prepare for the Exam Owl', gatePass: 'PASS — Professor Hoot is unlocked!',
     },
   },
+  {
+    chapter: 4, units: [10, 11, 12], title: 'Memory Island', titleVi: 'Đảo Ký Ức', emojis: '🗼 🌧️ 🤝 🏴‍☠️',
+    intro: 'Light up the old lighthouse, survive the stormy night and make friends in the harbour!',
+    lockedHint: 'Complete Chapter 3 by defeating Professor Hoot to begin this adventure.',
+    completeMessage: 'You mastered was/were, irregular verbs, the past continuous and making friends!',
+    reviewTitle: 'Memory Island Review',
+    reviewQuota: [[10, 3], [11, 3], [12, 2]], bossQuota: [[10, 3], [11, 4], [12, 3]],
+    bossStageKey: 'boss4', firstClear: { xp: 350, coins: 175 }, achievementId: 'memory_keeper',
+    boss: {
+      name: 'Captain Fogbeard', fullName: 'Captain Fogbeard · Memory Thief', emoji: '🏴‍☠️ 🌫️', arena: 'MISTY HARBOUR', leaveLabel: 'Leave the Harbour',
+      awaits: 'Captain Fogbeard Awaits!', intro: 'Captain Fogbeard stole the island\'s memories! Cast 10 accurate spells about the past and friendship to bring them back.',
+      strikeLabel: '🌫️ Fog Attack!', defeatedTitle: 'CAPTAIN FOGBEARD DEFEATED!', defeatedSubtitle: 'THE MEMORY THIEF HAS BEEN DEFEATED!',
+      defeatedMessage: 'You brought back the island\'s memories with the past tenses and friendship words. Chapter 4 is complete!',
+      survivedTitle: 'THE MEMORY THIEF ESCAPED!',
+      defeatMessage: 'Captain Fogbeard still hides in the fog. Review your mistakes and try again!',
+      levelTitle: 'Memory Keeper', achievementTitle: 'MEMORY KEEPER!',
+      unlockHint: 'Defeat Captain Fogbeard in Chapter 4 to unlock.',
+      mapBlurb: 'Tell what was happening, what happened next and who your friends are to clear the fog.',
+      fightLabel: 'Fight Captain Fogbeard!', gateGoal: 'Prepare for the Memory Thief', gatePass: 'PASS — Captain Fogbeard is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;

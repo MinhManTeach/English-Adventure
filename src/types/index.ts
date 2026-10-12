@@ -159,7 +159,7 @@ export interface UserSettings {
   voiceGender?: 'female' | 'male';
 }
 
-export type ChapterId = 1 | 2 | 3;
+export type ChapterId = 1 | 2 | 3 | 4;
 export interface ChapterProgress {
   reviewGateCompleted: boolean;
   reviewGateAttempts: number;
