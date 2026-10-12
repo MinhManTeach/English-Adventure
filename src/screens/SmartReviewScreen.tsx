@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { getWorld } from '../data/worlds';
+import { getWorld, getWorldOfUnit } from '../data/worlds';
 import { RotateCcw, Target, Sparkles, CheckCircle2, ArrowRight, BookOpen } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { REVIEW_GATE_PASS_PERCENT } from '../engine/worldProgression';
@@ -170,7 +170,7 @@ export const SmartReviewScreen: React.FC = () => {
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-extrabold text-rose-600 uppercase">
-                        {item.source === 'boss' || item.questionId.startsWith('BOSS-') ? item.unit >= 4 ? 'Boss 2' : 'Boss' : `Unit ${item.unit}`} · {item.topic}
+                        {item.source === 'boss' || item.questionId.startsWith('BOSS-') ? (getWorldOfUnit(item.unit)?.chapter ?? 1) > 1 ? `Boss ${getWorldOfUnit(item.unit)!.chapter}` : 'Boss' : `Unit ${item.unit}`} · {item.topic}
                       </span>
                       <span className="font-bold text-slate-400">
                         {item.wrongCount}x missed

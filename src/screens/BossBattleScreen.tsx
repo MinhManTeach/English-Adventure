@@ -423,6 +423,7 @@ export const BossBattleScreen: React.FC = () => {
               <BossQuestionPanel
                 key={`${battleIdRef.current}:${currentQuestion.id}`}
                 question={currentQuestion}
+                bossName={activeChapterId === 1 ? 'the Dragon' : boss.name}
                 isActionLocked={isActionLocked}
                 comboCount={comboCount}
                 wrongAttempts={battle.wrongAttempts}

@@ -1,4 +1,5 @@
 import { CHAPTER2_LEARN_CARDS } from './chapter2Learn';
+import { CHAPTER3_LEARN_CARDS } from './chapter3Learn';
 export interface LearnCard {
   id: string;
   unitId: number;
@@ -19,6 +20,7 @@ export interface LearnCard {
 
 export const LEARN_CARDS_DATA: Record<number, LearnCard[]> = {
   ...CHAPTER2_LEARN_CARDS,
+  ...CHAPTER3_LEARN_CARDS,
   "1": [
     {
       "id": "u1-p2-card-1",

@@ -17,6 +17,8 @@ interface BossQuestionPanelProps {
   onTryAgain: () => void;
   onAnswerResolved: (isCorrect: boolean, answer: string) => boolean;
   onNextQuestion: () => void;
+  /** How the boss is named in feedback lines, e.g. "the Dragon" or "Chronos". */
+  bossName?: string;
 }
 
 export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
@@ -28,6 +30,7 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
   onTryAgain,
   onAnswerResolved,
   onNextQuestion,
+  bossName = 'the Dragon',
 }) => {
   const { state } = useGame();
 
@@ -102,7 +105,7 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
               CAST YOUR SPELL · ĐỌC THẦN CHÚ CHIẾN ĐẤU
             </span>
             <span className="text-[11px] font-semibold text-slate-500">
-              {question.subPrompt || 'Choose the correct answer to strike the Dragon!'}
+              {question.subPrompt || `Choose the correct answer to strike ${bossName}!`}
             </span>
           </div>
         </div>
@@ -271,12 +274,12 @@ export const BossQuestionPanel: React.FC<BossQuestionPanelProps> = ({
                     : '✓ PERFECT SPELL! -10 HP'
                   : canTryAgain
                   ? 'Almost! Try again.'
-                  : 'The Dragon strikes back! (-1 ❤️)'}
+                  : `${bossName[0].toUpperCase()}${bossName.slice(1)} strikes back! (-1 ❤️)`}
               </span>
 
               {canTryAgain && !isCorrect ? (
                 <p className="text-xs font-semibold text-amber-900">
-                  Focus your magic! Try one more time before the Dragon counters.
+                  Focus your magic! Try one more time before {bossName} counters.
                 </p>
               ) : (
                 <>

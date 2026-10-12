@@ -4,6 +4,8 @@ import { SUBJECTS, ACTIVITIES, CONTINUOUS_ACTIVITIES, ROUTINE_TIMES, COUNTED_OBJ
 
 import { HOME_SITUATIONS, HOME_RESPONSES } from './homeSituations';
 import { LEISURE_SITUATIONS } from './leisureSituations';
+import { HABIT_MARKERS, NOW_MARKERS, STATIVE_VERBS, PAST_VERBS, PAST_TIMES, PAST_SPELLING_RULES } from './chapter3Pools';
+import { SCHOOL_WORDS } from './schoolLife';
 
 export type StudyStage = 'practice' | 'minigame' | 'challenge';
 export interface ControlledFrame {
@@ -20,7 +22,7 @@ const cap = (value: string) => value[0].toUpperCase() + value.slice(1);
 const templates: QuestionTemplate[] = [];
 function register(unit: number, topic: string, family: string, frames: ControlledFrame[], vocabulary = false) {
   const modes = ['gap', 'choose', 'build', 'repair', 'apply'] as const;
-  for (const mode of modes) templates.push({ id: `u${unit}.${topic}.${family}.${mode}`, conceptId: `unit${unit}.${topic}${['verb-to-be','present-simple','present-continuous'].includes(topic) ? '.' + (family === 'plural-statement' ? 'statement' : family) : ''}`,
+  for (const mode of modes) templates.push({ id: `u${unit}.${topic}.${family}.${mode}`, conceptId: `unit${unit}.${topic}${unit >= 7 || ['verb-to-be','present-simple','present-continuous'].includes(topic) ? '.' + (family === 'plural-statement' ? 'statement' : family) : ''}`,
     unitId: unit, topic, skill: vocabulary ? 'vocabulary' : 'grammar', mode,
     stages: mode === 'gap' || mode === 'choose' ? ['practice', 'challenge'] : mode === 'build' || mode === 'repair' ? ['minigame', 'challenge'] : ['challenge'], frames });
 }
@@ -130,6 +132,63 @@ for(const topic of ['hobbies','leisure-activities']) {
     }
   }
   register(6,topic,'hobby-context',frames,true);
+}
+// Unit 7: time markers decide Present Simple (habits) or Present Continuous (now); state verbs stay simple.
+for (const form of ['habit-marker','now-marker','question-choice','negative-choice','time-expression']) {
+  const frames: ControlledFrame[]=[];
+  for (const [i,s] of SUBJECTS.entries()) for (const [j,v] of ACTIVITIES.entries()) {
+    const subject=cap(s.text), b=s.be, verb=s.third?v.third:v.base, other=s.third?v.base:v.third;
+    const aux=s.third?'does':'do', otherAux=s.third?'Do':'Does', neg=s.third?"doesn't":"don't", beNot=b==='am'?'am not':`${b}n't`;
+    const habit=HABIT_MARKERS[(i+j)%HABIT_MARKERS.length], now=NOW_MARKERS[(i+j)%NOW_MARKERS.length];
+    const habitTail=`${v.object} ${habit}`, nowTail=`${v.object} ${now}`, asksHabit=(i+j)%2===0;
+    let correct:string, answer:string, gap:string, choices:string[], errors:string[], clue:string, en:string, vi:string;
+    if(form==='habit-marker'){answer=verb;correct=`${subject} ${verb} ${habitTail}.`;gap=`${subject} ___ ${habitTail}.`;choices=[`${b} ${v.ing}`,other,v.ing];errors=choices.map(x=>`${subject} ${x} ${habitTail}.`);clue=`"${habit}" shows a habit. Complete: ${subject} ___ ${habitTail}.`;en=`"${habit}" shows a habit, so use Present Simple. ${correct}`;vi=`"${habit}" chỉ thói quen nên dùng hiện tại đơn.`;}
+    else if(form==='now-marker'){answer=`${b} ${v.ing}`;correct=`${subject} ${answer} ${nowTail}.`;gap=`${subject} ___ ${nowTail}.`;choices=[verb,`${b} ${v.base}`,v.ing];errors=choices.map(x=>`${subject} ${x} ${nowTail}.`);clue=`"${now}" shows an action happening now. Complete: ${subject} ___ ${nowTail}.`;en=`"${now}" shows an action in progress, so use am/is/are + verb-ing. ${correct}`;vi=`"${now}" chỉ việc đang diễn ra nên dùng am/is/are + động từ-ing.`;}
+    else if(form==='question-choice'&&asksHabit){answer=cap(aux);correct=`${answer} ${s.text} ${v.base} ${habitTail}?`;gap=`___ ${s.text} ${v.base} ${habitTail}?`;choices=[cap(b),otherAux,b==='is'?'Are':'Is'];errors=[`${cap(b)} ${s.text} ${v.base} ${habitTail}?`,`${answer} ${s.text} ${v.ing} ${habitTail}?`,`${otherAux} ${s.text} ${v.base} ${habitTail}?`];clue=`Ask about a habit: ___ ${s.text} ${v.base} ${habitTail}?`;en=`A habit question uses Do/Does + base verb. ${correct}`;vi=`Hỏi về thói quen: Do/Does + động từ nguyên mẫu.`;}
+    else if(form==='question-choice'){answer=cap(b);correct=`${answer} ${s.text} ${v.ing} ${nowTail}?`;gap=`___ ${s.text} ${v.ing} ${nowTail}?`;choices=[cap(aux),otherAux,b==='is'?'Are':'Is'];errors=[`${cap(aux)} ${s.text} ${v.ing} ${nowTail}?`,`${answer} ${s.text} ${v.base} ${nowTail}?`,`${answer} ${s.text} ${v.third} ${nowTail}?`];clue=`Ask about now: ___ ${s.text} ${v.ing} ${nowTail}?`;en=`A question about now uses Am/Is/Are + verb-ing. ${correct}`;vi=`Hỏi về việc đang diễn ra: Am/Is/Are + động từ-ing.`;}
+    else if(form==='negative-choice'&&asksHabit){answer=neg;correct=`${subject} ${neg} ${v.base} ${habitTail}.`;gap=`${subject} ___ ${v.base} ${habitTail}.`;choices=[beNot,s.third?"don't":"doesn't",'not'];errors=[`${subject} ${beNot} ${v.base} ${habitTail}.`,`${subject} ${neg} ${v.third} ${habitTail}.`,`${subject} ${s.third?"don't":"doesn't"} ${v.base} ${habitTail}.`];clue=`Say no about a habit: ${subject} ___ ${v.base} ${habitTail}.`;en=`For a habit, say no with don't/doesn't + base verb. ${correct}`;vi=`Phủ định thói quen: don't/doesn't + động từ nguyên mẫu.`;}
+    else if(form==='negative-choice'){answer=beNot;correct=`${subject} ${beNot} ${v.ing} ${nowTail}.`;gap=`${subject} ___ ${v.ing} ${nowTail}.`;choices=[neg,b==='is'?"aren't":"isn't",'not'];errors=[`${subject} ${neg} ${v.ing} ${nowTail}.`,`${subject} ${beNot} ${v.base} ${nowTail}.`,`${subject} not ${v.ing} ${nowTail}.`];clue=`Say no about now: ${subject} ___ ${v.ing} ${nowTail}.`;en=`For an action now, say no with am not/isn't/aren't + verb-ing. ${correct}`;vi=`Phủ định việc đang diễn ra: am not/isn't/aren't + động từ-ing.`;}
+    else if(asksHabit){answer=habit;correct=`${subject} ${verb} ${habitTail}.`;gap=`${subject} ${verb} ${v.object} ___.`;choices=[...NOW_MARKERS];errors=choices.map(x=>`${subject} ${verb} ${v.object} ${x}.`);clue=`Choose the time words for this habit: ${subject} ${verb} ${v.object} ___.`;en=`Present Simple goes with habit words like "${habit}". ${correct}`;vi=`Hiện tại đơn đi với từ chỉ thói quen như "${habit}".`;}
+    else {answer=now;correct=`${subject} ${b} ${v.ing} ${nowTail}.`;gap=`${subject} ${b} ${v.ing} ${v.object} ___.`;choices=HABIT_MARKERS.filter((_,k)=>k!==(i+j)%HABIT_MARKERS.length).slice(0,3);errors=choices.map(x=>`${subject} ${b} ${v.ing} ${v.object} ${x}.`);clue=`Choose the time words for an action now: ${subject} ${b} ${v.ing} ${v.object} ___.`;en=`Present Continuous goes with "${now}". ${correct}`;vi=`Hiện tại tiếp diễn đi với "${now}".`;}
+    frames.push(withContext(frame(`${form}-${i}-${j}`,correct,errors,gap,answer,choices,clue,en,vi), `activity:${v.base}|${v.object}`, s.text));
+  }
+  register(7,'present-simple-vs-continuous',form,frames);
+}
+{
+  const frames: ControlledFrame[]=[];
+  for (const [i,s] of SUBJECTS.entries()) for (const [j,v] of STATIVE_VERBS.entries()) {
+    const subject=cap(s.text), verb=s.third?v.third:v.base, other=s.third?v.base:v.third, tail=(i+j)%2===0?`${v.object} now`:v.object;
+    const correct=`${subject} ${verb} ${tail}.`, choices=[`${s.be} ${v.ing}`,other,v.ing];
+    frames.push(withContext(frame(`stative-${i}-${j}`,correct,choices.map(x=>`${subject} ${x} ${tail}.`),`${subject} ___ ${tail}.`,verb,choices,`"${v.base}" is a state verb. Complete: ${subject} ___ ${tail}.`,`"${v.base}" is a state verb, so we don't use it with -ing, even with "now". ${correct}`,`"${v.base}" (${v.vi}) là động từ chỉ trạng thái, không dùng dạng -ing kể cả khi có "now".`), `stative:${v.base}|${v.object}`, s.text));
+  }
+  register(7,'stative-verbs','state',frames);
+}
+// Unit 8: Past Simple of regular verbs: -ed endings and spelling, didn't, Did questions and short answers.
+for (const form of ['affirmative','ed-spelling','negative','question','short-answer']) {
+  const frames: ControlledFrame[]=[];
+  for (const [i,s] of SUBJECTS.entries()) for (const [j,v] of PAST_VERBS.entries()) {
+    const subject=cap(s.text), time=PAST_TIMES[(i+j)%PAST_TIMES.length], tail=`${v.object} ${time}`, rule=PAST_SPELLING_RULES[v.rule];
+    let correct=`${subject} ${v.past} ${tail}.`, answer:string=v.past, gap=`${subject} ___ ${tail}.`, choices:string[]=[v.base,v.third,`${s.be} ${v.ing}`];
+    let errors=choices.map(x=>`${subject} ${x} ${tail}.`), clue=`"${time}" is in the past. Complete: ${subject} ___ ${tail}.`;
+    let en=`"${time}" is finished time, so use the past form ${v.past}. ${correct}`, vi=`"${time}" là thời gian đã qua nên dùng quá khứ đơn: ${v.base} → ${v.past}.`;
+    if(form==='ed-spelling'){gap=`${subject} ___ ${tail}. (${v.base})`;choices=[...v.wrong,v.base];errors=v.wrong.map(x=>`${subject} ${x} ${tail}.`);clue=`Write "${v.base}" in the past: ${subject} ___ ${tail}.`;en=`${rule.en} ${v.base} → ${v.past}. ${correct}`;vi=`${rule.vi} ${v.base} → ${v.past}.`;}
+    if(form==='negative'){correct=`${subject} didn't ${v.base} ${tail}.`;answer="didn't";gap=`${subject} ___ ${v.base} ${tail}.`;choices=["don't","doesn't","wasn't"];errors=[`${subject} didn't ${v.past} ${tail}.`,`${subject} ${s.third?"doesn't":"don't"} ${v.base} ${tail}.`,`${subject} not ${v.past} ${tail}.`];clue=`Say no about the past: ${subject} ___ ${v.base} ${tail}.`;en=`Past negative: didn't + base verb for every subject. ${correct}`;vi=`Phủ định quá khứ: didn't + động từ nguyên mẫu (không thêm -ed).`;}
+    if(form==='question'){correct=`Did ${s.text} ${v.base} ${tail}?`;answer='Did';gap=`___ ${s.text} ${v.base} ${tail}?`;choices=['Do','Does','Was'];errors=[`Did ${s.text} ${v.past} ${tail}?`,`${s.third?'Does':'Do'} ${s.text} ${v.base} ${tail}?`,`Was ${s.text} ${v.base} ${tail}?`];clue=`Ask about the past: ___ ${s.text} ${v.base} ${tail}?`;en=`Past question: Did + subject + base verb. ${correct}`;vi=`Câu hỏi quá khứ: Did + chủ ngữ + động từ nguyên mẫu.`;}
+    if(form==='short-answer'){const pronoun=s.pronoun==='you'?'I':s.pronoun, yes=(i+j)%2===0, lead=yes?'Yes':'No';answer=yes?'did':"didn't";correct=`${lead}, ${pronoun} ${answer}.`;gap=`Did ${s.text} ${v.base} ${tail}? ${lead}, ${pronoun} ___.`;choices=yes?[s.third?'does':'do','was',v.past]:[s.third?"doesn't":"don't","wasn't",'not'];errors=choices.map(x=>`${lead}, ${pronoun} ${x}.`);clue=`Answer ${yes?'yes':'no'}: Did ${s.text} ${v.base} ${tail}?`;en=`Short answers to Did questions: Yes, ... did. / No, ... didn't. ${correct}`;vi=`Trả lời ngắn câu hỏi Did: Yes, ... did. / No, ... didn't.`;}
+    frames.push(withContext(frame(`${form}-${i}-${j}`,correct,errors,gap,answer,choices,clue,en,vi), `past:${v.base}|${v.object}`, s.text));
+  }
+  register(8,'past-simple',form,frames);
+}
+// Unit 9: school life words, each in three authored situations.
+for (const topic of [...new Set(SCHOOL_WORDS.map(word => word.topic))]) {
+  const words=SCHOOL_WORDS.filter(word=>word.topic===topic);
+  const frames=words.flatMap((word,index)=>word.situations.map((situation,j)=>{
+    const rest=words.filter(other=>other!==word), others=[0,2,4].map(step=>rest[(index+2*j+step)%rest.length]);
+    const q=frame(`${word.word}-situation-${j}`,word.example,others.map(other=>other.example),`${situation} Choose the word or phrase: ___.`,word.word,others.map(other=>other.word),situation,`${word.word}: ${word.definition}. ${word.example}`,`${word.word}: ${word.vi}. ${word.exampleVi}`);
+    q.icon=word.icon; q.contextFamilyKey=`vocabulary:${word.word}`; q.contextKey=`school:${word.word}:${j}`;
+    return q;
+  }));
+  register(9,topic,'school-meaning',frames,true);
 }
 export const QUESTION_TEMPLATES: readonly QuestionTemplate[] = templates;
 

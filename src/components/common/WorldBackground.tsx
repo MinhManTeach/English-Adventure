@@ -35,6 +35,14 @@ export const WorldBackground: React.FC<WorldBackgroundProps> = ({ unitId, isBoss
     );
   }
 
+  if (effectiveUnit >= 7) {
+    return <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-b from-indigo-50 via-amber-50/70 to-emerald-50">
+      <div className="absolute top-24 right-8 h-40 w-40 rounded-full bg-indigo-200/30 blur-2xl" />
+      <svg viewBox="0 0 1200 180" preserveAspectRatio="none" className="absolute bottom-0 h-32 w-full text-emerald-200/50"><path fill="currentColor" d="M0 120 L150 120 L150 70 L260 70 L260 120 L520 120 L520 40 L680 40 L680 120 L940 120 L940 80 L1060 80 L1060 120 L1200 120 V180 H0 Z" /></svg>
+      <span className="absolute bottom-4 left-6 text-5xl opacity-15">{effectiveUnit === 7 ? '⏰' : effectiveUnit === 8 ? '📜' : '🏫'}</span>
+    </div>;
+  }
+
   if (effectiveUnit >= 4) {
     return <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-b from-sky-50 via-teal-50/70 to-amber-50">
       <div className="absolute top-24 left-6 h-40 w-40 rounded-full bg-amber-200/30 blur-2xl" />
