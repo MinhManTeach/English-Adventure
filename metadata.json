@@ -2,5 +2,5 @@
   "name": "English Adventure - Hành Trình Chinh Phục Tiếng Anh",
   "description": "Fun and engaging adventure game for children learning English (CEFR A1). Explore grammar gates, daily life village, and home vocabulary.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
