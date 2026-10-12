@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { AVATAR_PRESETS } from '../data/avatarsData';
 import { Button } from '../components/common/Button';
+import { Mascot } from '../components/common/Mascot';
+import { WORLDS, ALL_WORLD_UNIT_IDS } from '../data/worlds';
+
+const PROMISES = [
+  { icon: '🎮', text: 'Học qua trò chơi' },
+  { icon: '🗺️', text: `${WORLDS.length} thế giới, ${ALL_WORLD_UNIT_IDS.length} bài` },
+  { icon: '🐉', text: 'Đánh bại trùm' },
+] as const;
 
 export const WelcomeScreen: React.FC = () => {
   const { createProfile } = useGame();
@@ -10,136 +18,82 @@ export const WelcomeScreen: React.FC = () => {
   const [name, setName] = useState('');
   const [selectedAvatarId, setSelectedAvatarId] = useState('leo');
 
-  const handleStartAdventure = () => {
-    setStep('profile');
-  };
-
   const handleCreateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     createProfile(name, selectedAvatarId);
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-100/60 via-amber-50 to-orange-50 flex items-center justify-center p-4">
-      <div className="max-w-xl w-full">
-        {step === 'welcome' ? (
-          <div className="bg-white rounded-3xl p-8 sm:p-10 shadow-xl border-2 border-amber-300 text-center space-y-8 animate-pop">
-            {/* Visual Icon */}
-            <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 via-orange-400 to-amber-500 flex items-center justify-center text-5xl shadow-md animate-float">
-              🌟
-            </div>
-
-            <div className="space-y-3">
-              <span className="text-xs font-black uppercase tracking-widest text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
-                CEFR A1 Learning Game
-              </span>
-              <h1 className="text-3xl sm:text-5xl font-black text-slate-900 font-game leading-tight">
-                WELCOME TO <br />
-                <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-                  ENGLISH ADVENTURE
-                </span>
-              </h1>
-              <p className="text-sm font-semibold text-amber-800">
-                Hành Trình Chinh Phục Tiếng Anh
-              </p>
-            </div>
-
-            {/* Inspiring motto */}
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-sm font-bold text-slate-700 space-y-1">
-              <p>✨ Learn English.</p>
-              <p>🎮 Play Fun Games.</p>
-              <p>🗺️ Explore The Adventure Map.</p>
-              <p>👑 Become A Champion!</p>
-            </div>
-
-            <Button
-              variant="amber"
-              size="xl"
-              onClick={handleStartAdventure}
-              className="w-full gap-2 text-slate-900 font-black shadow-amber-600"
-            >
-              <span>START ADVENTURE</span>
-              <ArrowRight className="w-6 h-6" />
-            </Button>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleCreateProfile}
-            className="bg-white rounded-3xl p-8 sm:p-10 shadow-xl border-2 border-amber-300 space-y-6 animate-pop"
-          >
-            <div className="text-center space-y-1">
-              <span className="text-xs font-black uppercase tracking-widest text-amber-700">
-                Hero Setup
-              </span>
-              <h2 className="text-3xl font-black text-slate-900 font-game">
-                Create Your Hero Profile
-              </h2>
-              <p className="text-xs text-slate-500">
-                Choose your hero avatar and nickname to start exploring!
-              </p>
-            </div>
-
-            {/* Name Input */}
-            <div className="space-y-2">
-              <label htmlFor="hero-name" className="text-xs font-extrabold text-slate-700 uppercase">
-                What is your name?
-              </label>
-              <input
-                id="hero-name"
-                type="text"
-                required
-                maxLength={20}
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="e.g. Alex, Linh, Ben..."
-                className="w-full px-5 py-3.5 rounded-2xl border-2 border-amber-200 focus:border-amber-500 focus:outline-none text-xl font-bold bg-amber-50/30 shadow-inner"
-                autoFocus
-              />
-            </div>
-
-            {/* Avatar Selector */}
-            <div className="space-y-3">
-              <label className="text-xs font-extrabold text-slate-700 uppercase block">
-                Choose Your Avatar:
-              </label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
-                {AVATAR_PRESETS.map(preset => {
-                  const isSelected = selectedAvatarId === preset.id;
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => setSelectedAvatarId(preset.id)}
-                      className={`p-3 rounded-2xl border-2 flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                        isSelected
-                          ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-300 scale-105 shadow-sm'
-                          : 'border-slate-200 bg-white hover:border-amber-200'
-                      }`}
-                    >
-                      <span className="text-3xl">{preset.icon}</span>
-                      <span className="text-[10px] font-bold text-slate-600 truncate max-w-full">
-                        {preset.name.split(' ')[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Submit */}
-            <div className="pt-2">
-              <Button
-                type="submit"
-                variant="amber"
-                size="lg"
-                className="w-full font-black text-slate-900"
-              >
-                Let&apos;s Go! Bắt Đầu Nào!
-              </Button>
-            </div>
-          </form>
-        )}
+  if (step === 'welcome') {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white px-5 py-10">
+        <div className="flex w-full max-w-md flex-col items-center text-center animate-pop">
+          <Mascot size={168} className="animate-float" wave />
+          <h1 className="mt-4 font-display text-4xl font-black leading-none tracking-tight sm:text-5xl">
+            <span className="text-go">english</span><span className="text-sky-brand">adventure</span>
+          </h1>
+          <p className="mt-3 text-lg font-extrabold text-ink-soft">Học tiếng Anh vui như chơi game!</p>
+          <ul className="mt-6 grid w-full grid-cols-3 gap-2">
+            {PROMISES.map(item => (
+              <li key={item.text} className="card-3d px-2 py-3">
+                <span aria-hidden="true" className="block text-3xl">{item.icon}</span>
+                <span className="mt-1 block text-xs font-extrabold text-ink">{item.text}</span>
+              </li>
+            ))}
+          </ul>
+          <Button variant="success" size="xl" onClick={() => setStep('profile')} className="mt-8 w-full uppercase">
+            Get started · Bắt đầu
+          </Button>
+          <p className="mt-3 text-xs font-bold text-ink-soft">Tiếng Anh A1 · dành cho học sinh lớp 6–9</p>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col items-center bg-white px-5 py-6">
+      <form onSubmit={handleCreateProfile} className="flex w-full max-w-xl flex-1 flex-col animate-pop">
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={() => setStep('welcome')} aria-label="Back"
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-soft hover:bg-cloud cursor-pointer">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <div className="h-4 flex-1 rounded-full bg-line"><div className="h-full w-1/2 rounded-full bg-go" /></div>
+        </div>
+
+        <div className="mt-6 flex items-end gap-3">
+          <Mascot size={84} className="shrink-0" />
+          <div className="card-3d relative mb-3 px-4 py-3">
+            <span aria-hidden="true" className="absolute -left-2 bottom-4 h-4 w-4 rotate-45 border-b-2 border-l-2 border-line bg-white" />
+            <h2 className="font-display text-xl font-black text-ink">What is your name?</h2>
+            <p className="text-sm font-bold text-ink-soft">Bạn tên là gì? Chọn một nhân vật nhé!</p>
+          </div>
+        </div>
+
+        <label htmlFor="hero-name" className="eyebrow mt-6 text-ink-soft">Your name · Tên của bạn</label>
+        <input id="hero-name" type="text" required maxLength={20} value={name} onChange={e => setName(e.target.value)}
+          placeholder="Linh, Nam, Alex…" autoFocus
+          className="mt-2 w-full rounded-2xl border-2 border-line bg-cloud px-5 py-4 font-display text-xl font-black text-ink placeholder:text-ink-soft/50 focus:border-sky-brand focus:bg-white focus:outline-none" />
+
+        <p id="avatar-label" className="eyebrow mt-6 text-ink-soft">Choose your hero · Chọn nhân vật</p>
+        <div role="radiogroup" aria-labelledby="avatar-label" className="mt-2 grid grid-cols-3 gap-2.5 sm:grid-cols-6">
+          {AVATAR_PRESETS.map(preset => {
+            const isSelected = selectedAvatarId === preset.id;
+            return (
+              <button key={preset.id} type="button" role="radio" aria-checked={isSelected} onClick={() => setSelectedAvatarId(preset.id)}
+                className={`card-3d flex flex-col items-center gap-1 px-2 py-3 cursor-pointer ${isSelected ? '!border-sky-brand !bg-sky-50' : ''}`}>
+                <span aria-hidden="true" className="text-4xl">{preset.icon}</span>
+                <span className={`max-w-full truncate text-xs font-black ${isSelected ? 'text-sky-brand-dark' : 'text-ink-soft'}`}>{preset.name.split(' ')[0]}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-auto pt-8">
+          <Button type="submit" variant="success" size="xl" disabled={!name.trim()} className="w-full uppercase">
+            Let&apos;s go! · Bắt đầu nào!
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };

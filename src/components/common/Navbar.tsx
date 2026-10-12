@@ -1,197 +1,129 @@
 import React from 'react';
-import { Volume2, VolumeX, Shield, Heart, Flame, Coins, Sparkles, Settings, ShoppingBag } from 'lucide-react';
+import { Volume2, VolumeX, Settings } from 'lucide-react';
 import { useGame, AppScreen } from '../../context/GameContext';
 import { PlayerAvatar } from '../avatar/PlayerAvatar';
-import { AVATAR_PRESETS } from '../../data/avatarsData';
+import { Mascot } from './Mascot';
 
-export const Navbar: React.FC = () => {
-  const { state, levelInfo, currentScreen, navigateTo, updateSettings } = useGame();
+interface NavItem { screen: AppScreen; icon: string; label: string; labelVi: string; tab?: boolean }
 
-  const currentAvatar =
-    AVATAR_PRESETS.find(a => a.id === state.profile.avatarId) || AVATAR_PRESETS[0];
+/** One list drives the desktop sidebar and the mobile tab bar, so both always match. */
+export const NAV_ITEMS: readonly NavItem[] = [
+  { screen: 'home', icon: '🏠', label: 'Home', labelVi: 'Trang chủ', tab: true },
+  { screen: 'map', icon: '🗺️', label: 'Map', labelVi: 'Bản đồ', tab: true },
+  { screen: 'learn', icon: '📖', label: 'Learn', labelVi: 'Bài học', tab: true },
+  { screen: 'review', icon: '🎯', label: 'Review', labelVi: 'Ôn tập', tab: true },
+  { screen: 'achievements', icon: '🏆', label: 'Badges', labelVi: 'Huy hiệu', tab: true },
+  { screen: 'store', icon: '🛍️', label: 'Shop', labelVi: 'Cửa hàng' },
+  { screen: 'avatar', icon: '🦊', label: 'My Hero', labelVi: 'Nhân vật' },
+  { screen: 'progress', icon: '📊', label: 'Progress', labelVi: 'Tiến độ' },
+];
 
-  const navLinks: { screen: AppScreen; label: string; labelVi: string }[] = [
-    { screen: 'map', label: 'Adventure Map', labelVi: 'Bản Đồ' },
-    { screen: 'learn', label: 'Learn', labelVi: 'Học' },
-    { screen: 'review', label: 'Smart Review', labelVi: 'Ôn Tập' },
-    { screen: 'achievements', label: 'Badges', labelVi: 'Huy Hiệu' },
-    { screen: 'avatar', label: 'My Avatar', labelVi: 'Nhân Vật' },
-    { screen: 'store', label: 'Store', labelVi: 'Cửa Hàng' },
-    { screen: 'progress', label: 'My Progress', labelVi: 'Tiến Độ' },
-  ];
+/** Screens that belong to a nav item even though they have no item of their own. */
+const SECTION_OF: Partial<Record<AppScreen, AppScreen>> = { unit: 'map', settings: 'progress', parent: 'progress' };
 
-  const toggleSound = () => {
-    updateSettings({ soundEnabled: !state.settings.soundEnabled });
-  };
+function useActiveSection() {
+  const { currentScreen } = useGame();
+  return SECTION_OF[currentScreen] ?? currentScreen;
+}
 
+const Brand: React.FC<{ compact?: boolean }> = ({ compact }) => {
+  const { navigateTo } = useGame();
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-amber-100 shadow-xs">
-      <div className="max-w-screen-2xl mx-auto px-3 sm:px-5 min-h-16 flex flex-wrap min-[1440px]:flex-nowrap items-center justify-between gap-x-3 gap-y-2 py-2">
-        {/* Zone 1: Brand Wordmark */}
-        <button
-          type="button"
-          onClick={() => navigateTo('home')}
-          className="flex shrink-0 items-center gap-2 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl p-1"
-        >
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
-            🌟
-          </div>
-          <div>
-            <span className="text-base sm:text-lg whitespace-nowrap font-black tracking-tight text-slate-900 font-game block leading-none">
-              English Adventure
-            </span>
-            <span className="block whitespace-nowrap text-[10px] sm:text-[11px] font-semibold text-amber-700 tracking-wide uppercase">
-              Hành Trình Chinh Phục
-            </span>
-          </div>
-        </button>
+    <button type="button" onClick={() => navigateTo('home')} aria-label="English Adventure home"
+      className="flex items-center gap-2 rounded-2xl p-1 text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-sky-300 cursor-pointer">
+      <Mascot size={compact ? 36 : 44} />
+      <span className={compact ? 'sr-only sm:not-sr-only' : ''}>
+        <span className="block font-display text-xl font-black leading-none tracking-tight text-go">english<span className="text-sky-brand">adventure</span></span>
+        {!compact && <span className="block text-xs font-extrabold text-ink-soft">Chinh phục tiếng Anh</span>}
+      </span>
+    </button>
+  );
+};
 
-        {/* Zone 2: Clean Navigation Links */}
-        <nav className="hidden min-[1440px]:flex shrink-0 items-center gap-3 xl:gap-4 text-sm font-bold text-slate-600">
-          {navLinks.map(link => {
-            const isActive = currentScreen === link.screen;
-            return (
-              <button
-                key={link.screen}
-                type="button"
-                onClick={() => navigateTo(link.screen)}
-                className={`relative py-2 transition-colors cursor-pointer whitespace-nowrap hover:text-amber-600 ${
-                  isActive ? 'text-amber-600 font-extrabold' : 'text-slate-600'
-                }`}
-              >
-                {link.screen === 'store' && <ShoppingBag aria-hidden="true" className="inline mr-1 h-4 w-4" />}{link.label}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Zone 3: Character HUD & Controls with Tooltips (Requirement 8) */}
-        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2 ml-auto">
-          {/* Daily Streak */}
-          <div className="relative group/tooltip">
-            <div
-              className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-orange-50 text-orange-600 font-extrabold text-sm border border-orange-100 cursor-default select-none"
-            >
-              <Flame className="w-4 h-4 fill-orange-500 text-orange-500" />
-              <span className="tabular-nums">{state.streak}</span>
-            </div>
-            <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              Daily Streak: {state.streak} Days
-            </span>
-          </div>
-
-          {/* Hearts */}
-          <div className="relative group/tooltip">
-            <div
-              className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-50 text-rose-600 font-extrabold text-sm border border-rose-100 cursor-default select-none"
-            >
-              <Heart className="w-4 h-4 fill-rose-500 text-rose-500" />
-              <span className="tabular-nums">{state.hearts}</span>
-            </div>
-            <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              Hearts: {state.hearts} / {state.maxHearts} Lives
-            </span>
-          </div>
-
-          {/* Coins */}
-          <div className="relative group/tooltip hidden sm:block">
-            <div
-              className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 font-extrabold text-sm border border-amber-100 cursor-default select-none"
-            >
-              <Coins className="w-4 h-4 text-amber-500" />
-              <span className="tabular-nums">{state.coins}</span>
-            </div>
-            <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              Coins: {state.coins}
-            </span>
-          </div>
-
-          {/* Level & XP */}
-          <div className="relative group/tooltip hidden sm:block">
-            <button
-              type="button"
-              onClick={() => navigateTo('progress')}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-              <span className="font-extrabold">Lv.{levelInfo.level}</span>
-            </button>
-            <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              Level {levelInfo.level} · {state.xp} XP
-            </span>
-          </div>
-
-          {/* Sound Toggle */}
-          <div className="relative group/tooltip">
-            <button
-              type="button"
-              onClick={toggleSound}
-              aria-label="Toggle sound"
-              className="min-w-11 min-h-11 p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
-            >
-              {state.settings.soundEnabled ? (
-                <Volume2 className="w-5 h-5 text-amber-600" />
-              ) : (
-                <VolumeX className="w-5 h-5 text-slate-400" />
-              )}
-            </button>
-            <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              {state.settings.soundEnabled ? 'Mute Sounds' : 'Unmute Sounds'}
-            </span>
-          </div>
-
-          {/* Settings / Parent link */}
-          <div className="relative group/tooltip">
-            <button
-              type="button"
-              onClick={() => navigateTo('settings')}
-              aria-label="Settings"
-              className="min-w-11 min-h-11 p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-            <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              Settings & Options
-            </span>
-          </div>
-
-          {/* Avatar Profile Pill */}
-          <div className="relative group/tooltip">
-            <button
-              type="button"
-              onClick={() => navigateTo('avatar')}
-              aria-label="Open My Avatar"
-              className="min-h-12 flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-2xl bg-amber-100/70 border border-amber-200 hover:bg-amber-200 transition-all cursor-pointer group"
-            >
-              <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" variant="compact" decorative />
-              <span className="text-xs font-bold text-slate-800 max-w-[70px] truncate hidden md:inline">
-                {state.profile.name || 'Hero'}
+/** Desktop left rail, Duolingo style: big friendly rows with an outlined active state. */
+export const SideNav: React.FC = () => {
+  const { navigateTo } = useGame();
+  const active = useActiveSection();
+  return (
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col gap-6 border-r-2 border-line bg-white px-4 py-6 lg:flex">
+      <div className="px-2"><Brand /></div>
+      <nav aria-label="Main" className="flex flex-col gap-1.5">
+        {NAV_ITEMS.map(item => {
+          const isActive = active === item.screen;
+          return (
+            <button key={item.screen} type="button" onClick={() => navigateTo(item.screen)} aria-current={isActive ? 'page' : undefined}
+              className={`flex items-center gap-4 rounded-2xl border-2 px-3 py-2 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-sky-300 ${
+                isActive ? 'border-sky-brand/60 bg-sky-50' : 'border-transparent hover:bg-cloud'}`}>
+              <span aria-hidden="true" className="text-[28px] leading-none">{item.icon}</span>
+              <span className="min-w-0">
+                <span className={`block font-display text-[15px] font-black uppercase tracking-wide ${isActive ? 'text-sky-brand-dark' : 'text-ink-soft'}`}>{item.label}</span>
+                <span className="block text-xs font-bold text-ink-soft/80">{item.labelVi}</span>
               </span>
             </button>
-            <span className="pointer-events-none absolute -bottom-8 right-0 whitespace-nowrap rounded-md bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold text-white opacity-0 transition-opacity group-hover/tooltip:opacity-100 shadow-md hidden sm:block z-50">
-              {state.profile.name || 'Hero'} · {currentAvatar.title}
-            </span>
-          </div>
-        </div>
-      </div>
+          );
+        })}
+      </nav>
+      <button type="button" onClick={() => navigateTo('settings')}
+        className="mt-auto flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-extrabold text-ink-soft hover:bg-cloud cursor-pointer">
+        <Settings aria-hidden="true" className="h-5 w-5" /> Settings · Cài đặt
+      </button>
+    </aside>
+  );
+};
 
-      {/* Mobile Sub-Navigation Bar */}
-      <div className="min-[1440px]:hidden flex items-center sm:justify-center gap-1 border-t border-amber-50 bg-amber-50/50 px-2 py-1.5 overflow-x-auto text-xs font-bold text-slate-600">
-        {navLinks.map(link => (
-          <button
-            key={link.screen}
-            type="button"
-            onClick={() => navigateTo(link.screen)}
-            className={`shrink-0 min-h-11 px-2.5 py-2 rounded-lg transition-colors whitespace-nowrap ${
-              currentScreen === link.screen ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600'
-            }`}
-          >
-            {link.screen === 'store' && <ShoppingBag aria-hidden="true" className="inline mr-1 h-4 w-4" />}{link.label}
+/** Mobile bottom tab bar with the five most used places. */
+export const BottomTabs: React.FC = () => {
+  const { navigateTo } = useGame();
+  const active = useActiveSection();
+  return (
+    <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <div className="mx-auto grid max-w-lg grid-cols-5">
+        {NAV_ITEMS.filter(item => item.tab).map(item => {
+          const isActive = active === item.screen;
+          return (
+            <button key={item.screen} type="button" onClick={() => navigateTo(item.screen)} aria-current={isActive ? 'page' : undefined}
+              className="flex min-h-16 flex-col items-center justify-center gap-0.5 cursor-pointer focus:outline-none focus-visible:bg-sky-50">
+              <span aria-hidden="true" className={`flex h-9 w-12 items-center justify-center rounded-xl border-2 text-2xl leading-none transition-colors ${
+                isActive ? 'border-sky-brand/60 bg-sky-50' : 'border-transparent'}`}>{item.icon}</span>
+              <span className={`text-[11px] font-black ${isActive ? 'text-sky-brand-dark' : 'text-ink-soft'}`}>{item.labelVi}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+};
+
+const Stat: React.FC<{ icon: string; value: number; label: string; color: string; onClick?: () => void }> = ({ icon, value, label, color, onClick }) => {
+  const body = <><span aria-hidden="true" className="text-xl leading-none">{icon}</span><span className={`tabular-nums font-display text-base font-black ${color}`}>{value}</span></>;
+  const cls = 'flex min-h-11 items-center gap-1.5 rounded-xl px-2 sm:px-2.5';
+  return onClick
+    ? <button type="button" onClick={onClick} title={label} aria-label={`${label}: ${value}`} className={`${cls} hover:bg-cloud cursor-pointer`}>{body}</button>
+    : <span title={label} aria-label={`${label}: ${value}`} role="img" className={cls}>{body}</span>;
+};
+
+/** Top bar: streak, hearts, coins and the player's hero, the same on every screen. */
+export const Navbar: React.FC = () => {
+  const { state, levelInfo, navigateTo, updateSettings } = useGame();
+  return (
+    <header className="sticky top-0 z-30 border-b-2 border-line bg-white/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-2 px-3 sm:px-5">
+        <div className="lg:hidden"><Brand compact /></div>
+        <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
+          <Stat icon="🔥" value={state.streak} label="Daily streak · Chuỗi ngày học" color="text-flame" />
+          <Stat icon="❤️" value={state.hearts} label="Hearts · Tim" color="text-berry" />
+          <Stat icon="🪙" value={state.coins} label="Coins · Xu" color="text-sun-dark" onClick={() => navigateTo('store')} />
+          <Stat icon="⭐" value={levelInfo.level} label="Level · Cấp độ" color="text-sky-brand-dark" onClick={() => navigateTo('progress')} />
+          <button type="button" onClick={() => updateSettings({ soundEnabled: !state.settings.soundEnabled })}
+            aria-label="Toggle sound" aria-pressed={state.settings.soundEnabled}
+            className="hidden min-h-11 min-w-11 items-center justify-center rounded-xl text-ink-soft hover:bg-cloud cursor-pointer sm:flex">
+            {state.settings.soundEnabled ? <Volume2 className="h-5 w-5 text-sky-brand" /> : <VolumeX className="h-5 w-5" />}
           </button>
-        ))}
+          <button type="button" onClick={() => navigateTo('avatar')} aria-label="Open My Avatar"
+            className="ml-1 rounded-full border-2 border-line p-0.5 hover:border-sky-brand cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-sky-300">
+            <PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} size="small" variant="compact" decorative />
+          </button>
+        </div>
       </div>
     </header>
   );

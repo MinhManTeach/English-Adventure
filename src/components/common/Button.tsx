@@ -26,7 +26,7 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const baseStyles =
-    'relative inline-flex items-center justify-center font-bold font-game select-none rounded-2xl transition-all duration-150 active:translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:shadow-none whitespace-nowrap cursor-pointer';
+    'relative inline-flex items-center justify-center gap-2 font-extrabold font-display tracking-wide select-none rounded-2xl transition-[transform,background-color,border-color] duration-100 active:translate-y-[2px] focus:outline-none focus-visible:ring-4 focus-visible:ring-sky-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 whitespace-nowrap cursor-pointer';
 
   const sizeStyles = {
     sm: 'text-sm px-3.5 py-1.5 min-h-[38px]',
@@ -35,19 +35,14 @@ export const Button: React.FC<ButtonProps> = ({
     xl: 'text-xl px-8 py-4 min-h-[60px]',
   };
 
+  // Chunky "3D" buttons: a darker bottom border that shrinks when pressed.
   const variantStyles = {
-    primary:
-      'bg-indigo-600 text-white shadow-[0_4px_0_0_#4338ca] hover:bg-indigo-500 active:shadow-[0_1px_0_0_#4338ca]',
-    secondary:
-      'bg-white text-slate-700 border-2 border-slate-200 shadow-[0_4px_0_0_#cbd5e1] hover:bg-slate-50 hover:border-slate-300 active:shadow-[0_1px_0_0_#cbd5e1]',
-    success:
-      'bg-emerald-500 text-white shadow-[0_4px_0_0_#059669] hover:bg-emerald-400 active:shadow-[0_1px_0_0_#059669]',
-    amber:
-      'bg-amber-500 text-white shadow-[0_4px_0_0_#d97706] hover:bg-amber-400 active:shadow-[0_1px_0_0_#d97706]',
-    danger:
-      'bg-rose-500 text-white shadow-[0_4px_0_0_#e11d48] hover:bg-rose-400 active:shadow-[0_1px_0_0_#e11d48]',
-    ghost:
-      'bg-transparent text-slate-600 hover:bg-slate-100/70 border border-transparent active:translate-y-0',
+    primary: 'bg-sky-brand text-white border-b-4 border-sky-brand-dark hover:brightness-105 active:border-b-2',
+    secondary: 'bg-white text-ink border-2 border-line border-b-4 hover:bg-cloud active:border-b-2',
+    success: 'bg-go text-white border-b-4 border-go-dark hover:brightness-105 active:border-b-2',
+    amber: 'bg-flame text-white border-b-4 border-flame-dark hover:brightness-105 active:border-b-2',
+    danger: 'bg-berry text-white border-b-4 border-berry-dark hover:brightness-105 active:border-b-2',
+    ghost: 'bg-transparent text-ink-soft hover:bg-cloud border-2 border-transparent active:translate-y-0',
   };
 
   return (

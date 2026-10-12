@@ -70,10 +70,10 @@ test('compact shared identity fits a fixed 48px frame and hides decorative ident
   assert.match(html, /width:48px/); assert.match(html, /aspect-ratio:1/); assert.match(html, /aria-hidden="true"/);
   assert.doesNotMatch(html, /overflow:hidden/);
 });
-test('legacy Navbar, Home and map keep accessible navigation and use the shared identity', () => {
+test('Navbar, Home and map keep accessible navigation and use the shared identity', () => {
   const html = renderToStaticMarkup(<GameProvider><Navbar /><HomeScreen /><AdventureMapScreen /></GameProvider>);
   assert.match(html, /aria-label="Open My Avatar"/); assert.match(html, /aria-label="Change avatar"/);
-  assert.match(html, /CONTINUE ADVENTURE/); assert.match(html, /English Adventure Basecamp/);
+  assert.match(html, /Start · Bắt đầu/); assert.match(html, /Magic Grammar Gate/); assert.match(html, /data-current="true"/);
   assert.ok((html.match(/data-player-avatar="legacy"/g) ?? []).length >= 3);
 });
 test('completion result includes the saved hero and forwards exact existing XP/coin rewards', () => {

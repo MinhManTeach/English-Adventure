@@ -2,8 +2,8 @@
 
 @layer base {
   :root {
-    --font-display: 'Outfit', sans-serif;
-    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-display: 'Nunito', 'Outfit', sans-serif;
+    --font-body: 'Nunito', 'Plus Jakarta Sans', sans-serif;
   }
 
   body {
@@ -13,6 +13,62 @@
   h1, h2, h3, h4, .font-game {
     font-family: var(--font-display);
   }
+}
+
+/*
+ * Design tokens shared by every screen: one palette, one card, one button family.
+ * Colours follow the bright "game" palette (green = go, blue = info, orange = streak, gold = rewards).
+ */
+@theme {
+  --font-display: 'Nunito', 'Outfit', sans-serif;
+  --font-body: 'Nunito', 'Plus Jakarta Sans', sans-serif;
+  --color-go: #58cc02;
+  --color-go-dark: #58a700;
+  --color-sky-brand: #1cb0f6;
+  --color-sky-brand-dark: #1899d6;
+  --color-sun: #ffc800;
+  --color-sun-dark: #e5a500;
+  --color-flame: #ff9600;
+  --color-flame-dark: #e08600;
+  --color-berry: #ff4b4b;
+  --color-berry-dark: #ea2b2b;
+  --color-grape: #ce82ff;
+  --color-grape-dark: #a568cc;
+  --color-ink: #3c3c3c;
+  --color-ink-soft: #777777;
+  --color-line: #e5e5e5;
+  --color-cloud: #f7f7f7;
+}
+
+@layer components {
+  /* A raised card: thin border all round, thicker at the bottom so it looks like a tile. */
+  .card-3d {
+    background: #fff;
+    border: 2px solid var(--color-line);
+    border-bottom-width: 4px;
+    border-radius: 1.25rem;
+  }
+  button.card-3d, a.card-3d {
+    transition: transform 0.1s ease, border-color 0.15s ease, background-color 0.15s ease;
+  }
+  button.card-3d:hover { background: var(--color-cloud); }
+  button.card-3d:active { transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
+  /* Small caps label used above titles everywhere. */
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+@keyframes nudge-bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -6px); }
+}
+.animate-nudge { animation: nudge-bounce 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-nudge, .animate-float { animation: none; }
 }
 
 /* Custom bounce / pop animations for game feedback */
