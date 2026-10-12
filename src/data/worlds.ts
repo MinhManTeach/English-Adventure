@@ -200,6 +200,28 @@ export const WORLDS: readonly WorldConfig[] = [
       fightLabel: 'Fight Robo-Ranger!', gateGoal: 'Prepare for the Rule Robot', gatePass: 'PASS — Robo-Ranger is unlocked!',
     },
   },
+  {
+    chapter: 8, units: [22, 23, 24], title: 'Market Town', titleVi: 'Thị Trấn Chợ Phiên', emojis: '🥫 🛒 🍜 🦝',
+    intro: 'Count everything in the pantry, fill your basket and cook up a feast!',
+    lockedHint: 'Complete Chapter 7 by defeating Robo-Ranger to begin this adventure.',
+    completeMessage: 'You mastered plurals, countable and uncountable nouns, quantities and shopping words!',
+    reviewTitle: 'Market Town Review',
+    reviewQuota: [[22, 3], [23, 3], [24, 2]], bossQuota: [[22, 3], [23, 4], [24, 3]],
+    bossStageKey: 'boss8', firstClear: { xp: 550, coins: 275 }, achievementId: 'market_master',
+    badge: { title: 'MARKET MASTER', titleVi: 'Bậc thầy đi chợ', icon: '🛍️' }, bossColor: '#f97316',
+    boss: {
+      name: 'The Snack Snatcher', fullName: 'The Snack Snatcher · Pantry Bandit', emoji: '🦝 🍪', arena: 'NIGHT MARKET', leaveLabel: 'Leave the Market',
+      awaits: 'The Snack Snatcher Awaits!', intro: 'The Snack Snatcher has stolen food from every stall! Cast 10 accurate spells about nouns, quantities and shopping to win it back.',
+      strikeLabel: '🍪 Crumb Attack!', defeatedTitle: 'SNACK SNATCHER DEFEATED!', defeatedSubtitle: 'THE PANTRY BANDIT HAS BEEN CAUGHT!',
+      defeatedMessage: 'You mastered nouns, quantities and shopping words. Chapter 8 is complete!',
+      survivedTitle: 'THE SNACK SNATCHER RAN AWAY!',
+      defeatMessage: 'The Snack Snatcher is still raiding the market. Review your mistakes and try again!',
+      levelTitle: 'Market Master', achievementTitle: 'MARKET MASTER!',
+      unlockHint: 'Defeat the Snack Snatcher in Chapter 8 to unlock.',
+      mapBlurb: 'Count, measure and shop like a pro to catch the Pantry Bandit.',
+      fightLabel: 'Fight the Snack Snatcher!', gateGoal: 'Prepare for the Pantry Bandit', gatePass: 'PASS — the Snack Snatcher is unlocked!',
+    },
+  },
 ];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;

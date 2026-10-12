@@ -5,6 +5,7 @@ import type { TemplateApi } from '../templates/questionTemplates';
 import * as chapter5 from './chapter5';
 import * as chapter6 from './chapter6';
 import * as chapter7 from './chapter7';
+import * as chapter8 from './chapter8';
 
 interface ChapterContent {
   questions: Question[];
@@ -16,6 +17,7 @@ export const LATER_CHAPTERS: Record<number, ChapterContent> = {
   5: chapter5,
   6: chapter6,
   7: chapter7,
+  8: chapter8,
 };
 
 export const LATER_CHAPTER_QUESTIONS: Question[] = Object.values(LATER_CHAPTERS).flatMap(chapter => chapter.questions);
