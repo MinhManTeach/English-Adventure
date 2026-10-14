@@ -4,6 +4,7 @@ import type { AvatarState, CosmeticResult, StoreItem, UserProgressState } from '
 import { AvatarRenderer } from '../avatar/AvatarRenderer';
 import { STORE_CATEGORIES, STORE_COLLECTIONS, StoreCollectionFilter, storeItems, storeItemStatus, previewStoreItem, unlockDescription, cosmeticFeedback, StoreCategory } from '../../engine/cosmeticStore';
 import { PurchaseDialog } from './PurchaseDialog';
+import { assetUrl } from '../../engine/assetUrl';
 
 const button = 'min-h-12 rounded-2xl px-4 py-2 font-display font-extrabold border-2 border-b-4 active:translate-y-[2px] active:border-b-2 focus-visible:outline-4 focus-visible:outline-sky-400 disabled:opacity-50 disabled:active:translate-y-0 cursor-pointer';
 const chip = 'min-h-11 rounded-2xl border-2 px-3 py-1.5 text-sm font-extrabold focus-visible:outline-4 focus-visible:outline-sky-400 cursor-pointer';
@@ -17,7 +18,7 @@ const Swatches = ({ colors }: { colors: readonly string[] }) => <span aria-hidde
 function ItemThumbnail({ item }: { item: StoreItem }) {
   const [failed, setFailed] = useState(false);
   return failed ? <span className="flex h-28 items-center text-sm text-ink-soft">Preview unavailable</span>
-    : <img src={item.preview.thumbnailSrc ?? undefined} alt="" width={112} height={112} loading="lazy" onError={() => setFailed(true)} className="h-28 w-28 object-contain drop-shadow-sm" />;
+    : <img src={item.preview.thumbnailSrc ? assetUrl(item.preview.thumbnailSrc) : undefined} alt="" width={112} height={112} loading="lazy" onError={() => setFailed(true)} className="h-28 w-28 object-contain drop-shadow-sm" />;
 }
 export function Storefront({ state, blockedReason, onPurchase, onEquip, onOpenAvatar }: {
   state: UserProgressState; blockedReason: string | null;
