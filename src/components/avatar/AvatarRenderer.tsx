@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import type { AvatarState, StoreItem } from '../../types';
 import { COSMETIC_CATALOG } from '../../data/cosmeticsCatalog';
 import { AVATAR_BODY_ASSETS } from '../../data/avatarAssets';
+import { assetUrl } from '../../engine/assetUrl';
 import { AVATAR_PLANES, AVATAR_SIZES, AvatarPresentation, AvatarSize, resolveAvatarLayers } from '../../engine/avatarRendering';
 
 export interface AvatarRendererProps {
@@ -41,11 +42,11 @@ export const AvatarRenderer = memo(function AvatarRenderer({ avatar, size = 'med
   const plan = useMemo(() => resolveAvatarLayers(avatar, { failedSources: blocked, presentation, bodyAssets, catalog }),
     [avatar, blocked, presentation, bodyAssets, catalog]);
   const onError = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    const src = event.currentTarget.getAttribute('src');
+    const src = event.currentTarget.dataset.src;
     if (src) setFailed(previous => previous.has(src) ? previous : new Set([...previous, src]));
   }, []);
   const onLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    const src = event.currentTarget.getAttribute('src');
+    const src = event.currentTarget.dataset.src;
     if (src) setLoaded(previous => previous.has(src) ? previous : new Set([...previous, src]));
   }, []);
   const ready = !plan.placeholder && plan.layers.every(layer => loaded.has(layer.src));
@@ -54,7 +55,7 @@ export const AvatarRenderer = memo(function AvatarRenderer({ avatar, size = 'med
     className={className} data-avatar-size={size} data-asset-state={plan.placeholder ? 'placeholder' : ready ? 'loaded' : 'loading'}
     style={{ position: 'relative', width: AVATAR_SIZES[size], maxWidth: '100%', aspectRatio: '3 / 5', flexShrink: 0, isolation: 'isolate' }}>
     {!ready && <NeutralAvatar />}
-    {plan.layers.map(layer => <img key={layer.key} src={layer.src} alt="" aria-hidden="true" draggable={false}
+    {plan.layers.map(layer => <img key={layer.key} src={assetUrl(layer.src)} data-src={layer.src} alt="" aria-hidden="true" draggable={false}
       width={768} height={1280} decoding="async" onError={onError} onLoad={onLoad}
       style={{ ...FULL_CANVAS, zIndex: AVATAR_PLANES[layer.plane], opacity: ready ? 1 : 0 }} />)}
   </div>;

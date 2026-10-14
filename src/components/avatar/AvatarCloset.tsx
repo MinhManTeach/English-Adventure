@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { AvatarSlot, AvatarState, CosmeticState, StoreItem } from '../../types';
 import { ownedClosetItems } from '../../engine/avatarCloset';
 import { AvatarRenderer } from './AvatarRenderer';
+import { assetUrl } from '../../engine/assetUrl';
 
 export const CLOSET_CATEGORIES: readonly { slot: AvatarSlot; label: string }[] = [
   { slot: 'hair', label: 'Hair · Tóc' }, { slot: 'top', label: 'Tops · Áo' },
@@ -13,7 +14,7 @@ function ClosetItemPreview({ item, draft }: { item: StoreItem; draft: AvatarStat
   const [failed, setFailed] = useState(false);
   return <div className="w-24 h-24 flex items-center justify-center" aria-hidden="true">
     {failed ? <AvatarRenderer size="small" avatar={{ ...draft, equipped: { ...draft.equipped, [item.slot]: item.id } }} />
-      : <img src={item.preview.thumbnailSrc!} alt="" width={96} height={96} className="w-24 h-24 object-contain" onError={() => setFailed(true)} />}
+      : <img src={assetUrl(item.preview.thumbnailSrc!)} alt="" width={96} height={96} className="w-24 h-24 object-contain" onError={() => setFailed(true)} />}
   </div>;
 }
 export function AvatarCloset({ cosmetics, draft, category, onCategory, onSelect }: {
