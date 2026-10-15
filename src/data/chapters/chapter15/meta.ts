@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'THE CRAB IS STILL SNAPPING!',
     defeatMessage: 'Captain Clockclaw is still mixing up the routines. Review your mistakes and try again!',
     levelTitle: 'Harbour Hero', achievementTitle: 'HARBOUR HERO!',
-    unlockHint: 'Defeat the Glitch King in Chapter 14 to begin A2.',
+    unlockHint: 'Defeat Captain Clockclaw in Chapter 15 to unlock.',
     mapBlurb: 'Fix the routines, the actions happening now and the family words to beat the first A2 boss.',
     fightLabel: 'Fight Captain Clockclaw!', gateGoal: 'Prepare for the Crab of Mixed-Up Hours', gatePass: 'PASS — Captain Clockclaw is unlocked!',
   },
