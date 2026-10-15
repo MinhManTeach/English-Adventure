@@ -1,5 +1,80 @@
-// A2 Units 4–6 (unit ids 46–48). The world and its units appear in the app once `world` is set.
+// A2 Units 4–6 (unit ids 46–48): past simple 1 · past simple 2 · leisure time.
 import type { UnitInfo } from '../../../types';
 import type { WorldConfig } from '../../worlds';
-export const units: UnitInfo[] = [];
-export const world: WorldConfig | null = null;
+
+export const units: UnitInfo[] = [
+  {
+    id: 46,
+    slug: 'unit-46',
+    level: 'A2',
+    number: 4,
+    title: 'Memory Museum',
+    titleVi: 'Bảo Tàng Ký Ức',
+    subtitle: 'Past Simple · -ed spelling · Irregular verbs · was / were',
+    theme: 'museum',
+    icon: '🏛️',
+    color: '#7C3AED',
+    bgGradient: 'from-violet-500 to-purple-600',
+    description: 'Studied, stopped, paid, began: walk through the halls of yesterday and put every memory in the past.',
+    grammarPoints: ['studied, played, stopped, planned: -ed spelling', 'left, paid, sent, began, threw: irregular verbs', 'two days ago / last Friday / yesterday morning / in 2009', 'Everybody was … / My jeans were …'],
+    vocabularyCount: 34,
+    questionsCount: 31,
+  },
+  {
+    id: 47,
+    slug: 'unit-47',
+    level: 'A2',
+    number: 5,
+    title: 'Detective Archive',
+    titleVi: 'Kho Hồ Sơ Thám Tử',
+    subtitle: "Past Simple · didn't · Did …? · Who did …? / Who …?",
+    theme: 'archive',
+    icon: '🔍',
+    color: '#0F766E',
+    bgGradient: 'from-teal-600 to-emerald-600',
+    description: 'Where did you go? Who broke the vase? Ask the right questions, say what didn\'t happen and solve the mystery.',
+    grammarPoints: ["didn't + base verb", 'Did …? Yes, I did. / No, I didn\'t.', 'Where / What / How much did …?', 'Who broke …? vs Who did you meet?', "was/were or did/didn't"],
+    vocabularyCount: 30,
+    questionsCount: 31,
+  },
+  {
+    id: 48,
+    slug: 'unit-48',
+    level: 'A2',
+    number: 6,
+    title: 'Weekend Gallery',
+    titleVi: 'Phòng Tranh Cuối Tuần',
+    subtitle: 'Leisure time · Outdoors · Events',
+    theme: 'leisure',
+    icon: '🎪',
+    color: '#EA580C',
+    bgGradient: 'from-orange-500 to-amber-500',
+    description: 'Board games and podcasts, camping and rock climbing, concerts and fireworks: everything you do in your free time.',
+    grammarPoints: ['board game, jigsaw puzzle, crossword, podcast, magazine, instrument', 'go camping, go fishing, hiking, picnic, skateboarding, rock climbing', 'concert, festival, exhibition, theme park, audience, fireworks', 'relax, join, be keen on, spend time, go out, stay in'],
+    vocabularyCount: 24,
+    questionsCount: 48,
+  },
+];
+
+export const world: WorldConfig | null = {
+  chapter: 16, units: [46, 47, 48], title: 'Museum of Yesterday', titleVi: 'Bảo Tàng Ngày Hôm Qua', emojis: '🏛️ 🔍 🎪 🦉',
+  intro: 'Step into the museum where every story happened yesterday: tell what happened, ask who did it and share your weekends.',
+  lockedHint: 'Complete Chapter 15 by defeating its boss to begin this adventure.',
+  completeMessage: 'You mastered Past Simple forms, questions and leisure words. The museum\'s memories are safe!',
+  reviewTitle: 'Museum of Yesterday Review',
+  reviewQuota: [[46, 3], [47, 3], [48, 2]], bossQuota: [[46, 3], [47, 4], [48, 3]],
+  bossStageKey: 'boss16', firstClear: { xp: 1000, coins: 500 }, achievementId: 'a2_memory_keeper',
+  badge: { title: 'MEMORY KEEPER', titleVi: 'Người giữ ký ức', icon: '🦉' }, bossColor: '#8b5cf6',
+  boss: {
+    name: 'Professor Forgetful', fullName: 'Professor Forgetful · Owl of Lost Yesterdays', emoji: '🦉 ⌛', arena: 'THE HALL OF MEMORIES', leaveLabel: 'Leave the Museum',
+    awaits: 'Professor Forgetful Awaits!', intro: 'Professor Forgetful has scrambled every memory in the museum: nobody remembers what they did, where they went or who did it! Cast 10 accurate spells to bring yesterday back.',
+    strikeLabel: '🦉 Memory Fog!', defeatedTitle: 'PROFESSOR FORGETFUL DEFEATED!', defeatedSubtitle: 'THE MEMORIES ARE BACK!',
+    defeatedMessage: 'You brought back every memory. Chapter 16 is complete!',
+    survivedTitle: 'THE FOG IS STILL THICK!',
+    defeatMessage: 'Professor Forgetful is still hiding the memories. Review your mistakes and try again!',
+    levelTitle: 'Memory Keeper', achievementTitle: 'MEMORY KEEPER!',
+    unlockHint: 'Defeat Professor Forgetful in Chapter 16 to unlock.',
+    mapBlurb: 'Tell the past, ask the right questions and share your free time to beat the owl of lost yesterdays.',
+    fightLabel: 'Fight Professor Forgetful!', gateGoal: 'Prepare for the Owl of Lost Yesterdays', gatePass: 'PASS — Professor Forgetful is unlocked!',
+  },
+};
