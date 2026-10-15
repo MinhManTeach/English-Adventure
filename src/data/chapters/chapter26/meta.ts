@@ -1,5 +1,80 @@
-// A2 Units 34–36 (unit ids 76–78). The world and its units appear in the app once `world` is set.
+// A2 Units 34–36 (unit ids 76–78): so / such, either / neither · question tags · technology.
 import type { UnitInfo } from '../../../types';
 import type { WorldConfig } from '../../worlds';
-export const units: UnitInfo[] = [];
-export const world: WorldConfig | null = null;
+
+export const units: UnitInfo[] = [
+  {
+    id: 76,
+    slug: 'unit-76',
+    level: 'A2',
+    number: 34,
+    title: 'Echo Valley',
+    titleVi: 'Thung Lũng Tiếng Vọng',
+    subtitle: 'so / such · So do I · Neither do I · either / neither',
+    theme: 'echo',
+    icon: '🗣️',
+    color: '#EA580C',
+    bgGradient: 'from-orange-500 to-amber-500',
+    description: 'It was such a long day! So do I, neither did I, I don\'t either: answer every echo in the valley the right way.',
+    grammarPoints: ['so + adjective / so much / so many', 'such a / such an / such + noun', 'so / such ... that', 'So do I / Neither do I', 'too / either', 'either ... or / neither ... nor'],
+    vocabularyCount: 40,
+    questionsCount: 31,
+  },
+  {
+    id: 77,
+    slug: 'unit-77',
+    level: 'A2',
+    number: 35,
+    title: 'Tag Tower',
+    titleVi: 'Tháp Câu Hỏi Đuôi',
+    subtitle: 'Question tags · aren\'t I · shall we · will you',
+    theme: 'tags',
+    icon: '🏷️',
+    color: '#DB2777',
+    bgGradient: 'from-pink-500 to-rose-600',
+    description: 'You went to Hue, didn\'t you? Let\'s go, shall we? Climb the tower by adding the right tag to every sentence.',
+    grammarPoints: ['Positive sentence → negative tag', 'do / does / did in tags', 'be, have and modals in tags', 'aren\'t I, shall we, will you', 'there, this, that in tags', 'never, nobody, nothing → positive tag'],
+    vocabularyCount: 40,
+    questionsCount: 31,
+  },
+  {
+    id: 78,
+    slug: 'unit-78',
+    level: 'A2',
+    number: 36,
+    title: 'Gadget Garage',
+    titleVi: 'Xưởng Thiết Bị',
+    subtitle: 'Technology · Devices · Online',
+    theme: 'gadgets',
+    icon: '🎮',
+    color: '#2563EB',
+    bgGradient: 'from-blue-500 to-indigo-600',
+    description: 'Tablets, smartwatches, uploads and cracked screens: learn the words to use, share and fix your technology.',
+    grammarPoints: ['tablet, smartwatch, speaker, remote control, webcam, games console', 'plug in, switch on, switch off, charge, install, update', 'username, link, upload, click, social media, screenshot', 'signal, crash, repair, cable, cracked, volume'],
+    vocabularyCount: 24,
+    questionsCount: 48,
+  },
+];
+
+export const world: WorldConfig | null = {
+  chapter: 26, units: [76, 77, 78], title: 'Echo Network', titleVi: 'Mạng Lưới Tiếng Vọng', emojis: '🗣️ 🏷️ 🎮 🦜',
+  intro: 'Agree like a native, add the right tag to every question and fix the gadgets of the Echo Network!',
+  lockedHint: 'Complete Chapter 25 by defeating its boss to begin this adventure.',
+  completeMessage: 'You mastered so and such, agreeing with So do I and Neither do I, question tags and technology words!',
+  reviewTitle: 'Echo Network Review',
+  reviewQuota: [[76, 3], [77, 3], [78, 2]], bossQuota: [[76, 3], [77, 4], [78, 3]],
+  bossStageKey: 'boss26', firstClear: { xp: 1500, coins: 750 }, achievementId: 'a2_echo_network',
+  badge: { title: 'ECHO MASTER', titleVi: 'Bậc thầy Tiếng Vọng', icon: '📡' }, bossColor: '#f97316',
+  boss: {
+    name: 'Captain Copycat', fullName: 'Captain Copycat · Parrot of a Thousand Echoes', emoji: '🦜 🔁', arena: 'ECHO SERVER ROOM', leaveLabel: 'Leave the Network',
+    awaits: 'Captain Copycat Awaits!', intro: 'Captain Copycat repeats every sentence with the wrong tag and the wrong echo! Cast 10 accurate spells about so and such, question tags and technology to silence him.',
+    strikeLabel: '🦜 Copycat Squawk!', defeatedTitle: 'CAPTAIN COPYCAT DEFEATED!', defeatedSubtitle: 'THE ECHOES ARE CORRECT AGAIN!',
+    defeatedMessage: 'You did it, didn\'t you? Chapter 26 is complete!',
+    survivedTitle: 'CAPTAIN COPYCAT IS STILL SQUAWKING!',
+    defeatMessage: 'Captain Copycat is still copying mistakes. Review them and try again!',
+    levelTitle: 'Echo Master', achievementTitle: 'ECHO MASTER!',
+    unlockHint: 'Defeat Captain Copycat in Chapter 26 to unlock.',
+    mapBlurb: 'Agree, add question tags and fix the gadgets to beat the parrot of a thousand echoes.',
+    fightLabel: 'Fight Captain Copycat!', gateGoal: 'Prepare for the Parrot of a Thousand Echoes', gatePass: 'PASS — Captain Copycat is unlocked!',
+  },
+};
