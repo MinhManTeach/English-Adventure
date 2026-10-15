@@ -21,6 +21,7 @@ import { purchaseItem as purchase, equipItem as equip, unequipItem as unequip, c
 import { applyDevShortcut } from '../engine/devShortcuts';
 import { saveAvatarDraft as saveDraft } from '../engine/avatarCloset';
 import type { AvatarGender, AvatarSlot, AvatarState, CosmeticResult } from '../types';
+import { Access, canOpenChapter, canOpenUnit, fetchAccess } from '../services/access';
 
 export type AppScreen =
   | 'welcome'
@@ -69,6 +70,13 @@ interface GameContextType {
   startStage: (unitId: number, stage: LearningStage) => void;
   completeReviewGate: (correct: number, total: number, chapter?: ChapterId) => void;
   navigateTo: (screen: AppScreen, params?: NavigationParams) => void;
+  /** What this account may open: Units 7–42 need the A1 package. */
+  access: Access;
+  /** True right after PayOS sends the buyer back, until the server confirms. */
+  confirmingPayment: boolean;
+  paywallOpen: boolean;
+  openPaywall: () => void;
+  closePaywall: () => void;
   createProfile: (name: string, avatarId: string) => void;
   updateAvatar: (avatarId: string, title?: string) => boolean;
   recordQuestionResult: (
@@ -182,6 +190,39 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const levelInfo = useMemo(() => calculateLevel(state.xp), [state.xp]);
 
+  // A development build opens everything; the hosted app asks lopso.vn's account server.
+  const [access, setAccess] = useState<Access>(() => ({ status: import.meta.env.DEV ? 'open' : 'checking' }));
+  const accessRef = useRef(access);
+  accessRef.current = access;
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
+  useEffect(() => {
+    if (import.meta.env.DEV || typeof window === 'undefined') return;
+    let stopped = false;
+    const url = new URL(window.location.href);
+    const paid = url.searchParams.get('paid');
+    const justPaid = !!paid && /^\d+$/.test(paid);
+    // Sign-in and PayOS bring the player back with ?login= / ?paid=; tidy the address.
+    if (url.searchParams.has('paid') || url.searchParams.has('login')) {
+      url.searchParams.delete('paid');
+      url.searchParams.delete('login');
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+    }
+    setConfirmingPayment(justPaid);
+    // The bank's confirmation can reach the server a little after the player returns.
+    const check = async (triesLeft: number) => {
+      const next = await fetchAccess();
+      if (stopped) return;
+      setAccess(next);
+      if (justPaid && next.status === 'not-owned' && triesLeft > 0) setTimeout(() => void check(triesLeft - 1), 3000);
+      else setConfirmingPayment(false);
+    };
+    void check(justPaid ? 20 : 0);
+    return () => { stopped = true; };
+  }, []);
+  const openPaywall = useCallback(() => setPaywallOpen(true), []);
+  const closePaywall = useCallback(() => setPaywallOpen(false), []);
+
   const navigateTo = useCallback((screen: AppScreen, params?: NavigationParams) => {
     const snapshot = stateRef.current;
     const chapter = params?.chapterId ?? 1;
@@ -190,6 +231,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (screen === 'session' && !isStageAvailable(snapshot, unitId, params?.stageId ?? 'practice')) return;
     if (screen === 'boss' && !canEnterBoss(snapshot, chapter)) return;
     if (screen === 'review' && params?.reviewGate && !isReviewGateAvailable(snapshot, chapter)) return;
+    // Paid worlds: show what the A1 package opens instead of the lesson.
+    const paid = (screen === 'unit' || screen === 'learn' || screen === 'session') ? !canOpenUnit(accessRef.current, unitId)
+      : screen === 'boss' || (screen === 'review' && params?.reviewGate) ? !canOpenChapter(accessRef.current, chapter) : false;
+    if (paid) { setPaywallOpen(true); return; }
     if (screen === 'boss' || screen === 'review') setActiveChapterId(chapter);
     setIsReviewGate(screen === 'review' && !!params?.reviewGate);
     if (params?.unitId !== undefined) {
@@ -320,6 +365,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       startStage,
       completeReviewGate,
       navigateTo,
+      access,
+      confirmingPayment,
+      paywallOpen,
+      openPaywall,
+      closePaywall,
       createProfile,
       updateAvatar,
       recordQuestionResult,
@@ -348,6 +398,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       startStage,
       completeReviewGate,
       navigateTo,
+      access,
+      confirmingPayment,
+      paywallOpen,
+      openPaywall,
+      closePaywall,
       createProfile,
       updateAvatar,
       recordQuestionResult,

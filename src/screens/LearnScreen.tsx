@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { BookOpen, Sparkles, ArrowRight, Lightbulb, CheckCircle2 } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { isUnitAvailable } from '../engine/worldProgression';
+import { canOpenUnit } from '../services/access';
 import { ALL_UNITS } from '../data/unitsMeta';
 import { LEARN_CARDS_DATA, LearnCard } from '../data/learnContent';
 import { PronounceButton } from '../components/common/PronounceButton';
@@ -9,7 +10,7 @@ import { Button } from '../components/common/Button';
 import { WorldBackground } from '../components/common/WorldBackground';
 
 export const LearnScreen: React.FC = () => {
-  const { activeUnitId, navigateTo, state, completeLearn, startStage } = useGame();
+  const { activeUnitId, navigateTo, state, completeLearn, startStage, access, openPaywall } = useGame();
   const [selectedUnitId, setSelectedUnitId] = useState<number>(activeUnitId || 1);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const cardIndexRef = useRef(0);
@@ -20,6 +21,7 @@ export const LearnScreen: React.FC = () => {
 
   const handleUnitChange = (unitId: number) => {
     if (!isUnitAvailable(state, unitId)) return;
+    if (!canOpenUnit(access, unitId)) { openPaywall(); return; }
     cardIndexRef.current = 0;
     setSelectedUnitId(unitId);
     setActiveCardIndex(0);

@@ -16,6 +16,7 @@ import { AvatarScreen } from './screens/AvatarScreen';
 import { MyProgressScreen } from './screens/MyProgressScreen';
 import { ParentDashboardScreen } from './screens/ParentDashboardScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { PaywallDialog, PaymentStatusBanner } from './components/common/PaywallDialog';
 
 const MainAppContent: React.FC = () => {
   const { currentScreen, writerStatus, storageStatus, saveStatus } = useGame();
@@ -75,6 +76,7 @@ const MainAppContent: React.FC = () => {
           </div>
         )}
 
+        <PaymentStatusBanner />
         <main className="flex-1 w-full">{renderScreen()}</main>
 
         {showNavbar && (
@@ -84,6 +86,7 @@ const MainAppContent: React.FC = () => {
         )}
       </div>
       {showNavbar && <BottomTabs />}
+      <PaywallDialog />
     </div>
   );
 };
