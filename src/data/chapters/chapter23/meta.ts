@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'MAYOR MEGALO IS STILL BUILDING!',
     defeatMessage: 'Mayor Megalo is still building his towers. Review your mistakes and try again!',
     levelTitle: 'City Crowner', achievementTitle: 'CITY CROWNER!',
-    unlockHint: 'Complete Chapter 22 by defeating its boss to unlock.',
+    unlockHint: 'Defeat Mayor Megalo in Chapter 23 to unlock.',
     mapBlurb: 'Compare streets, crown the best places and explore town and country to beat the boss.',
     fightLabel: 'Fight Mayor Megalo!', gateGoal: 'Prepare for the Builder of the Tallest Towers', gatePass: 'PASS — Mayor Megalo is unlocked!',
   },

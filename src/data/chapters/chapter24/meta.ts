@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'CAPTAIN DETOUR STILL RULES THE SEAS!',
     defeatMessage: 'Captain Detour is still mixing up the routes. Review your mistakes and try again!',
     levelTitle: 'Master Voyager', achievementTitle: 'MASTER VOYAGER!',
-    unlockHint: 'Complete Chapter 23 by defeating its boss to unlock.',
+    unlockHint: 'Defeat Captain Detour in Chapter 24 to unlock.',
     mapBlurb: 'Describe actions, choose prepositions and pack for travel to beat the pirate boss.',
     fightLabel: 'Fight Captain Detour!', gateGoal: 'Prepare for the Pirate of Wrong Turns', gatePass: 'PASS — Captain Detour is unlocked!',
   },
