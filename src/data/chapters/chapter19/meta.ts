@@ -1,5 +1,80 @@
-// A2 Units 13–15 (unit ids 55–57). The world and its units appear in the app once `world` is set.
+// A2 Units 13–15 (unit ids 55–57): will / going to · pronouns, possessives · work.
 import type { UnitInfo } from '../../../types';
 import type { WorldConfig } from '../../worlds';
-export const units: UnitInfo[] = [];
-export const world: WorldConfig | null = null;
+
+export const units: UnitInfo[] = [
+  {
+    id: 55,
+    slug: 'unit-55',
+    level: 'A2',
+    number: 13,
+    title: 'Future Forecast',
+    titleVi: 'Dự Báo Tương Lai',
+    subtitle: 'will · be going to · probably / definitely',
+    theme: 'future',
+    icon: '🔮',
+    color: '#7C3AED',
+    bgGradient: 'from-violet-500 to-purple-600',
+    description: 'I think it will rain, we\'re going to visit Sa Pa and Mai probably won\'t come: predict, promise and plan the future.',
+    grammarPoints: ['I think / I\'m sure + will', 'will probably / probably won\'t', 'I\'ll …, Shall I …?, won\'t for promises', 'be going to for plans', 'be going to with evidence', 'there will be / there is going to be'],
+    vocabularyCount: 30,
+    questionsCount: 31,
+  },
+  {
+    id: 56,
+    slug: 'unit-56',
+    level: 'A2',
+    number: 14,
+    title: 'Mirror Hall',
+    titleVi: 'Sảnh Gương',
+    subtitle: 'Reflexive pronouns · mine / yours · \'s and s\'',
+    theme: 'mirror',
+    icon: '🪞',
+    color: '#0891B2',
+    bgGradient: 'from-cyan-500 to-sky-600',
+    description: 'Did you make it yourself? Is it yours or theirs? Is it the boy\'s or the boys\'? Find the right owner in the hall of mirrors.',
+    grammarPoints: ['myself, yourself, themselves …', 'by myself / each other', 'mine, yours, hers, ours, theirs', 'a friend of mine', 'whose / who\'s, its / it\'s', 'the children\'s / my parents\''],
+    vocabularyCount: 30,
+    questionsCount: 31,
+  },
+  {
+    id: 57,
+    slug: 'unit-57',
+    level: 'A2',
+    number: 15,
+    title: 'Career Corner',
+    titleVi: 'Góc Nghề Nghiệp',
+    subtitle: 'Jobs · Workplace · Working life',
+    theme: 'work',
+    icon: '💼',
+    color: '#B45309',
+    bgGradient: 'from-amber-500 to-orange-600',
+    description: 'Pilots, plumbers, colleagues and days off: learn the words you need to talk about jobs and working life.',
+    grammarPoints: ['pilot, receptionist, hairdresser, plumber, accountant, tour guide', 'factory, company, colleague, manager, employee, meeting', 'earn, full-time, day off, career, experience, apply for', 'well-paid, stressful, creative, organised, patient, responsible'],
+    vocabularyCount: 24,
+    questionsCount: 48,
+  },
+];
+
+export const world: WorldConfig | null = {
+  chapter: 19, units: [55, 56, 57], title: 'Future Factory', titleVi: 'Nhà Máy Tương Lai', emojis: '🔮 🪞 💼 🦾',
+  intro: 'Predict and plan the future, find who owns what and learn about the world of work in the Future Factory!',
+  lockedHint: 'Complete Chapter 18 by defeating its boss to begin this adventure.',
+  completeMessage: 'You mastered will and going to, pronouns and possessives, and the language of work!',
+  reviewTitle: 'Future Factory Review',
+  reviewQuota: [[55, 3], [56, 3], [57, 2]], bossQuota: [[55, 3], [56, 4], [57, 3]],
+  bossStageKey: 'boss19', firstClear: { xp: 1150, coins: 575 }, achievementId: 'a2_future_factory',
+  badge: { title: 'FACTORY MASTER', titleVi: 'Bậc thầy Nhà Máy', icon: '🏭' }, bossColor: '#a855f7',
+  boss: {
+    name: 'The Clockwork Foreman', fullName: 'The Clockwork Foreman · Breaker of Plans', emoji: '🦾 ⚙️', arena: 'ASSEMBLY HALL', leaveLabel: 'Leave the Factory',
+    awaits: 'The Clockwork Foreman Awaits!', intro: 'The Clockwork Foreman has jammed every machine and mixed up everyone\'s plans! Cast 10 accurate spells about the future, pronouns and work to restart the factory.',
+    strikeLabel: '⚙️ Gear Grinder!', defeatedTitle: 'CLOCKWORK FOREMAN DEFEATED!', defeatedSubtitle: 'THE FACTORY IS RUNNING AGAIN!',
+    defeatedMessage: 'You defeated the Clockwork Foreman. Chapter 19 is complete and the future is back on track!',
+    survivedTitle: 'THE FOREMAN IS STILL TICKING!',
+    defeatMessage: 'The Clockwork Foreman is still jamming the machines. Review your mistakes and try again!',
+    levelTitle: 'Factory Master', achievementTitle: 'FACTORY MASTER!',
+    unlockHint: 'Complete Chapter 18 by defeating its boss to unlock.',
+    mapBlurb: 'Plan the future, find the owners and talk about work to beat the Clockwork Foreman.',
+    fightLabel: 'Fight the Clockwork Foreman!', gateGoal: 'Prepare for the Breaker of Plans', gatePass: 'PASS — the Clockwork Foreman is unlocked!',
+  },
+};

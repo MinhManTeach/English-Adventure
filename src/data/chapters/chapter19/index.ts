@@ -1,8 +1,4 @@
-// A2 Units 13–15 (unit ids 55–57): will / going to · pronouns, possessives · work.
-// Not written yet: replace with bank.ts, content.ts, learn.ts and templates.ts like chapter14.
-import type { Question } from '../../../types';
-import type { LearnCard } from '../../learnContent';
-import type { TemplateApi } from '../../templates/questionTemplates';
-export const questions: Question[] = [];
-export const learnCards: Record<number, LearnCard[]> = {};
-export function addTemplates(_api: TemplateApi) {}
+import { UNIT_55_QUESTIONS, UNIT_56_QUESTIONS, UNIT_57_QUESTIONS } from './bank';
+export { learnCards } from './learn';
+export { addTemplates } from './templates';
+export const questions = [...UNIT_55_QUESTIONS, ...UNIT_56_QUESTIONS, ...UNIT_57_QUESTIONS];
