@@ -1,5 +1,80 @@
-// A2 Units 28–30 (unit ids 70–72). The world and its units appear in the app once `world` is set.
+// A2 Units 28–30 (unit ids 70–72): adverbs · prepositions · travel.
 import type { UnitInfo } from '../../../types';
 import type { WorldConfig } from '../../worlds';
-export const units: UnitInfo[] = [];
-export const world: WorldConfig | null = null;
+
+export const units: UnitInfo[] = [
+  {
+    id: 70,
+    slug: 'unit-70',
+    level: 'A2',
+    number: 28,
+    title: 'Swift Rapids',
+    titleVi: 'Thác Ghềnh Thần Tốc',
+    subtitle: 'Adverbs of manner · well, hard, late · adjective or adverb',
+    theme: 'rapids',
+    icon: '🏃',
+    color: '#EA580C',
+    bgGradient: 'from-orange-500 to-amber-500',
+    description: 'Carefully, happily, well and hard: ride the rapids by saying exactly how things happen.',
+    grammarPoints: ['carefully, happily, gently', 'well, fast, hard, late, early', 'hardly / lately', 'adjective after be, look, taste · adverb after action verbs', 'faster, more carefully, better'],
+    vocabularyCount: 54,
+    questionsCount: 31,
+  },
+  {
+    id: 71,
+    slug: 'unit-71',
+    level: 'A2',
+    number: 29,
+    title: 'Harbour Crossroads',
+    titleVi: 'Ngã Tư Bến Cảng',
+    subtitle: 'Adjective / verb + preposition · time · transport',
+    theme: 'harbour',
+    icon: '⚓',
+    color: '#0284C7',
+    bgGradient: 'from-sky-500 to-blue-600',
+    description: 'Good at, wait for, since 2020, by Friday, by train but in a taxi: find the right preposition at every crossroads.',
+    grammarPoints: ['good at, afraid of, interested in, famous for', 'listen to, wait for, look after, depend on', 'for / since / during', 'until / by', 'by bus · on foot · in a taxi · on the train'],
+    vocabularyCount: 54,
+    questionsCount: 31,
+  },
+  {
+    id: 72,
+    slug: 'unit-72',
+    level: 'A2',
+    number: 30,
+    title: 'Voyage Dock',
+    titleVi: 'Bến Tàu Viễn Du',
+    subtitle: 'Transport · Airport · Places to stay · Trips',
+    theme: 'travel',
+    icon: '🧳',
+    color: '#0D9488',
+    bgGradient: 'from-teal-500 to-cyan-600',
+    description: 'Ferries, boarding passes, hostels and souvenirs: pack everything you need for a trip at home or abroad.',
+    grammarPoints: ['ferry, coach, underground, platform, cable car, return ticket', 'flight, boarding pass, luggage, gate, delay, land', 'book, reception, hostel, campsite, single room, guest', 'sightseeing, souvenir, guidebook, backpack, abroad, trip'],
+    vocabularyCount: 24,
+    questionsCount: 48,
+  },
+];
+
+export const world: WorldConfig | null = {
+  chapter: 24, units: [70, 71, 72], title: 'Voyage Harbour', titleVi: 'Bến Cảng Hành Trình', emojis: '🏃 ⚓ 🧳 ⛴️',
+  intro: 'Every ship is ready to sail, but the routes are all mixed up! Describe how things happen, find the right prepositions and pack for your trip.',
+  lockedHint: 'Complete Chapter 23 by defeating its boss to begin this adventure.',
+  completeMessage: 'You mastered adverbs, prepositions and travel words. Have a great journey!',
+  reviewTitle: 'Voyage Harbour Review',
+  reviewQuota: [[70, 3], [71, 3], [72, 2]], bossQuota: [[70, 3], [71, 4], [72, 3]],
+  bossStageKey: 'boss24', firstClear: { xp: 1400, coins: 700 }, achievementId: 'a2_voyager',
+  badge: { title: 'MASTER VOYAGER', titleVi: 'Nhà du hành tài ba', icon: '🧭' }, bossColor: '#0284c7',
+  boss: {
+    name: 'Captain Detour', fullName: 'Captain Detour · Pirate of Wrong Turns', emoji: '🏴‍☠️ 🧭', arena: 'STORMY DOCKS', leaveLabel: 'Leave the Harbour',
+    awaits: 'Captain Detour Awaits!', intro: 'Captain Detour has stolen every compass and sent the ferries the wrong way! Cast 10 accurate spells about adverbs, prepositions and travel to set the routes straight.',
+    strikeLabel: '🏴‍☠️ Wrong Turn!', defeatedTitle: 'CAPTAIN DETOUR DEFEATED!', defeatedSubtitle: 'THE SHIPS SAIL SAFELY!',
+    defeatedMessage: 'You sent the pirate sailing away. Chapter 24 is complete!',
+    survivedTitle: 'CAPTAIN DETOUR STILL RULES THE SEAS!',
+    defeatMessage: 'Captain Detour is still mixing up the routes. Review your mistakes and try again!',
+    levelTitle: 'Master Voyager', achievementTitle: 'MASTER VOYAGER!',
+    unlockHint: 'Complete Chapter 23 by defeating its boss to unlock.',
+    mapBlurb: 'Describe actions, choose prepositions and pack for travel to beat the pirate boss.',
+    fightLabel: 'Fight Captain Detour!', gateGoal: 'Prepare for the Pirate of Wrong Turns', gatePass: 'PASS — Captain Detour is unlocked!',
+  },
+};
