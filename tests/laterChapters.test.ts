@@ -59,7 +59,7 @@ for (const world of WORLDS.filter(w => w.chapter >= 5)) {
       assert.equal(ALL_UNITS.find(u => u.id === unit)?.questionsCount, questions.length, `unit ${unit} count`);
       const prompts = new Set<string>();
       for (const q of questions) {
-        assert.match(q.id, new RegExp(`^A1-U${unit}-C${chapter}-\\d{3}$`));
+        assert.match(q.id, new RegExp(`^${unit > 42 ? 'A2' : 'A1'}-U${unit}-C${chapter}-\\d{3}$`)); assert.equal(q.level, unit > 42 ? 'A2' : 'A1');
         assert.equal(ids.has(q.id), false); ids.add(q.id);
         const key = q.type === 'sentence-builder' ? `${q.question}:${q.answer}` : q.question;
         assert.equal(prompts.has(key), false, key); prompts.add(key);

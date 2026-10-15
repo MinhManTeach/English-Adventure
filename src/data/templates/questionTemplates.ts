@@ -1,4 +1,5 @@
 import { Question, GameQuestionType } from '../../types';
+import { levelOfUnit } from '../levels';
 import { HOME_WORDS, HOME_ACTIONS } from '../A1/world1Expansion';
 import { SUBJECTS, ACTIVITIES, CONTINUOUS_ACTIVITIES, ROUTINE_TIMES, COUNTED_OBJECTS, HOBBIES } from './controlledPools';
 
@@ -269,7 +270,7 @@ export function renderTemplate(template: QuestionTemplate, f: ControlledFrame): 
   }
   return { id: `GEN:${template.id}:${f.key}`, conceptId:template.conceptId, templateId:template.id,
     contextKey:f.contextKey, contextFamilyKey:f.contextFamilyKey, subjectKey:f.subjectKey,
-    variantId:`unit${template.unitId}:${encodeURIComponent(template.conceptId + '|' + template.mode + '|' + f.correct + '|' + f.clue)}`, unit:template.unitId, level:'A1',skill:template.skill,topic:template.topic,type,question,answer,options,words,
+    variantId:`unit${template.unitId}:${encodeURIComponent(template.conceptId + '|' + template.mode + '|' + f.correct + '|' + f.clue)}`, unit:template.unitId, level:levelOfUnit(template.unitId),skill:template.skill,topic:template.topic,type,question,answer,options,words,
     subPrompt:template.mode==='repair'?f.clue:undefined, correctSentence:template.mode==='repair'?f.correct:undefined,explanation:{en:f.en,vi:f.vi},difficulty:template.mode==='apply'?3:template.mode==='gap'?1:2,xp:10,imageIcon:f.icon,audioText:f.correct };
 }
 

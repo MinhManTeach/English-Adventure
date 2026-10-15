@@ -8,6 +8,8 @@ import { ChapterId } from '../../types';
 import { NodeStatus, isChapterBossDefeated } from '../../engine/worldProgression';
 import { PathNode, getWorldPath, getWorldCompletion } from '../../engine/journey';
 import { openStep, worldColors } from './journeyUi';
+import { canOpenChapter, packageForChapter } from '../../services/access';
+import { A1_LAST_CHAPTER } from '../../data/levels';
 
 export const nodeKey = (node: { kind: string; chapter: number; unitId?: number }) => `${node.kind}-${node.chapter}-${node.unitId ?? ''}`;
 
@@ -24,7 +26,8 @@ interface Props { chapter: ChapterId; currentKey: string | null; selectedKey: st
 
 /** One world on the adventure map: a coloured banner, then a winding path of five round stops. */
 export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, onSelect }) => {
-  const { state, navigateTo } = useGame();
+  const { state, navigateTo, access } = useGame();
+  const needsPackage = !canOpenChapter(access, chapter);
   const world = getWorld(chapter);
   const colors = worldColors(chapter);
   const path = getWorldPath(state, chapter);
@@ -56,7 +59,7 @@ export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, o
       <header className="relative flex items-center gap-3 rounded-3xl p-4 text-white shadow-[0_8px_20px_-10px_rgba(0,0,0,0.3)] sm:p-5"
         style={open ? { backgroundColor: colors.main, borderBottom: `5px solid ${colors.dark}` } : { backgroundColor: '#afafaf', borderBottom: '5px solid #8f8f8f' }}>
         <div className="min-w-0 flex-1">
-          <p className="eyebrow text-white/85">World {chapter} · {STATUS_VI[cleared ? 'COMPLETED' : open ? 'AVAILABLE' : 'LOCKED']}</p>
+          <p className="eyebrow text-white/85">World {chapter} · {STATUS_VI[cleared ? 'COMPLETED' : open ? 'AVAILABLE' : 'LOCKED']}{needsPackage && ` · 🔒 Gói ${packageForChapter(chapter)?.level}`}</p>
           <h2 className="font-display text-2xl font-black leading-tight">{world.title}</h2>
           <p className="text-sm font-bold text-white/90">{world.titleVi}</p>
         </div>
@@ -140,7 +143,8 @@ export const WorldPath: React.FC<Props> = ({ chapter, currentKey, selectedKey, o
           <h3 className="font-display text-lg font-black text-ink">World {chapter} complete!</h3>
           <p className="text-sm font-bold text-ink-soft">{world.completeMessage}</p>
           <p className="mt-1 text-sm font-black" style={{ color: colors.dark }}>
-            {chapter === LAST_CHAPTER ? '👑 A1 Champion! Bạn đã đi hết hành trình A1.' : `Thế giới ${chapter + 1} đã mở!`}
+            {chapter === LAST_CHAPTER ? `👑 ${world.badge?.title ?? 'Champion'}! Bạn đã đi hết hành trình.`
+              : chapter === A1_LAST_CHAPTER ? '👑 A1 Champion! Hành trình A2 đã mở.' : `Thế giới ${chapter + 1} đã mở!`}
           </p>
         </section>
       )}

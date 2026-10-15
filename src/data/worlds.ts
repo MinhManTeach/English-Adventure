@@ -1,4 +1,5 @@
 import type { ChapterId } from '../types';
+import { A2_WORLDS } from './a2Meta';
 
 /** One unit with the number of questions it contributes to a mixed session. */
 export type UnitQuota = readonly [unit: number, count: number];
@@ -50,7 +51,7 @@ export interface WorldConfig {
   boss: BossProfile;
 }
 
-export const WORLDS: readonly WorldConfig[] = [
+const A1_WORLDS: readonly WorldConfig[] = [
   {
     chapter: 1, units: [1, 2, 3], title: 'Beginner Kingdom', titleVi: 'Vương Quốc Khởi Đầu', emojis: '🏰 🏡 🛋️',
     intro: 'Complete Units 1–3, pass Review Gate, then enter Grammar Castle!',
@@ -355,6 +356,9 @@ export const WORLDS: readonly WorldConfig[] = [
     },
   },
 ];
+
+/** A1 then A2, in book order; A2 World 15 opens after the last A1 boss. */
+export const WORLDS: readonly WorldConfig[] = [...A1_WORLDS, ...A2_WORLDS];
 
 export const LAST_CHAPTER = WORLDS[WORLDS.length - 1].chapter;
 export const ALL_WORLD_UNIT_IDS: readonly number[] = WORLDS.flatMap(world => world.units);
