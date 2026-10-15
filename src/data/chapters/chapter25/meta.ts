@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'MISTRESS MAYBE IS STILL SPINNING!',
     defeatMessage: 'Mistress Maybe is still mixing up the ifs. Review your mistakes and try again!',
     levelTitle: 'What-If Master', achievementTitle: 'WHAT-IF MASTER!',
-    unlockHint: 'Complete Chapter 24 by defeating its boss to begin this adventure.',
+    unlockHint: 'Defeat Mistress Maybe in Chapter 25 to unlock.',
     mapBlurb: 'Use first and second conditionals and health words to calm the whirlpool.',
     fightLabel: 'Fight Mistress Maybe!', gateGoal: 'Prepare for the Weaver of What-Ifs', gatePass: 'PASS — Mistress Maybe is unlocked!',
   },
