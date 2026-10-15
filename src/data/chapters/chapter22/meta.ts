@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'LADY TOOMUCH IS STILL SHOPPING!',
     defeatMessage: 'Lady Toomuch still has too many things. Review your mistakes and try again!',
     levelTitle: 'Trend Setter', achievementTitle: 'TREND SETTER!',
-    unlockHint: 'Complete Chapter 21 by defeating its boss to begin this adventure.',
+    unlockHint: 'Defeat Lady Toomuch in Chapter 22 to unlock.',
     mapBlurb: 'Count nouns, measure quantities and know your fashion words to beat Lady Toomuch.',
     fightLabel: 'Fight Lady Toomuch!', gateGoal: 'Prepare for the Queen of Too Many Things', gatePass: 'PASS — Lady Toomuch is unlocked!',
   },

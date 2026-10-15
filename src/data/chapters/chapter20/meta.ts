@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'BARON BARGAIN IS STILL HAGGLING!',
     defeatMessage: 'Baron Bargain is still cheating the shoppers. Review your mistakes and try again!',
     levelTitle: 'Market Master', achievementTitle: 'MARKET MASTER!',
-    unlockHint: 'Complete Chapter 19 by defeating its boss to unlock.',
+    unlockHint: 'Defeat Baron Bargain in Chapter 20 to unlock.',
     mapBlurb: 'Plan your week, follow the rules and shop smart to beat Baron Bargain.',
     fightLabel: 'Fight Baron Bargain!', gateGoal: 'Prepare for the Lord of Broken Deals', gatePass: 'PASS — Baron Bargain is unlocked!',
   },

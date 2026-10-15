@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'THE BANDIT ESCAPED!',
     defeatMessage: 'The Lantern Bandit is still hiding the lights. Review your mistakes and try again!',
     levelTitle: 'Festival Keeper', achievementTitle: 'FESTIVAL KEEPER!',
-    unlockHint: 'Complete Chapter 20 by defeating its boss to begin this adventure.',
+    unlockHint: 'Defeat the Lantern Bandit in Chapter 21 to unlock.',
     mapBlurb: 'Use the passive, choose the right articles and know your traditions to catch the Lantern Bandit.',
     fightLabel: 'Fight the Lantern Bandit!', gateGoal: 'Prepare for the Thief of Festivals', gatePass: 'PASS — the Lantern Bandit is unlocked!',
   },

@@ -73,7 +73,7 @@ export const world: WorldConfig | null = {
     survivedTitle: 'THE FOREMAN IS STILL TICKING!',
     defeatMessage: 'The Clockwork Foreman is still jamming the machines. Review your mistakes and try again!',
     levelTitle: 'Factory Master', achievementTitle: 'FACTORY MASTER!',
-    unlockHint: 'Complete Chapter 18 by defeating its boss to unlock.',
+    unlockHint: 'Defeat the Clockwork Foreman in Chapter 19 to unlock.',
     mapBlurb: 'Plan the future, find the owners and talk about work to beat the Clockwork Foreman.',
     fightLabel: 'Fight the Clockwork Foreman!', gateGoal: 'Prepare for the Breaker of Plans', gatePass: 'PASS — the Clockwork Foreman is unlocked!',
   },
