@@ -1,5 +1,80 @@
-// A2 Units 40–42 (unit ids 82–84). The world and its units appear in the app once `world` is set.
+// A2 Units 40–42 (unit ids 82–84): reported speech · tenses revision · global problems.
 import type { UnitInfo } from '../../../types';
 import type { WorldConfig } from '../../worlds';
-export const units: UnitInfo[] = [];
-export const world: WorldConfig | null = null;
+
+export const units: UnitInfo[] = [
+  {
+    id: 82,
+    slug: 'unit-82',
+    level: 'A2',
+    number: 40,
+    title: 'Echo Hall',
+    titleVi: 'Sảnh Tiếng Vọng',
+    subtitle: 'say / tell · tense changes · pronouns & time words · told me to',
+    theme: 'hall',
+    icon: '🗣️',
+    color: '#DB2777',
+    bgGradient: 'from-pink-500 to-rose-600',
+    description: '"I am tired," said Lan. Lan said that she was tired: pass every message on correctly.',
+    grammarPoints: ['say vs tell', 'am/is → was, will → would, can → could', 'my → her, today → that day, tomorrow → the next day', 'told me to ... / told me not to ...'],
+    vocabularyCount: 48,
+    questionsCount: 31,
+  },
+  {
+    id: 83,
+    slug: 'unit-83',
+    level: 'A2',
+    number: 41,
+    title: 'Time Tunnel',
+    titleVi: 'Đường Hầm Thời Gian',
+    subtitle: 'Present · Past · Perfect · Future',
+    theme: 'tunnel',
+    icon: '⏰',
+    color: '#2563EB',
+    bgGradient: 'from-blue-500 to-indigo-600',
+    description: 'Every day, right now, two years ago, since 2020, by the time, next Saturday: read the clues and choose the right tense.',
+    grammarPoints: ['present simple vs present continuous, state verbs', 'past simple, past continuous, past perfect', 'present perfect vs past simple', 'will, going to, present continuous and present simple for the future'],
+    vocabularyCount: 48,
+    questionsCount: 31,
+  },
+  {
+    id: 84,
+    slug: 'unit-84',
+    level: 'A2',
+    number: 42,
+    title: 'Planet Rescue',
+    titleVi: 'Giải Cứu Hành Tinh',
+    subtitle: 'Environment · Disasters · People in need · Solutions',
+    theme: 'planet',
+    icon: '🌍',
+    color: '#059669',
+    bgGradient: 'from-emerald-500 to-sky-600',
+    description: 'Floods, droughts, poverty and climate change: learn the words for the world\'s big problems and how volunteers help.',
+    grammarPoints: ['climate change, rubbish, deforestation, extinct, smoke, traffic jam', 'flood, drought, earthquake, typhoon, landslide, wildfire', 'poverty, homeless, hunger, disease, unemployed, crime', 'charity, volunteer, donate, solar panel, reuse, campaign'],
+    vocabularyCount: 24,
+    questionsCount: 48,
+  },
+];
+
+export const world: WorldConfig | null = {
+  chapter: 28, units: [82, 83, 84], title: 'Earth Summit', titleVi: 'Hội Nghị Trái Đất', emojis: '🗣️ ⏰ 🌍 🏅',
+  intro: 'Report what people said, master every tense and speak up for the planet in the final adventure of A2!',
+  lockedHint: 'Complete Chapter 27 by defeating its boss to begin this adventure.',
+  completeMessage: 'You mastered reported speech, all the A2 tenses and words for global problems. You have finished A2!',
+  reviewTitle: 'Earth Summit Review',
+  reviewQuota: [[82, 3], [83, 3], [84, 2]], bossQuota: [[82, 3], [83, 4], [84, 3]],
+  bossStageKey: 'boss28', firstClear: { xp: 1600, coins: 800 }, achievementId: 'a2_champion',
+  badge: { title: 'A2 CHAMPION', titleVi: 'Nhà vô địch A2', icon: '🏅' }, bossColor: '#64748b',
+  boss: {
+    name: 'The Smog Titan', fullName: 'The Smog Titan · Breaker of Promises', emoji: '🌫️ 🏭', arena: 'SUMMIT HALL', leaveLabel: 'Leave the Summit',
+    awaits: 'The Smog Titan Awaits!', intro: 'The Smog Titan has covered the Earth in grey smoke and twisted every promise the world made! Cast 10 accurate spells about reported speech, tenses and global problems to clear the sky.',
+    strikeLabel: '🌫️ Smog Storm!', defeatedTitle: 'SMOG TITAN DEFEATED!', defeatedSubtitle: 'THE SKY IS CLEAR AGAIN!',
+    defeatedMessage: 'You defeated the final A2 boss. Chapter 28 is complete and you are an A2 Champion!',
+    survivedTitle: 'THE SMOG TITAN IS STILL SPREADING SMOKE!',
+    defeatMessage: 'The Smog Titan is still hiding the sky. Review your mistakes and try again!',
+    levelTitle: 'A2 Champion', achievementTitle: 'A2 CHAMPION!',
+    unlockHint: 'Defeat the Smog Titan in Chapter 28 to unlock.',
+    mapBlurb: 'Report, revise every tense and save the planet to beat the final boss of A2.',
+    fightLabel: 'Fight the Smog Titan!', gateGoal: 'Prepare for the Breaker of Promises', gatePass: 'PASS — the Smog Titan is unlocked!',
+  },
+};
