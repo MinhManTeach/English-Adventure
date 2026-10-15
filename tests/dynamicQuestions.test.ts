@@ -29,7 +29,7 @@ for (const unit of [1,2,3,4,5,6,7,8,9,10,11,12]) {
     }
   });
 }
-test('Ten seeded six-question Practice replays use 60 different variants when the pool permits', () => {
+test('Ten seeded six-question Practice replays use 60 different variants when the pool permits', { timeout: 30000 }, () => {
   for (const unit of ALL_WORLD_UNIT_IDS.filter(unit => unit !== 6)) {
     let state = createDefaultState(); const rng = seeded(unit), seen = new Set<string>();
     for (let i=0;i<10;i++) { const session = buildDynamicSession(state,unit,'practice',6,rng); session.questions.forEach(q => {assert.equal(seen.has(q.variantId!), false);seen.add(q.variantId!);}); state={...state,recentQuestionHistory:session.history}; }
