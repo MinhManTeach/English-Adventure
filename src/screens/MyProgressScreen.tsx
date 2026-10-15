@@ -80,7 +80,7 @@ export const MyProgressScreen: React.FC = () => {
             {completedCount} / {ALL_UNITS.length}
           </span>
           <span className="text-[11px] text-slate-400 font-medium block">
-            A1 Curriculum
+            A1–A2 Curriculum
           </span>
         </div>
 
@@ -100,7 +100,7 @@ export const MyProgressScreen: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-black text-slate-800 font-game">
-              CEFR A1 Total Completion
+              CEFR A1–A2 Total Completion
             </h2>
             <p className="text-xs text-slate-500">
               Grammar Gate, Daily Life Village, and My Home Town

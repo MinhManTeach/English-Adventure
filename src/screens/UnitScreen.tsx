@@ -29,7 +29,7 @@ export const UnitScreen: React.FC = () => {
         </button>
 
         <span className="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full uppercase tracking-wider">
-          CEFR A1 · Unit {unit.number}
+          CEFR {unit.level} · Unit {unit.number}
         </span>
       </div>
 

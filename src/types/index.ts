@@ -159,7 +159,9 @@ export interface UserSettings {
   voiceGender?: 'female' | 'male';
 }
 
-export type ChapterId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
+/** Chapters 1–14 are A1 (Units 1–42); chapters 15–28 are A2 (Units 43–84, shown as A2 Unit 1–42). */
+export type ChapterId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
+  | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28;
 export interface ChapterProgress {
   reviewGateCompleted: boolean;
   reviewGateAttempts: number;

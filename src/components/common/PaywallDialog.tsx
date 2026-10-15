@@ -2,37 +2,35 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Lock, X } from 'lucide-react';
 import { Button } from './Button';
 import { useGame } from '../../context/GameContext';
-import { A1_PRICE_LABEL, hasFullAccess, signInUrl, startPurchase } from '../../services/access';
+import { BUYING_KEY, ownsPackage, signInUrl, startPurchase, type Package } from '../../services/access';
 
-const OPENS = [
-  'Unit 7–42: toàn bộ ngữ pháp và từ vựng A1',
-  '12 thế giới mới và 12 trùm cuối',
-  'Các bài A1 làm thêm sau này',
-];
-
-/** Shown when a player opens a paid world: what the A1 package opens, and how a parent buys it. */
+/** Shown when a player opens a paid world: what its package opens, and how a parent buys it. */
 export const PaywallDialog: React.FC = () => {
-  const { paywallOpen, closePaywall, access } = useGame();
+  const { paywall: pkg, closePaywall, access } = useGame();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!paywallOpen) return;
+    if (!pkg) return;
     setError('');
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closePaywall(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [paywallOpen, closePaywall]);
+  }, [pkg, closePaywall]);
 
-  if (!paywallOpen) return null;
+  if (!pkg) return null;
 
   const buy = async () => {
     setBusy(true);
     setError('');
-    const result = await startPurchase();
-    if (result.kind === 'redirect') { window.location.assign(result.url); return; }
+    const result = await startPurchase(pkg);
+    if (result.kind === 'redirect') {
+      try { sessionStorage.setItem(BUYING_KEY, pkg.id); } catch { /* private mode: no confirmation banner */ }
+      window.location.assign(result.url);
+      return;
+    }
     setBusy(false);
     if (result.kind === 'owned') window.location.reload();
     else if (result.kind === 'signed-out') window.location.assign(signInUrl(window.location.pathname));
@@ -51,16 +49,16 @@ export const PaywallDialog: React.FC = () => {
           <Lock className="h-8 w-8" strokeWidth={3} />
         </div>
         <div>
-          <p className="eyebrow text-ink-soft">Gói trọn bộ A1</p>
-          <h2 id="paywall-title" className="font-display text-2xl font-black text-ink">Mở khóa Unit 7–42</h2>
-          <p className="mt-1 text-sm font-bold text-ink-soft">Unit 1–6 luôn miễn phí. Mua một lần {A1_PRICE_LABEL}, dùng mãi mãi.</p>
+          <p className="eyebrow text-ink-soft">Gói trọn bộ {pkg.level}</p>
+          <h2 id="paywall-title" className="font-display text-2xl font-black text-ink">{pkg.title}</h2>
+          <p className="mt-1 text-sm font-bold text-ink-soft">A1 Unit 1–6 luôn miễn phí. Mua một lần {pkg.price}, dùng mãi mãi.</p>
         </div>
         <ul className="space-y-1.5 text-left text-sm font-bold text-ink">
-          {OPENS.map(line => <li key={line} className="flex gap-2"><span aria-hidden="true">✅</span>{line}</li>)}
+          {pkg.opens.map(line => <li key={line} className="flex gap-2"><span aria-hidden="true">✅</span>{line}</li>)}
         </ul>
 
-        {hasFullAccess(access) ? (
-          <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">Tài khoản này đã mở khóa A1. Chọn lại bài để học nhé!</p>
+        {ownsPackage(access, pkg) ? (
+          <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">Tài khoản này đã mở khóa {pkg.level}. Chọn lại bài để học nhé!</p>
         ) : access.status === 'checking' ? (
           <p role="status" className="text-sm font-bold text-ink-soft">Đang kiểm tra tài khoản…</p>
         ) : access.status === 'offline' ? (
@@ -78,7 +76,7 @@ export const PaywallDialog: React.FC = () => {
           <div className="space-y-2">
             {access.name && <p className="text-sm font-bold text-ink-soft">Tài khoản: {access.name}</p>}
             <Button variant="success" size="lg" className="w-full" disabled={busy} onClick={() => void buy()}>
-              {busy ? 'Đang tạo mã QR…' : `Mua bằng chuyển khoản · ${A1_PRICE_LABEL}`}
+              {busy ? 'Đang tạo mã QR…' : `Mua bằng chuyển khoản · ${pkg.price}`}
             </Button>
             <p className="text-xs font-bold text-ink-soft">Quét mã VietQR bằng app ngân hàng. Gói mở ngay khi ngân hàng báo đã nhận tiền.</p>
           </div>
@@ -92,15 +90,19 @@ export const PaywallDialog: React.FC = () => {
 /** A thin line while the server confirms a payment the player just made. */
 export const PaymentStatusBanner: React.FC = () => {
   const { confirmingPayment, access } = useGame();
-  const [outcome, setOutcome] = useState<'owned' | 'waiting' | null>(null);
-  const wasConfirming = useRef(false);
+  const [outcome, setOutcome] = useState<{ kind: 'owned' | 'waiting'; level: string } | null>(null);
+  const waitingFor = useRef<Package | null>(null);
   useEffect(() => {
-    if (confirmingPayment) wasConfirming.current = true;
-    else if (wasConfirming.current) { wasConfirming.current = false; setOutcome(access.status === 'owned' ? 'owned' : 'waiting'); }
-  }, [confirmingPayment, access.status]);
+    if (confirmingPayment) waitingFor.current = confirmingPayment;
+    else if (waitingFor.current) {
+      const pkg = waitingFor.current;
+      waitingFor.current = null;
+      setOutcome({ kind: ownsPackage(access, pkg) ? 'owned' : 'waiting', level: pkg.level });
+    }
+  }, [confirmingPayment, access]);
   if (confirmingPayment) return <div role="status" className="bg-sky-100 px-4 py-3 text-sm font-bold text-sky-900">Đang xác nhận thanh toán với ngân hàng…</div>;
-  if (outcome === 'owned') return <div role="status" className="bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-900">🎉 Đã mở khóa trọn bộ A1. Chúc bạn học vui!</div>;
-  if (outcome === 'waiting') return (
+  if (outcome?.kind === 'owned') return <div role="status" className="bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-900">🎉 Đã mở khóa trọn bộ {outcome.level}. Chúc bạn học vui!</div>;
+  if (outcome?.kind === 'waiting') return (
     <div role="status" className="bg-amber-100 px-4 py-3 text-sm font-bold text-amber-950">
       Ngân hàng chưa báo nhận tiền. Tải lại trang sau ít phút; nếu sau 24 giờ vẫn chưa mở, gửi mã đơn tới minhmanteach@gmail.com.
     </div>

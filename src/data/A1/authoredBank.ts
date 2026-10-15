@@ -1,4 +1,5 @@
 import { GameQuestionType, Question } from '../../types';
+import { levelOfUnit } from '../levels';
 
 export type TeachingRules = Record<string, { en: string; vi: string }>;
 /** [question with ___, answer, three wrong options, rule, topic, difficulty] */
@@ -12,10 +13,10 @@ export type BuildItem<K extends string> = readonly [string, K, string];
 export function createBankBuilder<R extends TeachingRules>(rules: R, chapter: number) {
   type K = keyof R & string;
   return (unit: number, gaps: readonly GapItem<K>[], repairs: readonly RepairItem<K>[], builders: readonly BuildItem<K>[]): Question[] => {
-    const id = (n: number) => `A1-U${String(unit).padStart(2, '0')}-C${chapter}-${String(n).padStart(3, '0')}`;
+    const id = (n: number) => `${levelOfUnit(unit)}-U${String(unit).padStart(2, '0')}-C${chapter}-${String(n).padStart(3, '0')}`;
     const questions: Question[] = [];
     const add = (type: GameQuestionType, fields: Omit<Question, 'id' | 'level' | 'unit' | 'skill' | 'type' | 'xp'>) =>
-      questions.push({ id: id(questions.length + 1), level: 'A1', unit, skill: 'grammar', type, xp: 10, ...fields });
+      questions.push({ id: id(questions.length + 1), level: levelOfUnit(unit), unit, skill: 'grammar', type, xp: 10, ...fields });
     gaps.forEach(([question, answer, wrong, rule, topic, difficulty], index) => {
       const sentence = question.replace('___', answer);
       add(index % 2 === 0 ? 'fill-gap' : 'multiple-choice', { topic, question, options: [answer, ...wrong], answer, difficulty,
@@ -32,11 +33,11 @@ export function createBankBuilder<R extends TeachingRules>(rules: R, chapter: nu
 
 /** Meaning and translation checks for every taught word of a vocabulary unit. */
 export function buildWordBank(unit: number, chapter: number, words: readonly { word: string; topic: string; definition: string; vi: string; icon: string; example: string; exampleVi: string }[]): Question[] {
-  const prefix = `A1-U${String(unit).padStart(2, '0')}-C${chapter}-`;
+  const prefix = `${levelOfUnit(unit)}-U${String(unit).padStart(2, '0')}-C${chapter}-`;
   return words.flatMap((word, index) => {
     const sameTopic = words.filter(other => other.topic === word.topic && other !== word);
     const pick = (start: number) => [0, 2, 4].map(step => sameTopic[(index + start + step) % sameTopic.length].word);
-    const base = { level: 'A1' as const, unit, skill: 'vocabulary' as const, topic: word.topic, xp: 10, imageIcon: word.icon,
+    const base = { level: levelOfUnit(unit), unit, skill: 'vocabulary' as const, topic: word.topic, xp: 10, imageIcon: word.icon,
       answer: word.word, explanation: { en: `${word.word}: ${word.definition}. ${word.example}`, vi: `${word.word}: ${word.vi}. ${word.exampleVi}` }, audioText: word.word };
     return [
       { ...base, id: `${prefix}${String(index * 2 + 1).padStart(3, '0')}`, type: 'matching' as const, difficulty: 1 as const,

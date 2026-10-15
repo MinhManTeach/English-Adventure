@@ -21,7 +21,7 @@ import { purchaseItem as purchase, equipItem as equip, unequipItem as unequip, c
 import { applyDevShortcut } from '../engine/devShortcuts';
 import { saveAvatarDraft as saveDraft } from '../engine/avatarCloset';
 import type { AvatarGender, AvatarSlot, AvatarState, CosmeticResult } from '../types';
-import { Access, canOpenChapter, canOpenUnit, fetchAccess } from '../services/access';
+import { Access, Package, canOpenChapter, canOpenUnit, fetchAccess, packageForChapter, packageForUnit, BUYING_KEY, PACKAGES } from '../services/access';
 
 export type AppScreen =
   | 'welcome'
@@ -70,12 +70,13 @@ interface GameContextType {
   startStage: (unitId: number, stage: LearningStage) => void;
   completeReviewGate: (correct: number, total: number, chapter?: ChapterId) => void;
   navigateTo: (screen: AppScreen, params?: NavigationParams) => void;
-  /** What this account may open: Units 7–42 need the A1 package. */
+  /** What this account may open: A1 Units 7–42 and all of A2 are paid packages. */
   access: Access;
-  /** True right after PayOS sends the buyer back, until the server confirms. */
-  confirmingPayment: boolean;
-  paywallOpen: boolean;
-  openPaywall: () => void;
+  /** The package being confirmed right after PayOS sends the buyer back. */
+  confirmingPayment: Package | null;
+  /** The package shown in the buy dialog, or null when it is closed. */
+  paywall: Package | null;
+  openPaywall: (pkg: Package) => void;
   closePaywall: () => void;
   createProfile: (name: string, avatarId: string) => void;
   updateAvatar: (avatarId: string, title?: string) => boolean;
@@ -194,34 +195,38 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [access, setAccess] = useState<Access>(() => ({ status: import.meta.env.DEV ? 'open' : 'checking' }));
   const accessRef = useRef(access);
   accessRef.current = access;
-  const [paywallOpen, setPaywallOpen] = useState(false);
-  const [confirmingPayment, setConfirmingPayment] = useState(false);
+  const [paywall, setPaywall] = useState<Package | null>(null);
+  const [confirmingPayment, setConfirmingPayment] = useState<Package | null>(null);
   useEffect(() => {
     if (import.meta.env.DEV || typeof window === 'undefined') return;
     let stopped = false;
     const url = new URL(window.location.href);
     const paid = url.searchParams.get('paid');
-    const justPaid = !!paid && /^\d+$/.test(paid);
+    // The dialog notes which package it sent to PayOS, so we know what to wait for.
+    let buying: string | null = null;
+    try { buying = sessionStorage.getItem(BUYING_KEY); sessionStorage.removeItem(BUYING_KEY); } catch { /* private mode */ }
+    const pkg = Object.values(PACKAGES).find(p => p.id === buying) ?? null;
+    const justPaid = !!paid && /^\d+$/.test(paid) && !!pkg;
     // Sign-in and PayOS bring the player back with ?login= / ?paid=; tidy the address.
     if (url.searchParams.has('paid') || url.searchParams.has('login')) {
       url.searchParams.delete('paid');
       url.searchParams.delete('login');
       window.history.replaceState(null, '', url.pathname + url.search + url.hash);
     }
-    setConfirmingPayment(justPaid);
+    setConfirmingPayment(justPaid ? pkg : null);
     // The bank's confirmation can reach the server a little after the player returns.
     const check = async (triesLeft: number) => {
       const next = await fetchAccess();
       if (stopped) return;
       setAccess(next);
-      if (justPaid && next.status === 'not-owned' && triesLeft > 0) setTimeout(() => void check(triesLeft - 1), 3000);
-      else setConfirmingPayment(false);
+      if (justPaid && next.status === 'signed-in' && !next.owns?.includes(pkg!.id) && triesLeft > 0) setTimeout(() => void check(triesLeft - 1), 3000);
+      else setConfirmingPayment(null);
     };
     void check(justPaid ? 20 : 0);
     return () => { stopped = true; };
   }, []);
-  const openPaywall = useCallback(() => setPaywallOpen(true), []);
-  const closePaywall = useCallback(() => setPaywallOpen(false), []);
+  const openPaywall = useCallback((pkg: Package) => setPaywall(pkg), []);
+  const closePaywall = useCallback(() => setPaywall(null), []);
 
   const navigateTo = useCallback((screen: AppScreen, params?: NavigationParams) => {
     const snapshot = stateRef.current;
@@ -232,9 +237,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (screen === 'boss' && !canEnterBoss(snapshot, chapter)) return;
     if (screen === 'review' && params?.reviewGate && !isReviewGateAvailable(snapshot, chapter)) return;
     // Paid worlds: show what the A1 package opens instead of the lesson.
-    const paid = (screen === 'unit' || screen === 'learn' || screen === 'session') ? !canOpenUnit(accessRef.current, unitId)
-      : screen === 'boss' || (screen === 'review' && params?.reviewGate) ? !canOpenChapter(accessRef.current, chapter) : false;
-    if (paid) { setPaywallOpen(true); return; }
+    const locked = (screen === 'unit' || screen === 'learn' || screen === 'session') ? !canOpenUnit(accessRef.current, unitId) && packageForUnit(unitId)
+      : screen === 'boss' || (screen === 'review' && params?.reviewGate) ? !canOpenChapter(accessRef.current, chapter) && packageForChapter(chapter) : null;
+    if (locked) { setPaywall(locked); return; }
     if (screen === 'boss' || screen === 'review') setActiveChapterId(chapter);
     setIsReviewGate(screen === 'review' && !!params?.reviewGate);
     if (params?.unitId !== undefined) {
@@ -367,7 +372,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       navigateTo,
       access,
       confirmingPayment,
-      paywallOpen,
+      paywall,
       openPaywall,
       closePaywall,
       createProfile,
@@ -400,7 +405,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       navigateTo,
       access,
       confirmingPayment,
-      paywallOpen,
+      paywall,
       openPaywall,
       closePaywall,
       createProfile,

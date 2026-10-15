@@ -1,6 +1,7 @@
 import { UnitInfo, UnitStage } from '../types';
+import { A2_UNITS } from './a2Meta';
 
-export const ALL_UNITS: UnitInfo[] = [
+const A1_UNITS: UnitInfo[] = [
   {
     id: 1,
     slug: 'unit-1',
@@ -733,6 +734,9 @@ export const ALL_UNITS: UnitInfo[] = [
     questionsCount: 48,
   },
 ];
+
+/** A1 Units 1–42, then A2 (ids 43–84). */
+export const ALL_UNITS: UnitInfo[] = [...A1_UNITS, ...A2_UNITS];
 
 export const UNIT_STAGES: UnitStage[] = [
   {

@@ -1,48 +1,74 @@
-// Who may open the paid part of the app. Units 1–6 (worlds 1–2) are free;
-// Units 7–42 need the "ENGLISH_A1" package, bought once on lopso.vn. The site's
-// account server says what the signed-in account owns; progress itself stays
-// on this device.
+// Who may open the paid part of the app. Units 1–6 (worlds 1–2) are free.
+// A1 Units 7–42 need the "ENGLISH_A1" package and all of A2 needs "ENGLISH_A2",
+// each bought once on lopso.vn. The site's account server says what the
+// signed-in account owns; progress itself stays on this device.
 import type { ChapterId } from '../types';
 import { getWorldOfUnit } from '../data/worlds';
+import { A1_LAST_CHAPTER } from '../data/levels';
 
-export const A1_PRODUCT = 'ENGLISH_A1';
-export const A1_PRICE_LABEL = '99.000đ';
+export interface Package {
+  id: 'ENGLISH_A1' | 'ENGLISH_A2';
+  level: 'A1' | 'A2';
+  price: string;
+  title: string;
+  opens: readonly string[];
+}
+export const PACKAGES: Record<'A1' | 'A2', Package> = {
+  A1: {
+    id: 'ENGLISH_A1', level: 'A1', price: '99.000đ', title: 'Mở khóa Unit 7–42 (A1)',
+    opens: ['Unit 7–42: toàn bộ ngữ pháp và từ vựng A1', '12 thế giới mới và 12 trùm cuối', 'Các bài A1 làm thêm sau này'],
+  },
+  A2: {
+    id: 'ENGLISH_A2', level: 'A2', price: '99.000đ', title: 'Mở khóa trọn bộ A2',
+    opens: ['A2 Unit 1–42: ngữ pháp và từ vựng A2', '14 thế giới và 14 trùm cuối A2', 'Các bài A2 làm thêm sau này'],
+  },
+};
+/** sessionStorage key: the package sent to PayOS, read back when the buyer returns. */
+export const BUYING_KEY = 'ea-buying';
 /** The last world anyone can play without buying. */
 export const LAST_FREE_CHAPTER = 2;
 
 /**
  * - checking: still asking the server.
- * - owned: the signed-in account has bought A1.
- * - signed-out / not-owned: the server answered; buying is possible.
+ * - signed-in / signed-out: the server answered; `owns` lists the bought packages.
  * - offline: no account server answered (opened outside lopso.vn, or no network).
  * - open: everything unlocked (development build).
  */
-export type AccessStatus = 'checking' | 'owned' | 'signed-out' | 'not-owned' | 'offline' | 'open';
+export type AccessStatus = 'checking' | 'signed-in' | 'signed-out' | 'offline' | 'open';
 
 export interface Access {
   status: AccessStatus;
+  owns?: readonly string[];
   /** The signed-in account's name, when there is one. */
   name?: string;
 }
 
-export const isPaidChapter = (chapter: ChapterId) => chapter > LAST_FREE_CHAPTER;
-export const isPaidUnit = (unitId: number) => {
+/** The package a world needs, or null when it is free. */
+export const packageForChapter = (chapter: ChapterId): Package | null =>
+  chapter <= LAST_FREE_CHAPTER ? null : chapter <= A1_LAST_CHAPTER ? PACKAGES.A1 : PACKAGES.A2;
+export const packageForUnit = (unitId: number): Package | null => {
   const world = getWorldOfUnit(unitId);
-  return !!world && isPaidChapter(world.chapter);
+  return world ? packageForChapter(world.chapter) : null;
 };
-export const hasFullAccess = (access: Access) => access.status === 'owned' || access.status === 'open';
-export const canOpenChapter = (access: Access, chapter: ChapterId) => !isPaidChapter(chapter) || hasFullAccess(access);
-export const canOpenUnit = (access: Access, unitId: number) => !isPaidUnit(unitId) || hasFullAccess(access);
+export const ownsPackage = (access: Access, pkg: Package) => access.status === 'open' || !!access.owns?.includes(pkg.id);
+export const canOpenChapter = (access: Access, chapter: ChapterId) => {
+  const pkg = packageForChapter(chapter);
+  return !pkg || ownsPackage(access, pkg);
+};
+export const canOpenUnit = (access: Access, unitId: number) => {
+  const pkg = packageForUnit(unitId);
+  return !pkg || ownsPackage(access, pkg);
+};
 
 /** Asks the site's account server what this browser's account owns. */
 export async function fetchAccess(fetcher: typeof fetch = fetch): Promise<Access> {
   try {
     const res = await fetcher('/api/me', { cache: 'no-store', credentials: 'same-origin' });
-    if (res.status === 401) return { status: 'signed-out' };
+    if (res.status === 401) return { status: 'signed-out', owns: [] };
     if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return { status: 'offline' };
     const body = await res.json() as { user?: { name?: string }; owns?: unknown };
-    const owns = Array.isArray(body.owns) && body.owns.includes(A1_PRODUCT);
-    return { status: owns ? 'owned' : 'not-owned', name: body.user?.name };
+    const owns = Array.isArray(body.owns) ? body.owns.filter((x): x is string => typeof x === 'string') : [];
+    return { status: 'signed-in', owns, name: body.user?.name };
   } catch {
     return { status: 'offline' };
   }
@@ -56,14 +82,14 @@ export function signInUrl(pathname: string): string {
 
 export type BuyResult = { kind: 'redirect'; url: string } | { kind: 'owned' } | { kind: 'signed-out' } | { kind: 'error'; message: string };
 
-/** Starts a PayOS bank transfer for A1; the caller sends the browser to its checkout page. */
-export async function startPurchase(fetcher: typeof fetch = fetch): Promise<BuyResult> {
+/** Starts a PayOS bank transfer for a package; the caller sends the browser to its checkout page. */
+export async function startPurchase(pkg: Package, fetcher: typeof fetch = fetch): Promise<BuyResult> {
   try {
     const res = await fetcher('/api/pay/create', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ plan: A1_PRODUCT }),
+      body: JSON.stringify({ plan: pkg.id }),
     });
     if (res.status === 401) return { kind: 'signed-out' };
     if (res.status === 409) return { kind: 'owned' };
