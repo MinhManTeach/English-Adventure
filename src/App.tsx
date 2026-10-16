@@ -17,6 +17,7 @@ import { MyProgressScreen } from './screens/MyProgressScreen';
 import { ParentDashboardScreen } from './screens/ParentDashboardScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { PaywallDialog, PaymentStatusBanner } from './components/common/PaywallDialog';
+import { CloudConflictDialog } from './components/common/CloudSave';
 
 const MainAppContent: React.FC = () => {
   const { currentScreen, writerStatus, storageStatus, saveStatus } = useGame();
@@ -87,6 +88,7 @@ const MainAppContent: React.FC = () => {
       </div>
       {showNavbar && <BottomTabs />}
       <PaywallDialog />
+      <CloudConflictDialog />
     </div>
   );
 };
