@@ -9,6 +9,7 @@ import { describeStep, openStep, worldColors } from '../components/map/journeyUi
 import { PronounceButton } from '../components/common/PronounceButton';
 import { DAILY_XP_GOAL, xpEarnedOn, weekActivity, sentenceOfTheDay } from '../engine/daily';
 import { getTodayDateString } from '../services/storage';
+import { CloudCard } from '../components/common/CloudSave';
 
 const TILES: readonly { screen: AppScreen; icon: string; title: string; titleVi: string; tint: string }[] = [
   { screen: 'map', icon: '🗺️', title: 'Map', titleVi: 'Bản đồ phiêu lưu', tint: '#d7ffb8' },
@@ -78,6 +79,8 @@ export const HomeScreen: React.FC = () => {
             <p className="mt-1 text-[11px] font-bold text-ink-soft tabular-nums">{levelInfo.currentLevelXP} / {levelInfo.neededLevelXP} XP · 🪙 {state.coins} xu</p>
           </div>
         </section>
+
+        <CloudCard />
 
         {/* Daily goal */}
         <section aria-label="Daily goal" className="card-3d p-4">

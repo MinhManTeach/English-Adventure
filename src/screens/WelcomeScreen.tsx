@@ -5,6 +5,7 @@ import { AVATAR_PRESETS } from '../data/avatarsData';
 import { Button } from '../components/common/Button';
 import { Mascot } from '../components/common/Mascot';
 import { WORLDS, ALL_WORLD_UNIT_IDS } from '../data/worlds';
+import { CloudWelcome } from '../components/common/CloudSave';
 
 const PROMISES = [
   { icon: '🎮', text: 'Học qua trò chơi' },
@@ -44,6 +45,7 @@ export const WelcomeScreen: React.FC = () => {
             Get started · Bắt đầu
           </Button>
           <p className="mt-3 text-xs font-bold text-ink-soft">Tiếng Anh A1 · dành cho học sinh lớp 6–9</p>
+          <CloudWelcome />
         </div>
       </div>
     );

@@ -1,7 +1,8 @@
 // Who may open the paid part of the app. Units 1–6 (worlds 1–2) are free.
 // A1 Units 7–42 need the "ENGLISH_A1" package and all of A2 needs "ENGLISH_A2",
 // each bought once on lopso.vn. The site's account server says what the
-// signed-in account owns; progress itself stays on this device.
+// signed-in account owns. Progress is kept on the device and, once a parent
+// signs in and picks the child, on the family account too (see cloudSync.ts).
 import type { ChapterId } from '../types';
 import { getWorldOfUnit } from '../data/worlds';
 import { A1_LAST_CHAPTER } from '../data/levels';

@@ -21,6 +21,7 @@ import { purchaseItem as purchase, equipItem as equip, unequipItem as unequip, c
 import { applyDevShortcut } from '../engine/devShortcuts';
 import { saveAvatarDraft as saveDraft } from '../engine/avatarCloset';
 import type { AvatarGender, AvatarSlot, AvatarState, CosmeticResult } from '../types';
+import { useCloudSync, type CloudSync } from './useCloudSync';
 import { Access, Package, canOpenChapter, canOpenUnit, fetchAccess, packageForChapter, packageForUnit, BUYING_KEY, PACKAGES } from '../services/access';
 
 export type AppScreen =
@@ -78,6 +79,8 @@ interface GameContextType {
   paywall: Package | null;
   openPaywall: (pkg: Package) => void;
   closePaywall: () => void;
+  /** Saving this device's progress on the family account at lopso.vn. */
+  cloud: CloudSync;
   createProfile: (name: string, avatarId: string) => void;
   updateAvatar: (avatarId: string, title?: string) => boolean;
   recordQuestionResult: (
@@ -225,6 +228,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     void check(justPaid ? 20 : 0);
     return () => { stopped = true; };
   }, []);
+  // A save from the family account (another device), or a clean one for another child.
+  const replaceState = useCallback((next: UserProgressState) => {
+    const ready = storageService.checkAndUpdateStreak(next);
+    if (setState(ready) !== 'success') return false;
+    setCurrentScreen(ready.profile.name ? 'home' : 'welcome');
+    return true;
+  }, [setState]);
+  const cloud = useCloudSync({ access, writable: writerStatus === 'writable', state, stateRef, replaceState });
   const openPaywall = useCallback((pkg: Package) => setPaywall(pkg), []);
   const closePaywall = useCallback(() => setPaywall(null), []);
 
@@ -375,6 +386,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       paywall,
       openPaywall,
       closePaywall,
+      cloud,
       createProfile,
       updateAvatar,
       recordQuestionResult,
@@ -408,6 +420,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       paywall,
       openPaywall,
       closePaywall,
+      cloud,
       createProfile,
       updateAvatar,
       recordQuestionResult,
