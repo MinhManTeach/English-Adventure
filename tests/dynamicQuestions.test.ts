@@ -105,6 +105,17 @@ test('Additive history migration preserves progress and rejects malformed/bloate
   const old={...createDefaultState(),xp:1234,coins:456,bossDefeated:true,completedUnits:[1,2,3],recentQuestionHistory:{1:{variantIds:Array(80).fill('valid'),templateIds:[3,'template'],cycleVariantIds:null}}};
   const state=migrateState(old);assert.equal(state.xp, 1234);assert.equal(state.coins, 456);assert.equal(state.bossDefeated, true);assert.equal(state.recentQuestionHistory!['1'].variantIds.length, 50);assert.deepEqual(state.recentQuestionHistory!['1'].templateIds, ['template']);assert.deepEqual(state.recentQuestionHistory!['1'].cycleVariantIds, []);assert.deepEqual(migrateState(state), state);
 });
+test('A long-played save stays small, and an old megabyte save is trimmed on load without repeating questions',()=>{
+  const unit=7, pool=getDynamicPool(unit,'practice'), long=pool.map(q=>q.variantId!);
+  const legacy={...createDefaultState(),xp:900,recentQuestionHistory:Object.fromEntries(ALL_WORLD_UNIT_IDS.map(u=>[u,{variantIds:long.slice(0,50),templateIds:[],cycleVariantIds:Array.from({length:2000},(_,i)=>long[i%long.length]+i),visibleTaskKeys:long.slice(0,50),conceptIds:[]}]))};
+  assert.ok(JSON.stringify(legacy).length > 5_000_000);
+  let state=migrateState(legacy);
+  assert.ok(JSON.stringify(state).length < 400_000); assert.equal(state.xp, 900); assert.deepEqual(migrateState(state), state);
+  // Short keys still steer rotation: ten reloaded sessions see sixty different questions.
+  const seen=new Set<string>(), rng=seeded(7); state={...state,recentQuestionHistory:{}};
+  for(let i=0;i<10;i++){const session=buildDynamicSession(state,unit,'practice',6,rng);session.questions.forEach(q=>{assert.equal(seen.has(q.variantId!), false);seen.add(q.variantId!);});state=migrateState({...state,recentQuestionHistory:session.history});}
+  assert.ok(state.recentQuestionHistory![unit].cycleVariantIds.every(id=>id.length<=12));
+});
 test('Stage-specific providers offer manipulation and mixed independent application',()=>{
   for(const unit of ALL_WORLD_UNIT_IDS) {
     const practice=buildDynamicSession(createDefaultState(),unit,'practice',6,seeded()).questions;

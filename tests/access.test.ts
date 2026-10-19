@@ -57,3 +57,25 @@ test('buying sends the browser to PayOS, or says why it cannot', async () => {
   assert.equal((await startPurchase(PACKAGES.A1, stub(json(503, { error: 'PAY_UNAVAILABLE' })))).kind, 'error');
   assert.equal((await startPurchase(PACKAGES.A1, stub(new Error('network')))).kind, 'error');
 });
+
+test('a failed /api/me is asked again, and what was bought stays open while the server cannot be reached', async () => {
+  const prior = Object.getOwnPropertyDescriptor(globalThis, 'localStorage'), values = new Map<string, string>();
+  Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: {
+    getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); },
+    removeItem: (key: string) => { values.delete(key); } } });
+  const answers = (...list: (Response | Error)[]) => (async () => { const next = list.shift()!; if (next instanceof Error) throw next; return next; }) as unknown as typeof fetch;
+  const noWait = async () => {};
+  try {
+    const flaky = await fetchAccess(answers(new Response('', { status: 503 }), new Error('wifi'), json(200, { owns: ['ENGLISH_A1'] })), 3, noWait);
+    assert.deepEqual(flaky, { status: 'signed-in', owns: ['ENGLISH_A1'], name: undefined });
+    const down = await fetchAccess(answers(new Response('', { status: 502 }), new Error('wifi')), 1, noWait);
+    assert.deepEqual(down, { status: 'offline', owns: ['ENGLISH_A1'] });
+    assert.equal(canOpenUnit(down, 7), true);
+    assert.equal(canOpenUnit(down, 43), false);
+    // Signing out forgets it.
+    await fetchAccess(answers(json(401, {})));
+    assert.equal(canOpenUnit(await fetchAccess(answers(new Error('wifi'))), 7), false);
+  } finally {
+    if (prior) Object.defineProperty(globalThis, 'localStorage', prior); else Reflect.deleteProperty(globalThis, 'localStorage');
+  }
+});

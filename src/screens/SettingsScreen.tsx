@@ -283,7 +283,7 @@ export const SettingsScreen: React.FC = () => {
               <span>Are you sure? This cannot be undone!</span>
             </div>
             <p className="text-xs text-rose-700">
-              Bạn có chắc chắn muốn xóa toàn bộ tiến trình học tập của bé để bắt đầu lại từ đầu không?
+              Bạn có chắc chắn muốn xóa toàn bộ tiến trình học tập của bé trên máy này để bắt đầu lại từ đầu không? Bản đã lưu trên tài khoản phụ huynh vẫn được giữ: chọn lại bé là lấy lại bài.
             </p>
             <div className="flex items-center gap-3">
               <Button

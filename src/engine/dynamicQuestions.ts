@@ -5,6 +5,7 @@ import { getReviewQuestionPool } from '../data/curriculum';
 import { fisherYatesShuffle, prepareSessionQuestions } from './sessionQuestions';
 import { ALL_WORLD_UNIT_IDS, getWorld } from '../data/worlds';
 import { isUnitAvailable } from './worldProgression';
+import { CYCLE_HISTORY_LIMIT, historyKey as key } from '../services/storage';
 
 export function validateGeneratedQuestion(q: Question): boolean {
   if (!q.conceptId || !q.templateId || !q.variantId || !q.contextKey || !q.question.trim() || !q.explanation.en || !q.explanation.vi) return false;
@@ -28,7 +29,7 @@ export function buildDynamicSession(state: UserProgressState, unit: number, stag
   const previous: RecentQuestionHistory = history[String(unit)] ?? { variantIds: [], templateIds: [], cycleVariantIds: [] };
   const project = (q: Question): Question => ({ ...q, type: stage === 'minigame' && unit >= 4 && q.type !== 'sentence-builder' ? 'time-attack' : q.type, disablePreAnswerAudio: stage === 'challenge' });
   const pool = fisherYatesShuffle(getDynamicPool(unit, stage).filter(filter), rng).map(project);
-  const concepts = [...new Set(pool.map(q => q.conceptId!))].sort((a,b) => (previous.conceptIds ?? []).lastIndexOf(a) - (previous.conceptIds ?? []).lastIndexOf(b));
+  const concepts = [...new Set(pool.map(q => q.conceptId!))].sort((a,b) => (previous.conceptIds ?? []).lastIndexOf(key(a)) - (previous.conceptIds ?? []).lastIndexOf(key(b)));
   // Reserve a fair curriculum quota before ANY variant/history filtering.
   // More than six concepts rotate the omitted family using bounded concept history.
   const quota = Array.from({length: concepts.length ? count : 0}, (_,i) => concepts[i % concepts.length]);
@@ -37,6 +38,9 @@ export function buildDynamicSession(state: UserProgressState, unit: number, stag
   const previousContexts = new Set(previous.lastSessionContextKeys ?? []);
   const family = (q: Question) => q.contextFamilyKey ?? q.contextKey!;
   const previousFamilies = new Set(previous.lastSessionContextFamilyKeys ?? previous.lastSessionContextKeys ?? []);
+  // Short save keys, worked out once per question (rank runs many times per pick).
+  const keys = new Map<Question, { variant: string; task: string }>();
+  const keysOf = (q: Question) => { let k = keys.get(q); if (!k) keys.set(q, k = { variant: key(q.variantId!), task: key(visibleTaskFingerprint(q)) }); return k; };
   const rankCompare = (a: number[], b: number[]) => { for(let i=0;i<a.length;i++) if(a[i]!==b[i]) return a[i]-b[i]; return 0; };
   for(const concept of quota) {
     let candidates = pool.filter(q => q.conceptId === concept && !used.has(q.variantId!) && !visible.has(visibleTaskFingerprint(q)));
@@ -45,27 +49,28 @@ export function buildDynamicSession(state: UserProgressState, unit: number, stag
     const preferred = stage === 'minigame' && unit >= 4 ? candidates.filter(q => (builders < 2) === (q.type === 'sentence-builder')) : candidates;
     if(preferred.length) candidates = preferred;
     // Recycle a small family independently; a large unused family cannot starve it.
-    if(candidates.every(q => cycle.has(q.variantId!))) candidates.forEach(q => cycle.delete(q.variantId!));
+    if(candidates.every(q => cycle.has(keysOf(q).variant))) candidates.forEach(q => cycle.delete(keysOf(q).variant));
     const rank = (q: Question) => [
       chosen.filter(x => family(x) === family(q)).length,
       chosen.filter(x => x.contextKey === q.contextKey).length,
       Number(previousFamilies.has(family(q))),
       Number(previousContexts.has(q.contextKey!)),
       q.subjectKey ? chosen.filter(x => x.subjectKey === q.subjectKey).length : 0,
-      Number(recent.has(q.variantId!)), Number((previous.visibleTaskKeys ?? []).includes(visibleTaskFingerprint(q))),
-      Number(cycle.has(q.variantId!)), (previous.contextKeys ?? []).lastIndexOf(q.contextKey!), previous.variantIds.lastIndexOf(q.variantId!),
+      Number(recent.has(keysOf(q).variant)), Number((previous.visibleTaskKeys ?? []).includes(keysOf(q).task)),
+      Number(cycle.has(keysOf(q).variant)), (previous.contextKeys ?? []).lastIndexOf(q.contextKey!), previous.variantIds.lastIndexOf(keysOf(q).variant),
       chosen.filter(x => x.type === q.type).length * 3 + (stage === 'challenge' && q.difficulty === 1 ? 3 : 0) + previous.templateIds.filter(id => id === q.templateId).length,
     ];
     const q = candidates.reduce((best,item) => rankCompare(rank(item),rank(best)) < 0 ? item : best);
-    chosen.push(q); used.add(q.variantId!); visible.add(visibleTaskFingerprint(q)); cycle.add(q.variantId!);
+    chosen.push(q); used.add(q.variantId!); visible.add(visibleTaskFingerprint(q)); cycle.add(keysOf(q).variant);
   }
   const questions = prepareSessionQuestions(chosen.map((q,i) => ({ ...q, questionInstanceId: `${sessionId}:${i}` })), true, rng);
-  history[String(unit)] = { variantIds: [...previous.variantIds, ...chosen.map(q => q.variantId!)].slice(-50), templateIds: [...previous.templateIds, ...chosen.map(q => q.templateId!)].slice(-20), cycleVariantIds: [...cycle].slice(-2000),
+  // The save keeps short keys, not the long ids: see historyKey.
+  history[String(unit)] = { variantIds: [...previous.variantIds, ...chosen.map(q => keysOf(q).variant)].slice(-50), templateIds: [...previous.templateIds, ...chosen.map(q => q.templateId!)].slice(-20), cycleVariantIds: [...cycle].slice(-CYCLE_HISTORY_LIMIT),
     contextKeys: [...(previous.contextKeys ?? []), ...chosen.map(q => q.contextKey!)].slice(-24),
     lastSessionContextKeys: [...new Set(chosen.map(q => q.contextKey!))],
     lastSessionContextFamilyKeys: [...new Set(chosen.map(family))],
-    conceptIds: [...(previous.conceptIds ?? []), ...chosen.map(q => q.conceptId!)].slice(-50),
-    visibleTaskKeys: [...(previous.visibleTaskKeys ?? []), ...chosen.map(visibleTaskFingerprint)].slice(-50),
+    conceptIds: [...(previous.conceptIds ?? []), ...chosen.map(q => key(q.conceptId!))].slice(-50),
+    visibleTaskKeys: [...(previous.visibleTaskKeys ?? []), ...chosen.map(q => keysOf(q).task)].slice(-50),
   };
   return { questions, history };
 }

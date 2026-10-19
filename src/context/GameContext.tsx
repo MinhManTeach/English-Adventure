@@ -19,10 +19,11 @@ import { SaveWriter, WriterStatus } from '../services/saveWriter';
 import { persistBeforePublish, runCosmeticAction, PublicationStatus } from '../services/durableState';
 import { purchaseItem as purchase, equipItem as equip, unequipItem as unequip, changeAvatarGender as switchGender, CosmeticTransaction } from '../engine/avatarCosmetics';
 import { applyDevShortcut } from '../engine/devShortcuts';
+import { STUDY_TICK_MS, studySecondsForTick } from '../engine/studyTime';
 import { saveAvatarDraft as saveDraft } from '../engine/avatarCloset';
 import type { AvatarGender, AvatarSlot, AvatarState, CosmeticResult } from '../types';
 import { useCloudSync, type CloudSync } from './useCloudSync';
-import { Access, Package, canOpenChapter, canOpenUnit, fetchAccess, packageForChapter, packageForUnit, BUYING_KEY, PACKAGES } from '../services/access';
+import { Access, Package, canOpenChapter, canOpenUnit, fetchAccess, packageForChapter, packageForUnit, rememberedOwns, BUYING_KEY, PACKAGES } from '../services/access';
 
 export type AppScreen =
   | 'welcome'
@@ -111,14 +112,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [writerStatus, setWriterStatus] = useState<WriterStatus>(writer.status);
   const [storageStatus, setStorageStatus] = useState<StorageStatus>(storageService.status);
   const [saveStatus, setSaveStatus] = useState<PublicationStatus>('success');
+  // Study seconds not yet in the save: they ride along with the next real change,
+  // so a device left open is not rewritten (and resent to the account) every few seconds.
+  const pendingStudySeconds = useRef(0);
   const setState = useCallback((update: React.SetStateAction<UserProgressState>): PublicationStatus => {
     if (writer.status !== 'writable') { setSaveStatus('read-only'); return 'read-only'; }
-    const next = typeof update === 'function' ? update(stateRef.current) : update;
+    let next = typeof update === 'function' ? update(stateRef.current) : update;
     if (next === stateRef.current) return 'success';
+    const studied = pendingStudySeconds.current;
+    if (studied) next = { ...next, totalStudySeconds: next.totalStudySeconds + studied };
     const status = persistBeforePublish(next, writer.status, value => storageService.saveState(value), value => {
       stateRef.current = value;
       setReactState(value);
     });
+    if (status === 'success') pendingStudySeconds.current -= studied;
     setSaveStatus(status);
     return status;
   }, [writer]);
@@ -172,16 +179,21 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.setMuted(!state.settings.soundEnabled);
   }, [state.settings.soundEnabled]);
 
-  // Track study time (increments every minute if active)
+  // Track study time: only while the page is on screen and the child is tapping or typing.
   useEffect(() => {
+    let lastInputAt = Date.now();
+    const onInput = () => { lastInputAt = Date.now(); };
+    window.addEventListener('pointerdown', onInput, { passive: true });
+    window.addEventListener('keydown', onInput, { passive: true });
     const timer = setInterval(() => {
-      setState(prev => ({
-        ...prev,
-        totalStudySeconds: prev.totalStudySeconds + 10,
-      }));
-    }, 10000);
-    return () => clearInterval(timer);
-  }, [setState]);
+      pendingStudySeconds.current += studySecondsForTick(document.visibilityState === 'visible', lastInputAt, Date.now());
+    }, STUDY_TICK_MS);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('pointerdown', onInput);
+      window.removeEventListener('keydown', onInput);
+    };
+  }, []);
 
   const reserveSession = useCallback((session: GeneratedSession) => {
     setState(prev => ({ ...prev, recentQuestionHistory: session.history }));
@@ -195,7 +207,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const levelInfo = useMemo(() => calculateLevel(state.xp), [state.xp]);
 
   // A development build opens everything; the hosted app asks lopso.vn's account server.
-  const [access, setAccess] = useState<Access>(() => ({ status: import.meta.env.DEV ? 'open' : 'checking' }));
+  // While asking, what the account owned last time stays open.
+  const [access, setAccess] = useState<Access>(() => import.meta.env.DEV ? { status: 'open' } : { status: 'checking', owns: rememberedOwns() });
   const accessRef = useRef(access);
   accessRef.current = access;
   const [paywall, setPaywall] = useState<Package | null>(null);
@@ -219,14 +232,24 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setConfirmingPayment(justPaid ? pkg : null);
     // The bank's confirmation can reach the server a little after the player returns.
     const check = async (triesLeft: number) => {
-      const next = await fetchAccess();
+      const next = await fetchAccess(fetch, 3);
       if (stopped) return;
       setAccess(next);
       if (justPaid && next.status === 'signed-in' && !next.owns?.includes(pkg!.id) && triesLeft > 0) setTimeout(() => void check(triesLeft - 1), 3000);
       else setConfirmingPayment(null);
     };
     void check(justPaid ? 20 : 0);
-    return () => { stopped = true; };
+    // Not reached at opening (Wi-Fi dropped, server busy): ask again once the network or the page comes back.
+    const recheck = () => {
+      if (accessRef.current.status === 'offline' && document.visibilityState === 'visible') void check(0);
+    };
+    window.addEventListener('online', recheck);
+    document.addEventListener('visibilitychange', recheck);
+    return () => {
+      stopped = true;
+      window.removeEventListener('online', recheck);
+      document.removeEventListener('visibilitychange', recheck);
+    };
   }, []);
   // A save from the family account (another device), or a clean one for another child.
   const replaceState = useCallback((next: UserProgressState) => {
@@ -352,13 +375,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   }, [setState]);
 
+  // Clears this device only: it stops saving for the child, so the account copy stays whole
+  // and picking the child again brings the progress back.
+  const { detach: detachCloud } = cloud;
   const resetAllProgress = useCallback(() => {
     const fresh = createDefaultState();
+    pendingStudySeconds.current = 0;
     if (setState(fresh) !== 'success') return;
+    detachCloud();
     setCurrentScreen('welcome');
     setActiveUnitId(1);
     setActiveStageId(null);
-  }, [setState]);
+  }, [setState, detachCloud]);
 
   // Defense in depth: production callers cannot bypass the hidden Settings section.
   const devUnlockAll = useCallback(() => { setState(prev => applyDevShortcut(prev, import.meta.env.DEV, 'unlock')); }, [setState]);
