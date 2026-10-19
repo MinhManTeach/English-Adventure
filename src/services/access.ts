@@ -61,8 +61,22 @@ export const canOpenUnit = (access: Access, unitId: number) => {
   return !pkg || ownsPackage(access, pkg);
 };
 
-/** Asks the site's account server what this browser's account owns. */
-export async function fetchAccess(fetcher: typeof fetch = fetch): Promise<Access> {
+/** localStorage key: the packages the server last said this browser's account owns. */
+const OWNS_KEY = 'ea-owns';
+function rememberOwns(owns: readonly string[] | null): void {
+  try {
+    if (owns) localStorage.setItem(OWNS_KEY, JSON.stringify(owns));
+    else localStorage.removeItem(OWNS_KEY);
+  } catch { /* private mode: nothing remembered */ }
+}
+export function rememberedOwns(): string[] {
+  try {
+    const value = JSON.parse(localStorage.getItem(OWNS_KEY) ?? '[]');
+    return Array.isArray(value) ? value.filter((x): x is string => typeof x === 'string') : [];
+  } catch { return []; }
+}
+
+async function askAccountServer(fetcher: typeof fetch): Promise<Access> {
   try {
     const res = await fetcher('/api/me', { cache: 'no-store', credentials: 'same-origin' });
     if (res.status === 401) return { status: 'signed-out', owns: [] };
@@ -73,6 +87,23 @@ export async function fetchAccess(fetcher: typeof fetch = fetch): Promise<Access
   } catch {
     return { status: 'offline' };
   }
+}
+
+/**
+ * Asks the site's account server what this browser's account owns, trying again
+ * a few times when it does not answer. While it cannot be reached, the packages
+ * it last named stay open, so a dropped network does not lock what was bought.
+ */
+export async function fetchAccess(fetcher: typeof fetch = fetch, retries = 0,
+  wait = (ms: number) => new Promise<void>(done => setTimeout(done, ms))): Promise<Access> {
+  let access = await askAccountServer(fetcher);
+  for (let attempt = 0; access.status === 'offline' && attempt < retries; attempt++) {
+    await wait(1000 * 2 ** attempt);
+    access = await askAccountServer(fetcher);
+  }
+  if (access.status === 'offline') return { status: 'offline', owns: rememberedOwns() };
+  rememberOwns(access.status === 'signed-in' ? access.owns ?? [] : null);
+  return access;
 }
 
 /** Google sign-in that comes back to this app (the server allows only /hoc-sinh/<app>/ paths). */

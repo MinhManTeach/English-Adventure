@@ -10,6 +10,20 @@ const LATER_CHAPTERS = WORLDS.filter(world => world.chapter > 2).map(world => St
 const STORAGE_KEY = 'ENGLISH_ADVENTURE_STATE_V1';
 const CURRENT_VERSION = 1;
 
+/** Questions a unit remembers so it can rotate through its pool before repeating. */
+export const CYCLE_HISTORY_LIMIT = 300;
+/**
+ * The short key a save keeps for a long question id (variant ids hold the whole
+ * encoded question). Keys of 12 characters or fewer are already short and kept,
+ * so compacting twice changes nothing.
+ */
+export function historyKey(id: string): string {
+  if (id.length <= 12) return id;
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < id.length; i++) hash = Math.imul(hash ^ id.charCodeAt(i), 0x01000193);
+  return '#' + (hash >>> 0).toString(36);
+}
+
 export function getTodayDateString(): string {
   const d = new Date();
   const year = d.getFullYear();
@@ -159,10 +173,12 @@ export function migrateState(value: unknown): UserProgressState {
     }
   }
   const boundedStrings = (value: unknown, max: number): string[] => Array.isArray(value) ? value.filter((x): x is string => typeof x === 'string').slice(-max) : [];
+  // Saves made before short keys could hold megabytes of full question text.
+  const boundedKeys = (value: unknown, max: number): string[] => [...new Set(boundedStrings(value, Infinity).map(historyKey))].slice(-max);
   const recentQuestionHistory = Object.fromEntries(Object.entries(object(old.recentQuestionHistory, {})).filter(([unit]) => ALL_WORLD_UNIT_IDS.some(id => String(id) === unit)).map(([unit, history]) => [unit, {
-    variantIds: boundedStrings(history?.variantIds, 50), templateIds: boundedStrings(history?.templateIds, 20), cycleVariantIds: boundedStrings(history?.cycleVariantIds, 2000),
+    variantIds: boundedStrings(history?.variantIds, 50).map(historyKey), templateIds: boundedStrings(history?.templateIds, 20), cycleVariantIds: boundedKeys(history?.cycleVariantIds, CYCLE_HISTORY_LIMIT),
     lastSessionContextFamilyKeys: boundedStrings(history?.lastSessionContextFamilyKeys, 24),
-    conceptIds: boundedStrings(history?.conceptIds, 50), visibleTaskKeys: boundedStrings(history?.visibleTaskKeys, 50),
+    conceptIds: boundedStrings(history?.conceptIds, 50).map(historyKey), visibleTaskKeys: boundedStrings(history?.visibleTaskKeys, 50).map(historyKey),
     contextKeys: boundedStrings(history?.contextKeys, 24), lastSessionContextKeys: boundedStrings(history?.lastSessionContextKeys, 24),
   }]));
   const state: UserProgressState = {

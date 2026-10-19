@@ -10,16 +10,25 @@ export const CLOUD_APP = 'english-adventure';
 const LINK_KEY = 'ENGLISH_ADVENTURE_CLOUD_V1';
 
 export interface Kid { id: string; name: string }
-/** Which child this device saves for, and the account revision it last matched. */
-export interface CloudLink { kidId: string; kidName: string; rev: number; dirty: boolean; savedAt?: number }
-export interface CloudCopy { rev: number; state: UserProgressState | null; updatedAt: number }
+/**
+ * Which child this device saves for, and the account revision it last matched.
+ * `sentId` marks the last save this device sent, in case the answer never came
+ * back (the page closed while it was on its way).
+ */
+export interface CloudLink { kidId: string; kidName: string; rev: number; dirty: boolean; savedAt?: number; sentId?: string }
+/** `sentId`: which device save this copy is, when the device marked it. */
+export interface CloudCopy { rev: number; state: UserProgressState | null; updatedAt: number; sentId?: string }
+/** The account copy's field carrying a save's `sentId`; it never reaches the game's state. */
+const SENT_ID = 'cloudSentId';
+export const newSentId = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 export function readLink(): CloudLink | null {
   try {
     const value = JSON.parse(localStorage.getItem(LINK_KEY) ?? 'null') as Partial<CloudLink> | null;
     if (!value || typeof value.kidId !== 'string' || !Number.isInteger(value.rev)) return null;
     return { kidId: value.kidId, kidName: String(value.kidName ?? ''), rev: value.rev!, dirty: !!value.dirty,
-      savedAt: typeof value.savedAt === 'number' ? value.savedAt : undefined };
+      savedAt: typeof value.savedAt === 'number' ? value.savedAt : undefined,
+      ...(typeof value.sentId === 'string' ? { sentId: value.sentId } : {}) };
   } catch { return null; }
 }
 export function writeLink(link: CloudLink | null): void {
@@ -54,11 +63,15 @@ export async function addKid(name: string, fetcher: typeof fetch = fetch): Promi
   } catch { return { kind: 'failed' }; }
 }
 
-const toCopy = (body: { rev?: unknown; data?: unknown; updatedAt?: unknown }): CloudCopy => ({
-  rev: Number.isInteger(body.rev) ? body.rev as number : 0,
-  state: body.data && typeof body.data === 'object' ? migrateState(body.data) : null,
-  updatedAt: typeof body.updatedAt === 'number' ? body.updatedAt : 0,
-});
+const toCopy = (body: { rev?: unknown; data?: unknown; updatedAt?: unknown }): CloudCopy => {
+  const { [SENT_ID]: sentId, ...data } = body.data && typeof body.data === 'object' ? body.data as Record<string, unknown> : {};
+  return {
+    rev: Number.isInteger(body.rev) ? body.rev as number : 0,
+    state: body.data && typeof body.data === 'object' ? migrateState(data) : null,
+    updatedAt: typeof body.updatedAt === 'number' ? body.updatedAt : 0,
+    ...(typeof sentId === 'string' ? { sentId } : {}),
+  };
+};
 
 export type LoadResult = { kind: 'loaded'; copy: CloudCopy } | { kind: 'missing' } | { kind: 'failed' };
 /** The account's copy; `missing` when the child is not on this account (another parent signed in). */
@@ -73,9 +86,9 @@ export async function loadCopy(kidId: string, fetcher: typeof fetch = fetch): Pr
 
 export type PushResult = { kind: 'saved'; rev: number } | { kind: 'stale'; copy: CloudCopy } | { kind: 'missing' } | { kind: 'failed' };
 export async function pushCopy(kidId: string, baseRev: number, state: UserProgressState,
-  fetcher: typeof fetch = fetch, keepalive = false): Promise<PushResult> {
+  fetcher: typeof fetch = fetch, keepalive = false, sentId?: string): Promise<PushResult> {
   try {
-    const body = JSON.stringify({ rev: baseRev, data: state });
+    const body = JSON.stringify({ rev: baseRev, data: sentId ? { ...state, [SENT_ID]: sentId } : state });
     // A save sent as the page closes must be small enough for the browser to finish it alone.
     const res = await fetcher(progressUrl(kidId), post(body, keepalive && body.length < 60_000));
     if (res.status === 409) return { kind: 'stale', copy: toCopy(await res.json()) };
@@ -97,6 +110,9 @@ export type SyncPlan = { kind: 'in-sync' } | { kind: 'push'; baseRev: number } |
  */
 export function reconcile(local: UserProgressState, link: CloudLink | null, kidId: string, copy: CloudCopy): SyncPlan {
   const same = link?.kidId === kidId;
+  // The account's newest copy is the save this device sent last (its answer was lost):
+  // nothing changed elsewhere, so this device is caught up to that revision.
+  if (same && link!.sentId && copy.sentId === link!.sentId) link = { ...link!, rev: copy.rev };
   if (same && copy.rev === link!.rev) return link!.dirty ? { kind: 'push', baseRev: copy.rev } : { kind: 'in-sync' };
   if (!copy.state) return { kind: 'push', baseRev: copy.rev };
   if (same ? !link!.dirty : isFresh(local)) return { kind: 'adopt', copy };

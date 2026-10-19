@@ -5,7 +5,7 @@ import type { UserProgressState } from '../types';
 import type { Access } from '../services/access';
 import { createDefaultState } from '../services/storage';
 import {
-  addKid, listKids, loadCopy, pushCopy, readLink, reconcile, writeLink,
+  addKid, listKids, loadCopy, newSentId, pushCopy, readLink, reconcile, writeLink,
   type CloudCopy, type CloudLink, type Kid, type SyncPlan,
 } from '../services/cloudSync';
 
@@ -28,6 +28,8 @@ export interface CloudSync {
   createKid: (name: string) => Promise<void>;
   resolveConflict: (keep: 'device' | 'account' | 'cancel') => void;
   switchKid: () => Promise<void>;
+  /** Stops saving this device for its child, leaving the account copy as it is. */
+  detach: () => void;
 }
 
 const SAVE_EVERY_MS = 30_000;
@@ -76,13 +78,25 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
     inFlight.current = true;
     setPhase('saving');
     const sent = stateRef.current;
-    const result = await pushCopy(current.kidId, current.rev, sent, fetch, keepalive);
+    // Noted before sending: if the page closes before the answer, the next visit knows this save.
+    // Kept until a save is answered, so every unanswered save from here carries the same mark.
+    const sentId = current.sentId ?? newSentId();
+    if (!current.sentId) setLink({ ...current, sentId });
+    const result = await pushCopy(current.kidId, current.rev, sent, fetch, keepalive, sentId);
     inFlight.current = false;
     if (linkRef.current?.kidId !== current.kidId) return;
     if (result.kind === 'saved') {
-      setLink({ ...linkRef.current, rev: result.rev, dirty: stateRef.current !== sent, savedAt: Date.now() });
+      const { sentId: _sent, ...latest } = linkRef.current;
+      setLink({ ...latest, rev: result.rev, dirty: stateRef.current !== sent, savedAt: Date.now() });
       setPhase('saved');
     } else if (result.kind === 'stale') {
+      const plan = reconcile(stateRef.current, { ...linkRef.current, dirty: true }, current.kidId, result.copy);
+      if (plan.kind === 'push' && plan.baseRev !== current.rev) {
+        // The newer account copy is one of ours whose answer was lost: send again on top of it.
+        setLink({ ...linkRef.current, rev: plan.baseRev, dirty: true });
+        void push(keepalive);
+        return;
+      }
       setConflict({ kidId: current.kidId, kidName: current.kidName, copy: result.copy, linking: false });
       setPhase('ask');
     } else if (result.kind === 'missing') {
@@ -100,7 +114,7 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
     setPhase('saved');
   }, [replaceState, stateRef, setLink, setPhase]);
 
-  const apply = useCallback((plan: SyncPlan, kidId: string, kidName: string, linking: boolean) => {
+  const apply = useCallback((plan: SyncPlan, kidId: string, kidName: string, linking: boolean, rev: number) => {
     setConflict(null);
     if (plan.kind === 'adopt') return adopt(kidId, kidName, plan.copy);
     if (plan.kind === 'ask') {
@@ -109,7 +123,7 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
     }
     const current = linkRef.current?.kidId === kidId ? linkRef.current : null;
     if (plan.kind === 'in-sync') {
-      setLink({ kidId, kidName, rev: current?.rev ?? 0, dirty: current?.dirty ?? false, savedAt: current?.savedAt });
+      setLink({ kidId, kidName, rev, dirty: current?.dirty ?? false, savedAt: current?.savedAt });
       return setPhase('saved');
     }
     setLink({ kidId, kidName, rev: plan.baseRev, dirty: true, savedAt: current?.savedAt });
@@ -131,7 +145,7 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
         if (loaded.kind === 'failed') return setPhase('error');
         if (loaded.kind === 'loaded') {
           const dirty = opened?.kidId === current.kidId ? opened.dirty : current.dirty;
-          return apply(reconcile(stateRef.current, { ...current, dirty }, current.kidId, loaded.copy), current.kidId, current.kidName, false);
+          return apply(reconcile(stateRef.current, { ...current, dirty }, current.kidId, loaded.copy), current.kidId, current.kidName, false, loaded.copy.rev);
         }
         setLink(null);
       }
@@ -151,10 +165,23 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
     if (!active) return;
     const tick = () => { if (linkRef.current?.dirty && phaseRef.current !== 'loading') void push(); };
     const timer = setInterval(tick, SAVE_EVERY_MS);
-    const onHide = () => { if (document.visibilityState === 'hidden' && linkRef.current?.dirty) void push(true); };
-    document.addEventListener('visibilitychange', onHide);
-    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', onHide); };
-  }, [active, push]);
+    // A device left open while the child learned elsewhere takes up the newer copy as it comes back.
+    const catchUp = async () => {
+      const current = linkRef.current, waiting = () => phaseRef.current === 'ask' || phaseRef.current === 'loading';
+      if (!current || inFlight.current || waiting()) return;
+      inFlight.current = true;
+      const loaded = await loadCopy(current.kidId);
+      inFlight.current = false;
+      if (loaded.kind !== 'loaded' || linkRef.current !== current || !activeRef.current || waiting()) return;
+      apply(reconcile(stateRef.current, current, current.kidId, loaded.copy), current.kidId, current.kidName, false, loaded.copy.rev);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') { if (linkRef.current?.dirty) void push(true); }
+      else void catchUp();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', onVisibility); };
+  }, [active, push, apply, stateRef]);
 
   const chooseKid = useCallback(async (kid: Kid) => {
     setBusy(true);
@@ -162,7 +189,7 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
     const loaded = await loadCopy(kid.id);
     setBusy(false);
     if (loaded.kind !== 'loaded') { setMessage('Chưa mở được tiến độ của bé. Kiểm tra mạng rồi thử lại.'); return; }
-    apply(reconcile(stateRef.current, linkRef.current, kid.id, loaded.copy), kid.id, kid.name, true);
+    apply(reconcile(stateRef.current, linkRef.current, kid.id, loaded.copy), kid.id, kid.name, true, loaded.copy.rev);
   }, [apply, stateRef]);
 
   const createKid = useCallback(async (name: string) => {
@@ -173,7 +200,7 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
     if (added.kind === 'limit') { setMessage('Tài khoản đã có đủ 6 bé.'); return; }
     if (added.kind !== 'added') { setMessage('Chưa thêm được bé. Kiểm tra mạng rồi thử lại.'); return; }
     setKids(list => [...list, added.kid]);
-    apply({ kind: 'push', baseRev: 0 }, added.kid.id, added.kid.name, true);
+    apply({ kind: 'push', baseRev: 0 }, added.kid.id, added.kid.name, true, 0);
   }, [apply]);
 
   const resolveConflict = useCallback((keep: 'device' | 'account' | 'cancel') => {
@@ -203,5 +230,15 @@ export function useCloudSync({ access, writable, state, stateRef, replaceState }
     setPhase('choose');
   }, [push, replaceState, stateRef, setLink, setPhase]);
 
-  return { phase, kids, link, conflict, busy, message, chooseKid, createKid, resolveConflict, switchKid };
+  // After "Reset All Progress": the empty save must never go over the child's account copy.
+  const detach = useCallback(() => {
+    setLink(null);
+    setConflict(null);
+    quiet.current = stateRef.current;
+    if (!activeRef.current) return;
+    setPhase('choose');
+    void listKids().then(list => setKids(list ?? []));
+  }, [stateRef, setLink, setPhase]);
+
+  return { phase, kids, link, conflict, busy, message, chooseKid, createKid, resolveConflict, switchKid, detach };
 }

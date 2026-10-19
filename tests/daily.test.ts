@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createDefaultState } from '../src/services/storage';
 import { xpEarnedOn, weekActivity, sentenceOfTheDay } from '../src/engine/daily';
 import { LEARN_CARDS_DATA } from '../src/data/learnContent';
+import { IDLE_AFTER_MS, studySecondsForTick } from '../src/engine/studyTime';
 
 const log = (completedAt: string, xpEarned: number) => ({ id: completedAt, unitId: 1, stageId: 'practice', completedAt, score: 5, total: 6, xpEarned, coinsEarned: 5, accuracy: 83, durationSeconds: 30 });
 
@@ -24,4 +25,11 @@ test('the sentence of the day comes from the unit and stays the same all day', (
   const first = sentenceOfTheDay(11, '2026-10-12');
   assert.deepEqual(sentenceOfTheDay(11, '2026-10-12'), first);
   assert.ok(LEARN_CARDS_DATA[11].some(card => card.examples.includes(first)));
+});
+
+test('study time counts only while the game is on screen and the child is active', () => {
+  const now = 1_000_000;
+  assert.equal(studySecondsForTick(true, now - 5_000, now), 10);
+  assert.equal(studySecondsForTick(false, now - 5_000, now), 0); // another tab, or the screen is off
+  assert.equal(studySecondsForTick(true, now - IDLE_AFTER_MS, now), 0); // left open on the home screen
 });
