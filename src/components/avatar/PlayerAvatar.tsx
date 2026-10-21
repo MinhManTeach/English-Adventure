@@ -27,7 +27,7 @@ export const PlayerAvatar = memo(function PlayerAvatar({ profile, cosmetics, siz
     {configured ? variant === 'compact'
       // Compact frames show a head-and-shoulders portrait, so the face stays readable at 48px.
       ? <span aria-hidden="true" data-avatar-portrait="" style={{ position: 'relative', display: 'block', width: '100%', aspectRatio: '1', clipPath: 'circle(50%)' }}>
-        <span style={{ position: 'absolute', display: 'block', width: '200%', left: '-50%', top: '-22%' }}>
+        <span style={{ position: 'absolute', display: 'block', width: '120%', left: '-10%', top: '-23%' }}>
           <AvatarRenderer avatar={cosmetics.avatar} size="medium" />
         </span>
       </span>

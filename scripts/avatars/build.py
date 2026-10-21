@@ -6,7 +6,7 @@ Needs Pillow and Playwright's Chromium (set PLAYWRIGHT_MODULE / CHROMIUM_PATH if
 import hashlib, json, os, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
 from PIL import Image
-import body, hair, clothes, accessories
+import art, body, hair, clothes, accessories
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 RIG = os.path.join(ROOT, 'assets', 'avatar-rig-v1')
@@ -16,6 +16,8 @@ STARTERS = ['hair.starter-boy', 'hair.starter-girl', 'top.starter-blue', 'top.st
 BOY_ONLY = {'hair.starter-boy', 'hair.side-sweep', 'hair.wavy-short', 'hair.tidy-spikes', 'hair.korean-fringe', 'hair.textured-quiff'}
 GIRL_ONLY = {'hair.starter-girl', 'hair.pony-tail', 'hair.twist-braids', 'hair.wavy-bob', 'hair.long-waves', 'hair.space-buns',
              'bottom.plum-skirt', 'bottom.pink-pleated-skirt', 'shoes.mary-janes', 'accessory.bow-clip'}
+HEAD_WEAR = {'accessory.round-glasses', 'accessory.sun-cap', 'accessory.star-headband', 'accessory.music-headphones',
+             'accessory.castle-crown', 'accessory.bucket-hat', 'accessory.bow-clip', 'accessory.beret', 'accessory.cat-ears'}
 
 
 def items():
@@ -25,7 +27,9 @@ def items():
     for k, f in clothes.BOTTOMS.items(): out[k] = {'bottom': f()}
     for k, f in clothes.SHOES.items(): out[k] = {'shoes': f()}
     for k, f in accessories.ACCESSORIES.items(): out[k] = f()
-    return out
+    # Hair and headwear follow the enlarged chibi head; everything else follows the short body.
+    return {k: {plane: art.zoned(text, 'head' if k.startswith('hair.') or k in HEAD_WEAR else 'body')
+                for plane, text in planes.items()} for k, planes in out.items()}
 
 
 def folder(item_id):

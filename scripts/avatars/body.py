@@ -1,38 +1,55 @@
-"""Boy and girl base bodies: chibi proportions, big sparkling eyes, neutral base clothes."""
+"""Boy and girl base bodies: chibi proportions (big head, short body), glossy eyes, neutral base clothes."""
 from art import *
 
 BASE_TOP, BASE_BOTTOM = '#f5f1ea', '#c3cbd6'
 
 
 def head_shape():
-    return 'M218 326 Q218 168 384 168 Q550 168 550 326 Q550 446 472 478 Q384 504 296 478 Q218 446 218 326 Z'
+    # mochi face: wide cheeks, soft chin
+    return 'M214 318 Q214 164 384 164 Q554 164 554 318 Q556 432 490 474 Q440 502 384 502 Q328 502 278 474 Q212 432 214 318 Z'
+
+
+def eye(cx, cy, sign, girl):
+    p = ellipse(cx, cy, 30, 38, '#2a1a2e', None)
+    p += f'<ellipse cx="{cx}" cy="{cy + 8}" rx="24" ry="27" fill="url(#iris)"/>'
+    p += ellipse(cx, cy + 4, 13, 15, '#1d1222', None)
+    # three sparkles make the eyes read as glossy at small sizes
+    p += circle(cx - 10, cy - 14, 11, '#ffffff', None) + circle(cx + 11, cy + 14, 5.5, '#ffffff', None)
+    p += circle(cx + 13, cy - 16, 3.5, '#ffffff', None, extra=' opacity=".85"')
+    p += path(f'M{cx - 32} {cy - 18} Q{cx} {cy - 50} {cx + 32} {cy - 18}', 'none', '#2a1a2e', 8)
+    if girl:
+        ox = cx + sign * 28
+        p += line(f'M{ox} {cy - 22} Q{ox + sign * 12} {cy - 30} {ox + sign * 16} {cy - 42}', '#2a1a2e', 6)
+        p += line(f'M{ox + sign * 2} {cy - 10} Q{ox + sign * 16} {cy - 14} {ox + sign * 22} {cy - 24}', '#2a1a2e', 5)
+    return p
 
 
 def face(gender):
-    p = []
-    # eyes: dark ovals, warm brown lower iris and two sparkles
-    for cx, sign in ((320, -1), (448, 1)):
-        p.append(ellipse(cx, 352, 25, 32, '#2c1c2b', None))
-        p.append(ellipse(cx, 366, 17, 14, '#7a4a34', None, extra=' opacity=".75"'))
-        p.append(circle(cx - 8, 338, 9.5, '#ffffff', None))
-        p.append(circle(cx + 9, 368, 4.5, '#ffffff', None))
-        if gender == 'girl':
-            ox = cx + sign * 22
-            p.append(line(f'M{ox} 334 Q{ox + sign * 12} 326 {ox + sign * 18} 316', '#2c1c2b', 7))
-            p.append(line(f'M{ox + sign * 2} 346 Q{ox + sign * 16} 342 {ox + sign * 24} 334', '#2c1c2b', 6))
-    # brows
-    brow = '#4b3026'
-    p.append(line('M292 296 Q318 282 346 292', brow, 9 if gender == 'boy' else 7))
-    p.append(line('M422 292 Q450 282 476 296', brow, 9 if gender == 'boy' else 7))
-    # nose and smile
-    p.append(line('M380 392 Q374 404 388 406', SKIN_SHADE, 6))
-    p.append(path('M350 424 Q384 448 418 424 Q412 462 384 462 Q356 462 350 424 Z', '#a83f57', OUT, 6))
-    p.append(path('M358 430 Q384 444 410 430 L406 440 Q384 448 362 440 Z', '#ffffff', None))
-    p.append(ellipse(384, 452, 14, 6.5, '#f07f8a', None))
-    # cheeks
-    p.append(ellipse(280, 412, 27, 15, BLUSH, None, extra=' opacity=".45"'))
-    p.append(ellipse(488, 412, 27, 15, BLUSH, None, extra=' opacity=".45"'))
+    girl = gender == 'girl'
+    p = ['<defs><linearGradient id="iris" x1="0" y1="0" x2="0" y2="1">'
+         '<stop offset="0" stop-color="#3b2433"/><stop offset=".55" stop-color="#7a4a34"/><stop offset="1" stop-color="#d49a5c"/></linearGradient>'
+         '<radialGradient id="blush"><stop offset="0" stop-color="#ff7d8c" stop-opacity=".7"/>'
+         '<stop offset="1" stop-color="#ff7d8c" stop-opacity="0"/></radialGradient></defs>']
+    p.append(eye(316, 372, -1, girl)); p.append(eye(452, 372, 1, girl))
+    brow = '#5a3a2c'
+    p.append(line('M292 304 Q314 294 336 300', brow, 7)); p.append(line('M432 300 Q454 294 476 304', brow, 7))
+    # tiny nose, small open smile, soft blush with two strokes each
+    p.append(ellipse(384, 420, 5, 3.5, SKIN_SHADE, None))
+    p.append(path('M362 440 Q384 464 406 440 Q400 470 384 470 Q368 470 362 440 Z', '#b9425e', OUT, 5))
+    p.append(ellipse(384, 462, 9, 5, '#ff8fa0', None))
+    p.append(ellipse(268, 430, 36, 22, 'url(#blush)', None)); p.append(ellipse(500, 430, 36, 22, 'url(#blush)', None))
+    p += [line(f'M{x} 424 L{x - 6} 436', BLUSH, 3.5) for x in (258, 272, 494, 508)]
     return ''.join(p)
+
+
+def head(gender):
+    p = [path('M354 440 L414 440 L416 520 Q384 534 352 520 Z', SKIN)]
+    p.append(circle(216, 360, 28, SKIN)); p.append(circle(552, 360, 28, SKIN))
+    p.append(circle(218, 362, 12, SKIN_SHADE, None, extra=' opacity=".5"'))
+    p.append(circle(550, 362, 12, SKIN_SHADE, None, extra=' opacity=".5"'))
+    p.append(shape(head_shape(), SKIN))
+    p.append(face(gender))
+    return svg(*p)
 
 
 def body(gender):
@@ -48,25 +65,20 @@ def body(gender):
         p.append(limb([SHOULDER[s], ELBOW[s], WRIST[s]], ARM_W, SKIN))
     for s in 'LR':
         x, y = HAND[s]
-        p.append(circle(x, y, 31, SKIN))
+        # pre-stretched so the hands come out round after the body squash
+        p.append(ellipse(x, y - 6, 30, round(30 * BODY_SCALE[0] / BODY_SCALE[1]), SKIN))
         p.append(line(f'M{x + (12 if s == "L" else -12)} {y - 10} Q{x + (16 if s == "L" else -16)} {y + 2} {x + (10 if s == "L" else -10)} {y + 14}', SKIN_SHADE, 5))
     # base clothes: soft tank top and light shorts
     p.append(path('M284 790 L484 790 L490 900 L394 900 L384 868 L374 900 L278 900 Z', BASE_BOTTOM))
     p.append(shape(TORSO, BASE_TOP))
     p.append(path('M336 528 Q384 566 432 528', 'none', OUT, SW))
     p.append(shade('M282 760 Q384 784 486 760 L486 804 Q384 826 282 804 Z', '#b9b0a2', .35))
-    # neck, ears and head
-    p.append(path('M352 456 L416 456 L418 536 Q384 556 350 536 Z', SKIN))
-    p.append(shade('M352 470 Q384 500 416 470 L416 500 Q384 520 352 500 Z', SKIN_SHADE, .55))
-    p.append(circle(220, 352, 30, SKIN)); p.append(circle(548, 352, 30, SKIN))
-    p.append(circle(222, 354, 13, SKIN_SHADE, None, extra=' opacity=".5"'))
-    p.append(circle(546, 354, 13, SKIN_SHADE, None, extra=' opacity=".5"'))
-    p.append(shape(head_shape(), SKIN))
-    p.append(face(gender))
-    return svg(*p)
+    body_layer = zoned(svg(*p), 'body')
+    head_layer = zoned(head(gender), 'head')
+    return body_layer[:-len('</svg>')] + head_layer[head_layer.index('>') + 1:]
 
 
 def mannequin_head():
     """Faint head used only behind hair thumbnails so the style reads as hair."""
     c = '#f3e6dc'
-    return svg(circle(220, 352, 30, c, '#d9c6b8'), circle(548, 352, 30, c, '#d9c6b8'), path(head_shape(), c, '#d9c6b8'))
+    return zoned(svg(circle(216, 360, 28, c, '#d9c6b8'), circle(552, 360, 28, c, '#d9c6b8'), path(head_shape(), c, '#d9c6b8')), 'head')
