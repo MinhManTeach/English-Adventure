@@ -24,6 +24,7 @@ import { saveAvatarDraft as saveDraft } from '../engine/avatarCloset';
 import type { AvatarGender, AvatarSlot, AvatarState, CosmeticResult } from '../types';
 import { useCloudSync, type CloudSync } from './useCloudSync';
 import { Access, Package, canOpenChapter, canOpenUnit, fetchAccess, packageForChapter, packageForUnit, rememberedOwns, BUYING_KEY, PACKAGES } from '../services/access';
+import { IS_STORE_APP } from '../native/storeApp';
 
 export type AppScreen =
   | 'welcome'
@@ -207,14 +208,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const levelInfo = useMemo(() => calculateLevel(state.xp), [state.xp]);
 
   // A development build opens everything; the hosted app asks lopso.vn's account server.
-  // While asking, what the account owned last time stays open.
-  const [access, setAccess] = useState<Access>(() => import.meta.env.DEV ? { status: 'open' } : { status: 'checking', owns: rememberedOwns() });
+  // While asking, what the account owned last time stays open. The store app has no
+  // account server: only the free worlds open there.
+  const [access, setAccess] = useState<Access>(() => import.meta.env.DEV ? { status: 'open' }
+    : IS_STORE_APP ? { status: 'offline', owns: [] } : { status: 'checking', owns: rememberedOwns() });
   const accessRef = useRef(access);
   accessRef.current = access;
   const [paywall, setPaywall] = useState<Package | null>(null);
   const [confirmingPayment, setConfirmingPayment] = useState<Package | null>(null);
   useEffect(() => {
-    if (import.meta.env.DEV || typeof window === 'undefined') return;
+    if (import.meta.env.DEV || IS_STORE_APP || typeof window === 'undefined') return;
     let stopped = false;
     const url = new URL(window.location.href);
     const paid = url.searchParams.get('paid');

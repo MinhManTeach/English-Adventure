@@ -3,6 +3,7 @@ import { Lock, X } from 'lucide-react';
 import { Button } from './Button';
 import { useGame } from '../../context/GameContext';
 import { BUYING_KEY, ownsPackage, signInUrl, startPurchase, type Package } from '../../services/access';
+import { IS_STORE_APP } from '../../native/storeApp';
 
 /** Shown when a player opens a paid world: what its package opens, and how a parent buys it. */
 export const PaywallDialog: React.FC = () => {
@@ -51,13 +52,17 @@ export const PaywallDialog: React.FC = () => {
         <div>
           <p className="eyebrow text-ink-soft">Gói trọn bộ {pkg.level}</p>
           <h2 id="paywall-title" className="font-display text-2xl font-black text-ink">{pkg.title}</h2>
-          <p className="mt-1 text-sm font-bold text-ink-soft">A1 Unit 1–6 luôn miễn phí. Mua một lần {pkg.price}, dùng mãi mãi.</p>
+          <p className="mt-1 text-sm font-bold text-ink-soft">
+            {IS_STORE_APP ? 'A1 Unit 1–6 luôn miễn phí.' : `A1 Unit 1–6 luôn miễn phí. Mua một lần ${pkg.price}, dùng mãi mãi.`}
+          </p>
         </div>
         <ul className="space-y-1.5 text-left text-sm font-bold text-ink">
           {pkg.opens.map(line => <li key={line} className="flex gap-2"><span aria-hidden="true">✅</span>{line}</li>)}
         </ul>
 
-        {ownsPackage(access, pkg) ? (
+        {IS_STORE_APP ? (
+          <p className="rounded-2xl bg-sky-50 p-3 text-sm font-bold text-sky-900">Thế giới này chưa có trong bản ứng dụng. Hãy học tiếp các bài miễn phí nhé!</p>
+        ) : ownsPackage(access, pkg) ? (
           <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">Tài khoản này đã mở khóa {pkg.level}. Chọn lại bài để học nhé!</p>
         ) : access.status === 'checking' ? (
           <p role="status" className="text-sm font-bold text-ink-soft">Đang kiểm tra tài khoản…</p>
