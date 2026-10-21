@@ -14,8 +14,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.soft-crop/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "7d6c118c2cdf4b0e97fe8e165900b1c6e2dd595de57d8f31ff9d0ab503966392",
-      "bytes": 7034
+      "sha256": "b3202de90c233436c3a47d365469536c7875c1dfbbd782d00a003646010cae54",
+      "bytes": 9694
     },
     {
       "id": "hair.short-curls",
@@ -25,8 +25,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.short-curls/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "fd4309881be20802300083081915ae15f2ca6d5bd37b9732d1bc24ccd1ac0313",
-      "bytes": 8618
+      "sha256": "573ff8449e364e4e087676bebe69bc9bb26cb52f1bffb6fc096928c23c0c130b",
+      "bytes": 16548
     },
     {
       "id": "hair.side-sweep",
@@ -36,8 +36,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.side-sweep/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "48ca5f25956e4e3d9c7e3fd2b5674598886f971b4e86bd242a46ed97af0b5f34",
-      "bytes": 9994
+      "sha256": "7514163eb9c5de8c2a93bab92b1617dbd7370e2ee86d69f2c2bfd7c59acb0c32",
+      "bytes": 13472
     },
     {
       "id": "hair.wavy-short",
@@ -47,8 +47,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.wavy-short/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "42fbe753c43e9ebad8249a6e213a5b09450a7958e8ab0939972b11b57b329226",
-      "bytes": 8822
+      "sha256": "c74f5fbc986095c6fb8194480a356f71ee3d3879733288cc46e821a287fe2b3a",
+      "bytes": 12232
     },
     {
       "id": "hair.tidy-spikes",
@@ -58,8 +58,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.tidy-spikes/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "88c30985af327b8018aea6fdaca501172df744cbc3c8c5001ae74781ae70fcf1",
-      "bytes": 9972
+      "sha256": "98c4d3e4a036ee946de6908d8ff56883f34e1ae0962ee3204a7359c3d62a5501",
+      "bytes": 14368
     },
     {
       "id": "hair.korean-fringe",
@@ -69,8 +69,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.korean-fringe/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "a0ba7b66dc068a82a25b1d8a073391e25013f7b9b7d4db472a221e7197eaa4f3",
-      "bytes": 7836
+      "sha256": "3119769e9a682f3975f325879b39096cff35f96210f4d15aa7c3c13de3ca8091",
+      "bytes": 11140
     },
     {
       "id": "hair.textured-quiff",
@@ -80,8 +80,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.textured-quiff/boy/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "957eef7d26d3cfb11bf3f997971dbc0ceae8089b7c84274c400807c89829a4a6",
-      "bytes": 10926
+      "sha256": "0ab2cf687440b54a666098d1e97fbcc3f8bae65745c1914d777ed47cb07163dc",
+      "bytes": 15290
     },
     {
       "id": "hair.pony-tail",
@@ -91,8 +91,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.pony-tail/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "3ae7e91bf071fe97c13736b2807582c6501900a0391b0adf7dbce8aa017ef64c",
-      "bytes": 7430
+      "sha256": "5bc0823aa8ea6072a496452d85bc22ac41a6c3bb846f9b95bfd2ef8edaa5ab11",
+      "bytes": 10442
     },
     {
       "id": "hair.pony-tail",
@@ -102,8 +102,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.pony-tail/girl/back.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "b4b2b740abd7335e07d1f198633e6fe090d913d0e394ff2cb6eb594a9904dc0e",
-      "bytes": 6082
+      "sha256": "7441680a7e2d543665a1d1a11c0c7dcae0914d041b7907b9e43cf407d8e7c50f",
+      "bytes": 8292
     },
     {
       "id": "hair.twist-braids",
@@ -113,8 +113,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.twist-braids/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "796ec9394c11bb2b60edbc099f76972bc960bfbb19aaeb006d8753c8559bb4c0",
-      "bytes": 11340
+      "sha256": "2a6b3aa2c8409ae5ce1e17d68579b79a6ed29e06a22d2af903b90c50c81ed134",
+      "bytes": 22436
     },
     {
       "id": "hair.wavy-bob",
@@ -124,8 +124,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.wavy-bob/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "3bed2c79b35fd74c16ef000585417505ab7a96b29fcff8a622f5b61f6a0e891b",
-      "bytes": 9728
+      "sha256": "5ec43c6039fa54d189ea14560cff4dc550646d808f5885fe7c38f45ef4178956",
+      "bytes": 13538
     },
     {
       "id": "hair.wavy-bob",
@@ -135,8 +135,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.wavy-bob/girl/back.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "13ca39b54e083ae498a5901a04ff4be2ab905433b8081ba74c62a618a4a2cd57",
-      "bytes": 7288
+      "sha256": "351606f078c0498975629090666f70fd4918041ce639a32f264b2e77adb37e20",
+      "bytes": 10194
     },
     {
       "id": "hair.long-waves",
@@ -146,8 +146,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.long-waves/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "58218a1ce04fb01d481b97948afe5474af56cf3a0ce5c2c662a3e245770ff6ff",
-      "bytes": 9080
+      "sha256": "ca2decd584af93ec8496a8afc098b67d22fb1b75ff5eb02b847cd7176f00e89f",
+      "bytes": 12540
     },
     {
       "id": "hair.long-waves",
@@ -157,8 +157,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.long-waves/girl/back.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "ded12ef3b1b17e0d57d664c6282f3414e81c994958ed67e99fb3b901f1bd16d4",
-      "bytes": 10266
+      "sha256": "b2f49b7e62729e5987cc0f7c3235d06766b6ecdc4821e8bee247f3437974ba38",
+      "bytes": 14350
     },
     {
       "id": "hair.space-buns",
@@ -168,8 +168,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/hair.space-buns/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "b829d5fcebbc9bcb31e1a060ba1d924a8b5b683409f2eed80b93adda3fdfd164",
-      "bytes": 11928
+      "sha256": "1c6e3a4f0e41611d80f22278e17bf68006dd2d82b26f19b31e46b79b93da4bf1",
+      "bytes": 17308
     },
     {
       "id": "top.sunshine-tee",
@@ -179,8 +179,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.sunshine-tee/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "86e5704382e596dcb951936acd196eec97fec29dc7c2511565b361f11eabbe95",
-      "bytes": 14224
+      "sha256": "143ece1b5be9de99b2541e38f8f8d630f0887ff41c3baf8e617d9f1718cfd37f",
+      "bytes": 14066
     },
     {
       "id": "top.coral-stripes",
@@ -190,8 +190,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.coral-stripes/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "051ddb47b12e8a8c9d6f1b406be5476815d361143f0419c81358bdbfbbc48108",
-      "bytes": 8032
+      "sha256": "e1df9b70add22bb202103ad9a0f754824cbe45df2da1db97cc9ebb603872019a",
+      "bytes": 7184
     },
     {
       "id": "top.sky-hoodie",
@@ -201,8 +201,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.sky-hoodie/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "79f342f6128a1f3cdc98b6fb59ad05291381e7006a655fbcbf9329347e84bf6a",
-      "bytes": 14938
+      "sha256": "6826913d41e110a01724f437e512b19decd124e5e634340fd2fae2b59db73a44",
+      "bytes": 13380
     },
     {
       "id": "top.library-shirt",
@@ -212,8 +212,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.library-shirt/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "4b39b030519f3495c0075c83c52ce8c55426bb18e415e24e4a7850d5728206e9",
-      "bytes": 13196
+      "sha256": "b9120e0f047330a9a7aa23ec3ee203c612e3d9dd8c9e48b2d08e1fe8eeef4096",
+      "bytes": 12694
     },
     {
       "id": "top.space-sweater",
@@ -223,8 +223,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.space-sweater/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "ae63d0e5d370fb85f211b9371181ee220e55309f10b7173eb5f00eb8a75c229c",
-      "bytes": 15700
+      "sha256": "98789290e13c0a26c62f38bc096d4106fef159825a4295652c1f6d0d7322642d",
+      "bytes": 15106
     },
     {
       "id": "top.castle-jacket",
@@ -234,8 +234,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.castle-jacket/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "229f5ebba19b83494c71ec60f7ae1ceaf80317a16187a5659c463c17cadce2da",
-      "bytes": 19216
+      "sha256": "33e5c939a490e1c8470c56fcae632ce5cd0d80f332e7ece5add61896521c1f46",
+      "bytes": 16984
     },
     {
       "id": "top.lavender-cardigan",
@@ -245,8 +245,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.lavender-cardigan/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "b45626c3208461985fedd08941eef019ab675ef74c0f04694c4a215cf62e0ffe",
-      "bytes": 15482
+      "sha256": "f5a3511374dde56c7fa10afc2d53f88302276a90a71a74d3fc89a68b505aba71",
+      "bytes": 13220
     },
     {
       "id": "top.varsity-jacket",
@@ -256,8 +256,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.varsity-jacket/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "28d1c0c9214413a5098f360138f3c6360569312ac62743db6c8cb6f6e0bf5d1b",
-      "bytes": 12626
+      "sha256": "7937fe0d53a256c00c6a9bdc4d5353c4e083294d3324edd414d58f85f0dac40f",
+      "bytes": 11932
     },
     {
       "id": "top.sage-overshirt",
@@ -267,8 +267,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.sage-overshirt/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "28b224f58f2a1444eb7996734cdbcf2ade8fc9d5dbffc3d9acbf6cc11dbabec0",
-      "bytes": 14206
+      "sha256": "7a6a891c481909b950381276ccf8b6f2ec3dd4be4837ecd95f32457969be5cfa",
+      "bytes": 11848
     },
     {
       "id": "top.soccer-jersey",
@@ -278,8 +278,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.soccer-jersey/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "5130a1c9140bd4e1630d44c15f111a639394333f72622bd66e700889073aa3f2",
-      "bytes": 13878
+      "sha256": "60b0d600e483d960d294a35c5f4596c3d45eb8eca05ae82dfdb40df2b0ce8621",
+      "bytes": 13114
     },
     {
       "id": "top.ao-dai",
@@ -289,8 +289,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/top.ao-dai/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "a0cd2301663dd50fa75a35f76e9f318959a7e33a58f20c92e9b13e8276ca1b6a",
-      "bytes": 16184
+      "sha256": "2659385b456e752bc49c26130cff1ac4d537c41454a026b3c781215a7ddd3363",
+      "bytes": 15200
     },
     {
       "id": "bottom.sand-shorts",
@@ -300,8 +300,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.sand-shorts/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "db8e9d7f1c2f991974edfd32a985cb648516dc2f709267ada948275e1afcfc24",
-      "bytes": 3032
+      "sha256": "0fc5a7593f02e6fe896299067cf6d4f5c17ac6546f967a366e4f1dafb1bf4b15",
+      "bytes": 2666
     },
     {
       "id": "bottom.navy-joggers",
@@ -311,8 +311,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.navy-joggers/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "3406e0158ac26e561b7f5a8f073af7b966bbc7ce0729f8401f0ca2844d91f9aa",
-      "bytes": 8124
+      "sha256": "b130cd7d063e8a31c5fe10e5842824a1e1afbffce1eee40d09c1059008951f33",
+      "bytes": 6954
     },
     {
       "id": "bottom.denim-jeans",
@@ -322,8 +322,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.denim-jeans/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "efe149a355e67e96b6996ff13bde4bc8904d329487cac0e1c3f6236a90d5b15a",
-      "bytes": 5706
+      "sha256": "3575d1c6d707c04414f70ea8e89553312ebf08afe00516144ec8247c5e98ba1f",
+      "bytes": 6022
     },
     {
       "id": "bottom.plum-skirt",
@@ -333,8 +333,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.plum-skirt/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "c448b4ecb0c968a1361fb0161eb2651c2386342c84aa90b99cd1ad9508853ade",
-      "bytes": 6548
+      "sha256": "4741db46b5c0117f901db8a06eaf422a88f2767043c03727fc92788d1e4d6f73",
+      "bytes": 5408
     },
     {
       "id": "bottom.pink-pleated-skirt",
@@ -344,8 +344,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.pink-pleated-skirt/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "ee52c8d9ce61c9ed302b0344b0fe76e547ba97343702bfad75ea4e36d84fb502",
-      "bytes": 7710
+      "sha256": "938fa21e99cb199309b85742cf3b382a6dbe400c2f1ce8166f1346336ac233cc",
+      "bytes": 6672
     },
     {
       "id": "bottom.cargo-pants",
@@ -355,8 +355,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.cargo-pants/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "fd1da837f800a708e44ee1a262cedbfa1ad74a4594be1ca97dc9d35adc75652e",
-      "bytes": 5128
+      "sha256": "11eb3f143df5122b7b41d5b284c7183aba8c644a902931a63b8db41ac78e2035",
+      "bytes": 5376
     },
     {
       "id": "bottom.camel-chinos",
@@ -366,8 +366,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.camel-chinos/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "fde8cfd2b5272382b321e403ad424053e43296a679f23c1c371513e088e85823",
-      "bytes": 6832
+      "sha256": "45cf69c12e8820db40c9071f4266e1571102dec2d20fbcb8bf9a98a2617a7280",
+      "bytes": 5872
     },
     {
       "id": "bottom.track-pants",
@@ -377,8 +377,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.track-pants/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "2c9e91bab9d08a6b23d722c4978d3e3a2a4fea8dfa4e4a8df9ce48469e14f9c8",
-      "bytes": 8224
+      "sha256": "4be510c8de0b79a40f2fe72193c3c156d2ef9fd8a645f5e40a1e6b8841b9a93a",
+      "bytes": 7266
     },
     {
       "id": "bottom.silk-pants",
@@ -388,8 +388,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/bottom.silk-pants/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "52cfef6bfd2c8957c035b46cae83f8f06eef3abe3046444e6ab5217e738f2cd2",
-      "bytes": 4558
+      "sha256": "b43c523c61344449f3ddda1ea5648e3e6967ed65663baf76974f590ad930a649",
+      "bytes": 4580
     },
     {
       "id": "shoes.red-sneakers",
@@ -399,8 +399,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/shoes.red-sneakers/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "0804233948762e3df2e18629b012b9b1df44544b673e2a689cc803c15d329b75",
-      "bytes": 3948
+      "sha256": "473b9fef953e7b3354b7694bc9b1d2e23e3d460d20b13a873254ad7c7d182813",
+      "bytes": 4358
     },
     {
       "id": "shoes.mint-trainers",
@@ -410,8 +410,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/shoes.mint-trainers/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "33a479e68d891b8486b4e87feca62e1d52db9ddb84ffda26f4565b4d2d3f0879",
-      "bytes": 4122
+      "sha256": "ba9a63333926e93e523083323e595b01328019b4dcca84463d2e895711314a07",
+      "bytes": 4532
     },
     {
       "id": "shoes.sky-high-tops",
@@ -421,8 +421,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/shoes.sky-high-tops/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "f088a2448d095baf8587f2d86f87d154ffa027b0a3f37ff751187b27d57c0d60",
-      "bytes": 6294
+      "sha256": "2af9b13fc2f9ae5d5c0ce7972346ab2cf58d7d86c64c338e68087d867c4b44b1",
+      "bytes": 6672
     },
     {
       "id": "shoes.castle-boots",
@@ -432,8 +432,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/shoes.castle-boots/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "1c83739a418867164f783c115cc5140942f0db5c8a5be0ad0b822cb82e394b01",
-      "bytes": 3812
+      "sha256": "9aad9c0fd792c45a236d3d32feb44f95113acc6b1f0042ef0c90adbcdd602db0",
+      "bytes": 4276
     },
     {
       "id": "shoes.chunky-sneakers",
@@ -443,8 +443,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/shoes.chunky-sneakers/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "28daa94d2a34aa52cfbc0df6ac2b93dc2b21f9aa349077d5d0d227134ca1a022",
-      "bytes": 3474
+      "sha256": "32bc896d4e0f2d69acb46965fb6ba8c64ddd4c073ca036cd1cc8758b1c6516eb",
+      "bytes": 3756
     },
     {
       "id": "shoes.mary-janes",
@@ -454,8 +454,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/shoes.mary-janes/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "cc654022de93665b4ebe8147e2ef38e7868a018e6ac1246eb50833ca9e4be4fa",
-      "bytes": 4338
+      "sha256": "c2be5e5c9e14056f9cf45e88bf505d148e79e8ef15b7ea4891765111ac65377c",
+      "bytes": 5146
     },
     {
       "id": "shoes.brown-loafers",
@@ -465,8 +465,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/shoes.brown-loafers/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "dd913d7c47fc9267272e43e337af9ca68feafbef6ef91d320b384b44bf8419b2",
-      "bytes": 3964
+      "sha256": "3fdb87ecf14763ce14480145542e32598581c7e8e13a1439eeb53d64799f03d6",
+      "bytes": 4312
     },
     {
       "id": "accessory.round-glasses",
@@ -476,8 +476,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.round-glasses/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "18b493942ea3300a3e2ee298cc91db5f3fa0c3f580d193c0ab8da3f4219d7be8",
-      "bytes": 3654
+      "sha256": "e57cd8810a1c788a3acd9eddaa4c17110c771714ea44094d00d9e6a92fdf2fec",
+      "bytes": 6742
     },
     {
       "id": "accessory.sun-cap",
@@ -487,8 +487,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.sun-cap/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "2cadd5475cd93282a5c1f99988469cc41f8221a7b5707863a7da8464725964f9",
-      "bytes": 8884
+      "sha256": "b31a1ac04413c460f960397ae05253019d8d17508a049e56a20cb6552ba89f49",
+      "bytes": 12256
     },
     {
       "id": "accessory.star-headband",
@@ -498,8 +498,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.star-headband/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "a01df2f9a58a107c02a05d88bc8f9e77b13e9c88c99899acdd1fd8ba1d64a439",
-      "bytes": 8168
+      "sha256": "b1ec3fe5c10b9f279aa95245a1641b2241a36853673b61d203d7070fc27737c4",
+      "bytes": 11466
     },
     {
       "id": "accessory.music-headphones",
@@ -509,8 +509,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.music-headphones/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "7077633dfb8659d8539bd8016e75d4e937ecd13d6a47f68b3198dbcb8e9778e6",
-      "bytes": 8990
+      "sha256": "a4caac87364f4a77a2bbf26b50bec3c1badbe6ea2ebb536a65ee226f408f049e",
+      "bytes": 14358
     },
     {
       "id": "accessory.school-backpack",
@@ -520,8 +520,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.school-backpack/shared/back.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "cc56fb43bd8a434178a14a2eaa8d552920c0eca4d311d52db73cbb15f23d7daf",
-      "bytes": 5924
+      "sha256": "02f20f5c755e0813e782f084df2588efd023c12e06d4cb9c9732b5ecb1f1f15e",
+      "bytes": 5082
     },
     {
       "id": "accessory.school-backpack",
@@ -531,8 +531,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.school-backpack/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "1b0f6e73ad90114971c03ddcd4630445b71f5a69b94de2680adb48dec1a55e5e",
-      "bytes": 5362
+      "sha256": "39faf6a8bc7ee65f12b13b2d99d7f1eb096781b84a13f8053fab1854278f0b57",
+      "bytes": 4350
     },
     {
       "id": "accessory.library-badge",
@@ -542,8 +542,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.library-badge/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "a74fa9f82679926e50c5a96087051fa4c1bf2bb7f752803b2f00a945e5103671",
-      "bytes": 3816
+      "sha256": "1a48c6e3b36b23ca28e0e506806b2a9bf812a75e65f89f659a81948b6426b441",
+      "bytes": 4810
     },
     {
       "id": "accessory.castle-crown",
@@ -553,8 +553,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.castle-crown/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "a8654560ff2dff3a49fd7bf37a85c601f9da1a072b53e818e87b2e56a4d4f98b",
-      "bytes": 7134
+      "sha256": "b2e82c25101db9166aaa8fa35543941f09c0a70a173345ae1f5858e7ffe4614c",
+      "bytes": 11036
     },
     {
       "id": "accessory.time-watch",
@@ -564,8 +564,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.time-watch/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "dc8bd9ceba8391e009b45024a5e22dc2f85490462826fd0daa31eeec47d53ca9",
-      "bytes": 2826
+      "sha256": "38bf67fb9b7fd8d2ec2eb70bca859af49cf5342027a316e57c8a78aadc3de828",
+      "bytes": 3116
     },
     {
       "id": "accessory.bucket-hat",
@@ -575,8 +575,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.bucket-hat/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "a2fbff55a57e706fe73b1d9e8d342ac5e0a59949f717ce251e936070034a8607",
-      "bytes": 7910
+      "sha256": "e21d7154e67582410291f55002aa1670c37ec149e3443f4815fbcc137cc8f2dd",
+      "bytes": 11786
     },
     {
       "id": "accessory.bow-clip",
@@ -586,8 +586,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.bow-clip/girl/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "0a3387593e6d96b201bac1fa225388a71c434ea17ed210c278fe11e819f36fa8",
-      "bytes": 4554
+      "sha256": "41d702c432b4c40e5e873748636bd9ea03ff04b0c06fc675a3490ef45edae0de",
+      "bytes": 6472
     },
     {
       "id": "accessory.beret",
@@ -597,8 +597,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.beret/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "895a8d4746bb50e4d463f7f4ca7039fca1028a465d76a09074c5bf3e7c035871",
-      "bytes": 7264
+      "sha256": "87fbdb4f567dd6bc04303461986030347f23e68d81fb55f9f5cc527bbced5763",
+      "bytes": 9758
     },
     {
       "id": "accessory.cat-ears",
@@ -608,8 +608,8 @@
       "source": "assets/avatar-rig-v1/cosmetics/accessory.cat-ears/shared/front.svg",
       "width": 768,
       "height": 1280,
-      "sha256": "aaa9c9b48ef1e3d2181bcf027221b95ab5aee46d39c4898e9b9c01a542147932",
-      "bytes": 8720
+      "sha256": "862856fadb6208429c8f5bfd23e31c583d44ab2ab91dd0823bf8b8b097b145d4",
+      "bytes": 12048
     }
   ]
 }

@@ -71,7 +71,7 @@ def top(name):
 
 @top('top.starter-blue')
 def _():
-    return svg(tee('#4d96ff', print_=star(384, 650, 46, '#ffd166')))
+    return svg(tee('#4d96ff', print_=upright(star(384, 650, 46, '#ffd166'), 384, 650)))
 
 
 @top('top.starter-mint')
@@ -87,7 +87,7 @@ def _():
     sun = ''.join(line(f'M{384 + 64 * __import__("math").cos(a * .785):.0f} {660 + 64 * __import__("math").sin(a * .785):.0f} '
                        f'L{384 + 86 * __import__("math").cos(a * .785):.0f} {660 + 86 * __import__("math").sin(a * .785):.0f}', '#ff9f1c', 10) for a in range(8))
     sun += circle(384, 660, 46, '#ff9f1c', OUT, 5) + line('M366 668 Q384 684 402 668', OUT, 5) + circle(368, 650, 5, OUT, None) + circle(400, 650, 5, OUT, None)
-    return svg(tee(c, cuff='#ffffff', print_=sun))
+    return svg(tee(c, cuff='#ffffff', print_=upright(sun, 384, 660)))
 
 
 @top('top.coral-stripes')
@@ -120,8 +120,8 @@ def _():
 @top('top.space-sweater')
 def _():
     c = '#2d3a6b'
-    stars = star(330, 640, 20, '#ffd166') + star(450, 720, 16, '#ffd166') + star(420, 610, 10, '#ffffff', None)
-    planet = circle(352, 742, 34, '#ff9fb2', OUT, 5) + path('M300 750 Q352 716 404 734', 'none', '#ffd166', 8)
+    stars = upright(star(330, 640, 20, '#ffd166'), 330, 640) + upright(star(450, 720, 16, '#ffd166'), 450, 720) + upright(star(420, 610, 10, '#ffffff', None), 420, 610)
+    planet = upright(circle(352, 742, 34, '#ff9fb2', OUT, 5) + path('M300 750 Q352 716 404 734', 'none', '#ffd166', 8), 352, 742)
     rib = line('M276 826 Q384 848 492 826', lighter(c, .25), 10)
     return svg(tee(c, 'long', cuff=lighter(c, .2), print_=stars + planet + rib, neck='M332 526 Q384 570 436 526'))
 
@@ -136,7 +136,7 @@ def _():
     p += path('M300 534 L342 524 L374 640 L330 620 Z', darker(c, .15)) + path('M468 534 L426 524 L394 640 L438 620 Z', darker(c, .15))
     p += line('M354 846 L340 600', g, 8) + line('M414 846 L428 600', g, 8)
     p += ''.join(circle(x, y, 8, g, OUT, 4) for x, y in ((326, 700), (326, 770), (442, 700), (442, 770)))
-    p += star(384, 640, 22, g)
+    p += upright(star(384, 640, 22, g), 384, 640)
     return svg(p)
 
 
@@ -151,7 +151,7 @@ def _():
     p += ''.join(circle(398, y, 8, '#ffe066', OUT, 4) for y in (720, 770, 816))
     p += line('M276 826 Q384 848 492 826', darker(c, .1), 12)
     p += ''.join(line(f'M{x} 810 L{x} 842', darker(c, .2), 3) for x in range(290, 480, 18))
-    p += circle(330, 620, 9, '#ff8fab', None) + circle(318, 612, 9, '#ff8fab', None) + circle(324, 602, 9, '#ff8fab', None)
+    p += upright(circle(330, 620, 9, '#ff8fab', None) + circle(318, 612, 9, '#ff8fab', None) + circle(324, 602, 9, '#ff8fab', None), 324, 612)
     return svg(p)
 
 
@@ -166,7 +166,7 @@ def _():
     p += path('M330 522 Q384 560 438 522 L430 540 Q384 574 338 540 Z', a)
     p += line('M384 560 L384 846', '#000000', 5)
     p += ''.join(circle(370, y, 7, s, OUT, 4) for y in (610, 670, 730, 790))
-    p += path('M410 600 L470 600 L470 660 L410 660 Z', a) + f'<text x="440" y="650" font-family="Arial Black,Arial" font-weight="900" font-size="54" text-anchor="middle" fill="{c}">A</text>'
+    p += upright(path('M410 600 L470 600 L470 660 L410 660 Z', a) + f'<text x="440" y="650" font-family="Arial Black,Arial" font-weight="900" font-size="54" text-anchor="middle" fill="{c}">A</text>', 440, 630)
     p += line('M276 826 Q384 848 492 826', a, 8)
     return svg(p)
 
@@ -192,7 +192,7 @@ def _():
     p += path('M336 522 L384 590 L432 522', '#ffffff', OUT, SW)
     p += path('M344 524 L384 572 L424 524', c, None)
     p += line('M270 600 L268 836', '#ffffff', 10) + line('M498 600 L496 836', '#ffffff', 10)
-    p += f'<text x="384" y="760" font-family="Arial Black,Arial" font-weight="900" font-size="120" text-anchor="middle" fill="#ffffff" stroke="{OUT}" stroke-width="6" paint-order="stroke">10</text>'
+    p += upright(f'<text x="384" y="760" font-family="Arial Black,Arial" font-weight="900" font-size="120" text-anchor="middle" fill="#ffffff" stroke="{OUT}" stroke-width="6" paint-order="stroke">10</text>', 384, 716)
     return svg(p)
 
 
@@ -202,7 +202,7 @@ def _():
     body = 'M294 530 Q384 500 474 530 Q502 544 500 598 L494 790 L516 1030 Q450 1046 400 1036 L384 830 L368 1036 Q318 1046 252 1030 L274 790 L268 598 Q266 544 294 530 Z'
     p = sleeves(c, 'long', cuff=g)
     p += shape(body, c)
-    pattern = ''.join(circle(x, y, 10, g, None) + circle(x, y, 4, c, None) for x, y in ((330, 640), (430, 700), (350, 760), (450, 620), (300, 900), (470, 920), (330, 990), (440, 1000)))
+    pattern = ''.join(upright(circle(x, y, 10, g, None) + circle(x, y, 4, c, None), x, y) for x, y in ((330, 640), (430, 700), (350, 760), (450, 620), (300, 900), (470, 920), (330, 990), (440, 1000)))
     pattern += path('M384 540 Q420 560 446 600', 'none', g, 6)
     p += clip('aodai', body, pattern) + path(body, 'none')
     p += path('M344 522 Q384 540 424 522 L424 500 Q384 512 344 500 Z', c) + line('M352 516 Q384 528 416 516', g, 5)

@@ -22,15 +22,14 @@ const FULL_CANVAS: React.CSSProperties = { position: 'absolute', inset: 0, width
 function NeutralAvatar() {
   return <svg aria-hidden="true" viewBox="0 0 768 1280" style={FULL_CANVAS}>
     <g fill="#c5d4e4" stroke="#526a83" strokeWidth="8" strokeLinejoin="round">
-      <path d="M280 690H375L356 1150H288Z M393 690H488L480 1150H413Z" />
-      <path d="M267 434Q240 424 230 460L212 752Q220 790 250 774L277 520Z M501 434Q528 424 538 460L556 752Q548 790 518 774L491 520Z" />
-      <path d="M348 370H420V430H348Z" />
-      <path d="M292 424Q384 405 476 424L500 727Q384 755 268 727Z" fill="#7299ba" />
-      <ellipse cx="384" cy="256" rx="124" ry="126" />
-      <path d="M288 1100H353L364 1176H276Z M415 1100H480L492 1176H404Z" fill="#526a83" />
+      <path d="M322 930H376L372 1150H318Z M392 930H446L450 1150H396Z" />
+      <path d="M290 748Q252 756 244 800L232 900Q246 928 270 906L292 820Z M478 748Q516 756 524 800L536 900Q522 928 498 906L476 820Z" />
+      <path d="M292 740Q384 722 476 740L492 952Q384 972 276 952Z" fill="#7299ba" />
+      <ellipse cx="384" cy="490" rx="240" ry="236" />
+      <path d="M312 1130H378L382 1176H304Z M390 1130H456L464 1176H386Z" fill="#526a83" />
     </g>
-    <g fill="#526a83"><ellipse cx="336" cy="266" rx="12" ry="18" /><ellipse cx="432" cy="266" rx="12" ry="18" /></g>
-    <path d="M354 326Q384 350 414 326" fill="none" stroke="#526a83" strokeWidth="8" strokeLinecap="round" />
+    <g fill="#526a83"><ellipse cx="290" cy="548" rx="20" ry="26" /><ellipse cx="478" cy="548" rx="20" ry="26" /></g>
+    <path d="M354 640Q384 664 414 640" fill="none" stroke="#526a83" strokeWidth="8" strokeLinecap="round" />
   </svg>;
 }
 

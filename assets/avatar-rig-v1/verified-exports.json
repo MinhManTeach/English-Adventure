@@ -10,80 +10,80 @@
       "url": "/avatars/v1/bodies/boy/base.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "d22bc6776dee5c93f386e8f3f3908e939acad36906175a312ab817f7bce9b4e8",
-      "bytes": 31774
+      "sha256": "03e7e78a05ed7d5d1faa7106782fe75e52bce5a1a71739cf6403f67e0d5a8401",
+      "bytes": 43362
     },
     {
       "name": "body-girl",
       "url": "/avatars/v1/bodies/girl/base.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "539ca3abede6a5a8407055485f5291db36cdf6e300ab9dad66124e7f3e099885",
-      "bytes": 32682
+      "sha256": "f50d54d32c132df5f7bdfa10e1c70b819f6006d24b886de638afbee298c041b5",
+      "bytes": 44408
     },
     {
       "name": "hair.starter-boy",
       "url": "/avatars/v1/items/hair.starter-boy/boy/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "286072472b5aa6e1a06af163e6c7bc1f92d1ff210b7fd83cc84a9a2092d81b26",
-      "bytes": 7492
+      "sha256": "7733fd777116e54430e095878233b94b1526b9f0db77f345bd1616d477ffcd8d",
+      "bytes": 10506
     },
     {
       "name": "hair.starter-girl",
       "url": "/avatars/v1/items/hair.starter-girl/girl/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "c90bf51b163b3fa1030e2cceb4f720651c2d86c0013548c44f0edcf5b95c67e9",
-      "bytes": 10998
+      "sha256": "4bbd2180aa1bf88f60781fce6631625bc864c75bb0b75ecf2006c92a5ea47eda",
+      "bytes": 15358
     },
     {
       "name": "top.starter-blue",
       "url": "/avatars/v1/items/top.starter-blue/shared/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "bc1acd9a626d7d923cdab3b5f20b11f5d5f20e34e6810c0c78b22daf597b29f9",
-      "bytes": 12170
+      "sha256": "c17ebc57c61ad975bc3b0d37509bbd10e070dca40e18183c75350dc100d87674",
+      "bytes": 11408
     },
     {
       "name": "top.starter-mint",
       "url": "/avatars/v1/items/top.starter-mint/shared/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "492b708f5330e23e3b92adc7957c758d6be2c91bbd1a9db8aa4cb20a78bc7c07",
-      "bytes": 11324
+      "sha256": "334fe3e0069c2a7abfd042711dfcd0cb56dc5b8b860fab8cfb154a63204e23df",
+      "bytes": 10010
     },
     {
       "name": "bottom.starter-shorts",
       "url": "/avatars/v1/items/bottom.starter-shorts/shared/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "bdbbd399ab7826159f7b9614fb1a397a984e095a4144052d41ae8ccf45363326",
-      "bytes": 3158
+      "sha256": "cb51eaea5c4e8f0cf4f50a825b0f275616ddcf040c42431e9b106e6324967426",
+      "bytes": 2912
     },
     {
       "name": "bottom.starter-jeans",
       "url": "/avatars/v1/items/bottom.starter-jeans/shared/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "a530e4e7add7ef77b564e03cf3ec0bc62d1a4100ddc93a171ef55520cc3903e5",
-      "bytes": 5310
+      "sha256": "99bba5c3d1cc97bfdf86d26b3d0070fb564d025b8ff6e2cc9b29901d25cf660c",
+      "bytes": 5524
     },
     {
       "name": "shoes.starter-white",
       "url": "/avatars/v1/items/shoes.starter-white/shared/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "7f342475e681cd60bc01bb76282b9b67bd11aad1cdaa5b9452bb7320503d999d",
-      "bytes": 3406
+      "sha256": "b5e4ed66b2defff3a02fdd45e84ca662a266eb211381b212eb7147e1f79f65ad",
+      "bytes": 3514
     },
     {
       "name": "shoes.starter-navy",
       "url": "/avatars/v1/items/shoes.starter-navy/shared/front.webp",
       "width": 768,
       "height": 1280,
-      "sha256": "878b34c9ae357916e5539ca743d49516d08b7d720544d4ab95e05a7010e6662d",
-      "bytes": 3976
+      "sha256": "6ac48dfb1ebe1a9b9199cb8700cd9da0b1783509f47c2e6cc2aac16510b472fa",
+      "bytes": 4252
     }
   ]
 }

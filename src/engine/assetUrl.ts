@@ -6,5 +6,11 @@
  */
 export function assetUrl(path: string): string {
   const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
-  return path.startsWith('/') && base !== '/' ? base.replace(/\/?$/, '/') + path.slice(1) : path;
+  const url = path.startsWith('/') && base !== '/' ? base.replace(/\/?$/, '/') + path.slice(1) : path;
+  // Avatar layers keep their file names when the art is redrawn; the version stops browsers
+  // mixing cached old layers with new ones.
+  return path.startsWith('/avatars/') ? `${url}?art=${AVATAR_ART_VERSION}` : url;
 }
+
+/** Bump whenever scripts/avatars/build.py output changes. */
+export const AVATAR_ART_VERSION = 'chibi-1';

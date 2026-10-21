@@ -64,7 +64,7 @@ def _():
     p = circle(440, 630, 34, '#ffd166', OUT, 6) + circle(440, 630, 24, '#4d96ff', None)
     p += path('M424 618 L440 624 L456 618 L456 644 L440 650 L424 644 Z', '#ffffff', OUT, 3) + line('M440 624 L440 650', OUT, 3)
     p += path('M424 660 L416 690 L430 682 L440 694 L440 664 Z', '#ff6b6b', OUT, 3) + path('M456 660 L464 690 L450 682 L440 694 L440 664 Z', '#ff6b6b', OUT, 3)
-    return {'accessory-front': svg(p)}
+    return {'accessory-front': svg(upright(p, 440, 650))}
 
 
 @acc('accessory.castle-crown')
@@ -81,9 +81,9 @@ def _():
 def _():
     x, y = 252, 772
     p = line(f'M{x - 36} {y + 4} L{x + 36} {y - 4}', OUT, 30) + line(f'M{x - 36} {y + 4} L{x + 36} {y - 4}', '#4dabf7', 18)
-    p += circle(x, y, 24, '#ffcf4a', OUT, 6) + circle(x, y, 15, '#ffffff', None)
-    p += line(f'M{x} {y} L{x} {y - 10}', OUT, 4) + line(f'M{x} {y} L{x + 8} {y + 3}', OUT, 4)
-    return {'accessory-front': svg(p)}
+    face = circle(x, y, 24, '#ffcf4a', OUT, 6) + circle(x, y, 15, '#ffffff', None)
+    face += line(f'M{x} {y} L{x} {y - 10}', OUT, 4) + line(f'M{x} {y} L{x + 8} {y + 3}', OUT, 4)
+    return {'accessory-front': svg(p + upright(face, x, y))}
 
 
 @acc('accessory.bucket-hat')

@@ -24,7 +24,7 @@ const player = () => {
 };
 const configured = () => saveAvatarDraft(player(), player().cosmetics!.avatar).state;
 const render = (state: UserProgressState, decorative = false) => renderToStaticMarkup(<PlayerAvatar profile={state.profile} cosmetics={state.cosmetics} decorative={decorative} />);
-const sources = (html: string) => [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map(match => match[1]);
+const sources = (html: string) => [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map(match => match[1].split('?')[0]);
 
 test('unconfigured and missing cosmetics preserve the saved legacy identity without layered images', () => {
   const state = player(); const before = structuredClone(state);

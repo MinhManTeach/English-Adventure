@@ -1,7 +1,7 @@
 """Shared drawing kit for the avatar rig: canvas, palette and outlined shapes.
 
 Every garment is drawn from the same body landmarks, so clothes always fit the body.
-Canvas 768x1280, feet baseline 1184 (unchanged Rig V1 contract).
+Canvas 768x1280, feet baseline 1184 (unchanged Rig V1 contract); see ZONE for the chibi placement.
 """
 W, H = 768, 1280
 OUT = '#3b2838'          # soft plum outline, warmer than pure black
@@ -20,6 +20,36 @@ LEG_TOP = {'L': (346, 820), 'R': (422, 820)}
 KNEE = {'L': (343, 968), 'R': (425, 968)}
 ANKLE = {'L': (341, 1112), 'R': (427, 1112)}
 ARM_W, LEG_W = 60, 72
+
+# Chibi zones. Garments and hair are drawn on the landmarks above, then each layer is placed by zone:
+# the body is squashed towards the feet, the head is enlarged and seated on the shorter neck.
+ZOOM = 1.16                 # whole figure, around the feet
+BODY_SCALE = (1.0, 0.6)     # (x, y) for everything below the neck
+HEAD_SCALE = 1.24
+NECK_Y = 470                # head pivot in landmark space
+
+
+def _around_feet(t):
+    return f'translate(384 1184) scale({ZOOM}) translate(-384 -1184) {t}'
+
+
+ZONE = {
+    'body': _around_feet(f'translate(384 1184) scale({BODY_SCALE[0]} {BODY_SCALE[1]}) translate(-384 -1184)'),
+    'head': _around_feet(f'translate(384 {1184 - (1184 - NECK_Y) * BODY_SCALE[1]:.1f}) scale({HEAD_SCALE}) translate(-384 -{NECK_Y})'),
+}
+
+
+def zoned(text, zone):
+    """Wrap a finished layer SVG so its contents land in the chibi `zone` ('head' or 'body')."""
+    head, rest = text.split('>', 1)
+    return f'{head}><g transform="{ZONE[zone]}">{rest[:-len("</svg>")]}</g></svg>'
+
+
+def upright(inner, cx, cy):
+    """Pre-stretch a round print/badge so it stays round after the body squash."""
+    k = BODY_SCALE[0] / BODY_SCALE[1]
+    return f'<g transform="translate({cx} {cy}) scale(1 {k:.4f}) translate({-cx} {-cy})">{inner}</g>'
+
 
 TORSO = 'M300 536 Q384 510 468 536 Q494 548 492 598 L486 804 Q384 826 282 804 L276 598 Q274 548 300 536 Z'
 
